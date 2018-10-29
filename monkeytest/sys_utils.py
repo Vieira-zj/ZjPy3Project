@@ -7,6 +7,7 @@ Created on 2018-10-26
 
 import os
 import subprocess
+import time
 from log_manager import LogManager
 
 
@@ -22,7 +23,21 @@ class SysUtils(object):
         Constructor
         '''
         pass
-    
+
+    # --------------------------------------------------------------
+    # Time functions
+    # --------------------------------------------------------------
+    @classmethod
+    def get_current_date_and_time(cls):
+        return time.strftime('%y-%m-%d_%H%M%S')
+
+    @classmethod
+    def get_current_date(cls):
+        return time.strftime('%Y%m%d')
+
+    # --------------------------------------------------------------
+    # Run system commands
+    # --------------------------------------------------------------    
     @classmethod
     def run_sys_cmd(cls, cmd):
         cls.logger.debug('Run command: %s' % cmd)
@@ -64,6 +79,15 @@ class SysUtils(object):
             return lines_output
         cls.logger.warning('The output is null for command => %s' % cmd)
         return ''
+
+    # --------------------------------------------------------------
+    # IO function
+    # --------------------------------------------------------------    
+    @classmethod
+    def create_dir_on_win(cls, path):
+        if os.path.exists(path):
+            return
+        os.makedirs(path)
 
 
 if __name__ == '__main__':

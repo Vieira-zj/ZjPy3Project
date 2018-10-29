@@ -2,5 +2,6 @@ eclipse.preferences.version=1
 encoding//monkeytest/adb_utils.py=utf-8
 encoding//monkeytest/constants.py=utf-8
 encoding//monkeytest/log_manager.py=utf-8
+encoding//monkeytest/monkeytest.py=utf-8
 encoding//monkeytest/sys_utils.py=utf-8
 encoding/<project>=UTF-8
