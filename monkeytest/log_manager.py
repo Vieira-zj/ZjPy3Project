@@ -14,52 +14,40 @@ class LogManager(object):
     classdocs
     '''
 
-    logger = None
-
-    @classmethod
-    def getLoggerInstance(cls, basic_log_level=logging.DEBUG, file_log_level=logging.INFO):
-        if len(Constants.LOG_FILE_PATH) == 0:
-            raise Exception('log file path is not set in properties before get logger instance!')
-        if cls.logger is not None:
-            return cls.logger
-        
-        cls.logger = LogManager().__init_log_config(basic_log_level, file_log_level)
-        return cls.logger
-
-    def __init__(self):
+    def __init__(self, log_path, basic_log_level=logging.DEBUG, file_log_level=logging.INFO):
         '''
         Constructor
         '''
-        pass
+        self.basic_log_level = basic_log_level
+        self.file_log_level = file_log_level
+        self.log_path = log_path
         
-    def __init_log_config(self, basic_log_level, file_log_level):
+    def get_logger(self):
         log_format_long = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'
         log_format_short = '%(filename)s: [%(levelname)s] >>> %(message)s'
         date_format_long = '%a, %d %b %Y %H:%M:%S'
         date_format_short = '%d %b %H:%M:%S'
     
         # log main handler
-        logging.basicConfig(level=basic_log_level, format=log_format_short, datefmt=date_format_short)
+        logging.basicConfig(level=self.basic_log_level, format=log_format_short, datefmt=date_format_short)
     
         # set file handler
         # note: file_log_level > basic_log_level
-        fh = logging.FileHandler(filename=Constants.LOG_FILE_PATH, mode='w', encoding='utf-8')
+        fh = logging.FileHandler(filename=self.log_path, mode='w', encoding='utf-8')
         fh.setFormatter(logging.Formatter(fmt=log_format_long, datefmt=date_format_long))
-        fh.setLevel(file_log_level)
+        fh.setLevel(self.file_log_level)
 
         self.logger = logging.getLogger()
         self.logger.addHandler(fh)
         self.logger.debug('init logger config')
         return self.logger
 
-        
+
 if __name__ == '__main__':
 
-#     logger = LogManager().init_log_config(logging.DEBUG, logging.INFO)
-    logger = LogManager.getLoggerInstance()
-
+    logger = LogManager(Constants.LOG_FILE_PATH).get_logger()
     logger.debug('debug message test')
     logger.info('info message test')
     logger.warning('warning message test')
-    
+
     print('log utils test DONE!')

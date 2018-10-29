@@ -1,2 +1,3 @@
 *.pyc
 monkeytest/__pycache__/
+monkeytest/MonkeyReprots/

@@ -7,6 +7,8 @@ Created on 2018-10-29
 
 import os
 import subprocess
+import threading
+import time
 from adb_utils import AdbUtils
 from constants import Constants
 from log_manager import LogManager
@@ -18,42 +20,33 @@ class MonkeyTest(object):
     classdocs
     '''
 
-    log_root_path = ''
-    log_dir_path_for_win = ''
-    log_dir_path_for_shell = ''
-    
-    logcat_log_path_for_shell = ''
-    monkey_log_path = ''
-    rom_props_file_path = ''
-    app_dump_file_path = ''
-    
-    test_pkg_name = ''
-    run_num = ''
-
-    logger = LogManager.getLoggerInstance()
-
-    def __init__(self, test_pkg_name, run_num):
+    # --------------------------------------------------------------
+    # Init
+    # --------------------------------------------------------------
+    def __init__(self, test_pkg_name, run_num, run_mins):
         '''
         Constructor
         '''
         self.test_pkg_name = test_pkg_name
         self.run_num = run_num
-        self.__init_path()
+        self.run_mins = run_mins
 
-    # --------------------------------------------------------------
-    # Init
-    # --------------------------------------------------------------
-    def __init_path(self):
         cur_date = SysUtils.get_current_date()
         self.log_root_path = os.path.join(os.getcwd(), 'MonkeyReprots', cur_date)
         self.log_dir_path_for_win = r'%s\%s_%s' % (self.log_root_path, cur_date, self.run_num)
+        SysUtils.create_dir_on_win(self.log_dir_path_for_win)
         self.log_dir_path_for_shell = '/data/local/tmp/monkey_test_logs'
 
-        self.logcat_log_path_for_shell = '%s/logcat_log.log' % self.log_dir_path_for_shell
+        self.exec_log_path = r'%s\exec_log.log' % self.log_dir_path_for_win
+        self.logcat_log_path_for_shell = r'%s/\logcat_log.log' % self.log_dir_path_for_shell
         self.monkey_log_path = r'%s\monkey_log.log' % self.log_dir_path_for_win
         self.rom_props_file_path = r'%s\rom_props.log' % self.log_dir_path_for_win
         self.app_dump_file_path = r'%s\app_info.log' % self.log_dir_path_for_win
 
+        self.logger = LogManager(self.exec_log_path).get_logger()
+        self.sysutils = SysUtils(self.logger)
+        self.adbutils = AdbUtils(self.logger)
+        
     # --------------------------------------------------------------
     # Build Commands
     # --------------------------------------------------------------
@@ -117,9 +110,83 @@ class MonkeyTest(object):
     # --------------------------------------------------------------
     # Workers
     # --------------------------------------------------------------
+    def __wait_for_monkey_process_started(self):
+        monkey_process_id = ''
+        try_times = 3
+        wait_time_for_monkey_launch = 3
+        
+        for i in range(0, try_times):
+            monkey_process_id = AdbUtils.get_process_id_by_name('monkey')
+            if monkey_process_id != '':
+                break
+            time.sleep(wait_time_for_monkey_launch)
+        return monkey_process_id
 
+    def __process_monkey_monitor_main(self):
+
+        def _is_monkey_process_killed():
+            return AdbUtils.get_process_id_by_name('monkey') == ''
+    
+        spec_run_time = self.run_mins * 60
+        if spec_run_time >= Constants.MAX_RUN_TIME:
+            self.logger.warning('Warn, spec_time must be less than max_time(4 hours)!')
+            exit(1)
+    
+        monkey_p_id = self.wait_for_monkey_process_started()
+        if monkey_p_id == '':
+            self.logger.error('Error, the monkey process is NOT started!')
+            exit(1)
+        
+        # LOOP
+        start = int(time.clock())
+        while 1:
+            if _is_monkey_process_killed():
+                self.logger.error('Error, the monkey process is NOT running!')
+                return
+            
+            current_time = int(time.clock()) - start
+            self.logger.info('Monkey is running... %d minutes and %d seconds' % ((current_time / 60), (current_time % 60)))
+            if (current_time >= spec_run_time) or (current_time >= Constants.MAX_RUN_TIME):
+                AdbUtils.kill_process_by_pid(monkey_p_id)
+                break
+            time.sleep(Constants.WAIT_TIME_IN_LOOP)
+
+    # --------------------------------------------------------------
+    # Monkey Test Main
+    # --------------------------------------------------------------
+    def __test_setup_main(self):
+        # shell env setup
+        AdbUtils.clear_anr_dir() # TODO:
+        AdbUtils.clear_tombstone_dir()
+        self.__remove_testing_log_files_on_device()
+        self.__create_log_dir_for_shell(self.log_dir_path_for_shell)
+    
+        # win env setup
+        SysUtils.create_dir_on_win(self.log_dir_path_for_win)
+        AdbUtils.dump_device_props(self.rom_props_file_path)
+        AdbUtils.dump_app_info(Constants.PKG_NAME_ZGB, self.app_dump_file_path)
+
+    def __test_main(self):
+        logcat_p_id = self.__run_logcat_subprocess()
+    
+        monkey_t = threading.Thread(target=self.__process_monkey_monitor_main())
+        monkey_t.start()
+        SysUtils.run_sys_cmd_in_subprocess(self.__build_monkey_cmd())
+        monkey_t.join()
+        
+        AdbUtils.kill_process_by_pid(logcat_p_id)
+
+    def __test_clearup_main(self):
+        self.__pull_all_testing_logs()
+        AdbUtils.kill_process_by_pid(AdbUtils.get_process_id_by_name('logcat'))
+    
+    def mokeytest_main(self):
+        self.__test_setup_main()
+#         self.__test_main()
+#         self.__test_clearup_main()
+    
     
 if __name__ == '__main__':
     
-    test = MonkeyTest(Constants.PKG_NAME_ZGB, '1')
-    print(test.build_monkey_cmd())
+    test = MonkeyTest(Constants.PKG_NAME_ZGB, '1', 1)
+    print(test.mokeytest_main())
