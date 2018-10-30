@@ -53,13 +53,35 @@ class LogManager(object):
             fh.close()
 
 
+def sub_process(logger):
+    import time
+    time.sleep(1)
+    print('in sub process')
+    logger.info('info message test in sub process')
+
+
 if __name__ == '__main__':
+
+    import multiprocessing
+    import threading
 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
     logger.debug('debug message test')
     logger.info('info message test')
     logger.warning('warning message test')
+
+    # note: log from logging only print in thread but not process
+    p1 = multiprocessing.Process(name='test_process', target=sub_process, args=(logger,))
+    p1.start()
+    p1.join()
+    logger.info('process %s done' % p1.name)
+    
+    p2 = threading.Thread(name='test_thread', target=sub_process, args=(logger,))
+    p2.start()
+    p2.join()
+    logger.info('process %s done' % p2.name)
+    
     manager.clear_log_handles()
         
     print('log utils test DONE.')

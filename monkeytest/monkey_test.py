@@ -29,7 +29,6 @@ class MonkeyTest(object):
         '''
         self.test_pkg_name = test_pkg_name
         self.run_num = run_num
-        self.run_mins = run_mins
 
         cur_date = SysUtils.get_current_date()
         self.log_root_path = os.path.join(os.getcwd(), 'MonkeyReports')
@@ -47,7 +46,7 @@ class MonkeyTest(object):
         self.logger = self.log_manager.get_logger()
         self.sysutils = SysUtils(self.logger)
         self.adbutils = AdbUtils(self.logger)
-        self.monitor = MonkeyMonitor(self.logger)
+        self.monitor = MonkeyMonitor(self.logger, run_mins)
         
     # --------------------------------------------------------------
     # Build Commands
@@ -75,9 +74,6 @@ class MonkeyTest(object):
     def __run_logcat_subprocess(self):
         return subprocess.Popen(self.__build_logcat_cmd(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
-    def __get_monkey_process_id(self):
-        return AdbUtils.get_process_id_by_name('monkey')
-
     def __get_logcat_process_id(self):
         return AdbUtils.get_process_id_by_name('logcat')
 
@@ -106,8 +102,24 @@ class MonkeyTest(object):
         cmd_pull_logcat_log = 'adb pull %s %s' % (self.logcat_log_path_for_shell, self.log_dir_path_for_win)
         self.sysutils.run_sys_cmd(cmd_pull_logcat_log)
 
-        self.adbutils.dump_anr_files(self.log_dir_path_for_win)
+        self.__pull_latest_anr_files()
         self.adbutils.dump_tombstone_files(self.log_dir_path_for_win)
+    
+    def __pull_latest_anr_files(self):
+        '''
+        Get anr files in 24 hours.
+        '''
+        cmd = 'adb shell "find /data/anr/ -name \'*.txt\' -mtime -1 2>/dev/null"'
+        anr_files = self.sysutils.run_sys_cmd_and_ret_lines(cmd)
+        
+        save_path = r'%s\anr' % self.log_dir_path_for_win
+        self.sysutils.create_dir_on_win(save_path)
+        for f in anr_files:
+            f = f.strip('\r\n')
+            if len(f) == 0:
+                continue
+            cmd = 'adb pull %s %s' % (f, save_path)
+            self.sysutils.run_sys_cmd(cmd)
     
     # --------------------------------------------------------------
     # Monkey Test Main
@@ -149,6 +161,6 @@ class MonkeyTest(object):
     
 if __name__ == '__main__':
     
-    test = MonkeyTest(Constants.PKG_NAME_ZGB, '1', 1)
+    test = MonkeyTest(Constants.PKG_NAME_ZGB, Constants.RUN_NUM, Constants.RUN_MINS)
     test.mokeytest_main()
     print('Monkey test DONE.')

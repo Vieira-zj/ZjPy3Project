@@ -6,6 +6,7 @@ Created on 2018-10-30
 '''
 
 import time
+from adb_utils import AdbUtils
 from constants import Constants
 
 
@@ -14,14 +15,18 @@ class MonkeyMonitor(object):
     classdocs
     '''
 
-    def __init__(self, logger):
+    def __init__(self, logger, run_mins):
         '''
         Constructor
         '''
         self.logger = logger
+        self.run_mins = run_mins
+        self.adbutils = AdbUtils(logger)
     
-    def __wait_for_monkey_process_started(self):
+    def __get_monkey_process_id(self):
+        return AdbUtils.get_process_id_by_name('monkey')
 
+    def __wait_for_monkey_process_started(self):
         monkey_process_id = ''
         try_times = 3
         
@@ -50,6 +55,7 @@ class MonkeyMonitor(object):
         # LOOP
         start = time.perf_counter()
         while 1:
+            print('WAIT...')
             if _is_monkey_process_killed():
                 self.logger.error('Error, the monkey process is NOT running!')
                 return
