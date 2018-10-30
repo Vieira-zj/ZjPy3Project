@@ -6,6 +6,7 @@ Created on 2018-10-26
 @author: zhengjin
 '''
 
+import re
 import os
 from sys_utils import SysUtils
 
@@ -16,15 +17,16 @@ class AdbUtils(object):
         self.logger = logger
         self.sys_utils = SysUtils(self.logger)
 
-    def is_adb_devices_connect(self):
+    def is_devices_connected(self):
+        # support one device
         self.logger.debug('check adb devices connected.')
         
-#         cmd = 'adb devices -l'
-        cmd = 'adb get-serialno'
+        cmd = 'adb devices -l'
+#         cmd = 'adb get-serialno'
         ret_content = self.sys_utils.run_sys_cmd_and_ret_content(cmd)
-        if len(ret_content) == 0:
+        if len(ret_content.strip()) == 0:
             return False
-        if ('unknown' in ret_content) or ('error' in ret_content):
+        if re.search('unknown|error|offline', ret_content):
             return False
         self.logger.info('connected devices: \n%s', ret_content)
         return True
@@ -34,7 +36,6 @@ class AdbUtils(object):
         tmp_lines = self.sys_utils.run_sys_cmd(cmd)
         return len(tmp_lines) != 0
 
-    @classmethod
     def dump_logcat_by_tag(self, tag, file_path):
         cmd = 'adb logcat -c && adb logcat -s %s -v time -d > %s' % (tag, file_path)
         return self.sys_utils.run_sys_cmd(cmd)
@@ -43,6 +44,10 @@ class AdbUtils(object):
         if os.path.exists(file_path):
             self.logger.warning('file %s is exist and will be override!' % file_path)
         cmd = 'adb shell dumpsys package %s > %s' % (app_name, file_path)
+        return self.sys_utils.run_sys_cmd(cmd)
+
+    def clear_app_data(self, pkg_name):
+        cmd = 'adb shell pm clear %s' % pkg_name
         return self.sys_utils.run_sys_cmd(cmd)
 
     def dump_device_props(self, file_path):
@@ -70,8 +75,7 @@ class AdbUtils(object):
     # --------------------------------------------------------------
     # Process handle function
     # --------------------------------------------------------------
-    @classmethod
-    def get_process_id_by_name(cls, p_name):
+    def get_process_id_by_name(self, p_name):
         cmd = 'adb shell ps | findstr %s' % p_name
         for line in os.popen(cmd).readlines():
             if p_name in line:
@@ -89,7 +93,7 @@ class AdbUtils(object):
     # --------------------------------------------------------------
     @classmethod
     def create_dir_on_shell(cls, dir_path):
-        cmd = 'adb shell mkdir %s' % dir_path
+        cmd = 'adb shell "mkdir %s 2>/dev/null"' % dir_path
         return os.popen(cmd).readlines()
 
     @classmethod

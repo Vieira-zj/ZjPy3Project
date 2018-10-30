@@ -15,16 +15,20 @@ class MonkeyMonitor(object):
     classdocs
     '''
 
-    def __init__(self, logger, run_mins):
+    def __init__(self, logger, run_mins, interval=Constants.WAIT_TIME_IN_LOOP):
         '''
         Constructor
         '''
-        self.logger = logger
         self.run_mins = run_mins
+        self.interval = interval
+        self.logger = logger
         self.adbutils = AdbUtils(logger)
     
     def __get_monkey_process_id(self):
-        return AdbUtils.get_process_id_by_name('monkey')
+        return self.adbutils.get_process_id_by_name('monkey')
+
+    def __get_logcat_process_id(self):
+        return self.adbutils.get_process_id_by_name('logcat')
 
     def __wait_for_monkey_process_started(self):
         monkey_process_id = ''
@@ -44,7 +48,7 @@ class MonkeyMonitor(object):
     
         spec_run_time = self.run_mins * 60
         if spec_run_time >= Constants.MAX_RUN_TIME:
-            self.logger.error('Error, spec_time must be less than max_time(12 hours)!')
+            self.logger.error('Error, spec_time must be less than max_time (12 hours)!')
             exit(1)
     
         monkey_p_id = self.__wait_for_monkey_process_started()
@@ -55,7 +59,6 @@ class MonkeyMonitor(object):
         # LOOP
         start = time.perf_counter()
         while 1:
-            print('WAIT...')
             if _is_monkey_process_killed():
                 self.logger.error('Error, the monkey process is NOT running!')
                 return
@@ -64,8 +67,9 @@ class MonkeyMonitor(object):
             self.logger.info('Monkey is running... %d minutes and %d seconds' % ((current_time / 60), (current_time % 60)))
             if (current_time >= spec_run_time) or (current_time >= Constants.MAX_RUN_TIME):
                 self.adbutils.kill_process_by_pid(monkey_p_id)
+                self.adbutils.kill_process_by_pid(self.__get_logcat_process_id())
                 break
-            time.sleep(Constants.WAIT_TIME_IN_LOOP)
+            time.sleep(self.interval)
 
 
 if __name__ == '__main__':

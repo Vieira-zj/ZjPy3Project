@@ -23,23 +23,22 @@ class MonkeyTest(object):
     # --------------------------------------------------------------
     # Init
     # --------------------------------------------------------------
-    def __init__(self, test_pkg_name, run_num, run_mins):
+    def __init__(self, test_pkg_name, run_mins=Constants.RUN_MINS):
         '''
         Constructor
         '''
         self.test_pkg_name = test_pkg_name
-        self.run_num = run_num
 
-        cur_date = SysUtils.get_current_date()
+        cur_time = SysUtils.get_current_date_and_time()
         self.log_root_path = os.path.join(os.getcwd(), 'MonkeyReports')
-        self.log_dir_path_for_win = r'%s\%s_%s' % (self.log_root_path, cur_date, self.run_num)
+        self.log_dir_path_for_win = os.path.join(self.log_root_path, cur_time)
         self.log_dir_path_for_shell = '/data/local/tmp/monkey_test_logs'
 
-        self.exec_log_path = r'%s\exec_log.log' % self.log_dir_path_for_win
-        self.logcat_log_path_for_shell = r'%s/\logcat_log.log' % self.log_dir_path_for_shell
-        self.monkey_log_path = r'%s\monkey_log.log' % self.log_dir_path_for_win
-        self.device_props_file_path = r'%s\device_props.log' % self.log_dir_path_for_win
-        self.app_dump_file_path = r'%s\app_info.log' % self.log_dir_path_for_win
+        self.exec_log_path = os.path.join(self.log_dir_path_for_win, 'run_log.log')
+        self.monkey_log_path = os.path.join(self.log_dir_path_for_win, 'monkey_log.log')
+        self.device_props_file_path = os.path.join(self.log_dir_path_for_win, 'device_props.log')
+        self.app_dump_file_path = os.path.join(self.log_dir_path_for_win, 'app_info.log')
+        self.logcat_log_path_for_shell = '%s/%s' % (self.log_dir_path_for_shell, 'logcat_log.log')
 
         SysUtils.create_dir_on_win(self.log_dir_path_for_win)
         self.log_manager = LogManager(self.exec_log_path)
@@ -49,7 +48,7 @@ class MonkeyTest(object):
         self.monitor = MonkeyMonitor(self.logger, run_mins)
         
     # --------------------------------------------------------------
-    # Build Commands
+    # Processes
     # --------------------------------------------------------------
     def __build_monkey_cmd(self):
         monkey_cmd = 'adb shell monkey --throttle 500 -p %s' % self.test_pkg_name
@@ -59,26 +58,21 @@ class MonkeyTest(object):
         monkey_ignore = ''
         if Constants.IS_MONKEY_CRASH_IGNORE:
             monkey_ignore = '--ignore-crashes --ignore-timeouts --ignore-security-exceptions --ignore-native-crashes'
-        monkey_actions_pct = '--pct-touch 75 --pct-motion 10 --pct-trackball 5 --pct-nav 0 ' + \
+        monkey_actions_pct = '--pct-touch 60 --pct-motion 25 --pct-trackball 5 --pct-nav 0 ' + \
             '--pct-majornav 5 --pct-syskeys 5 --pct-appswitch 0 --pct-flip 0 --pct-anyevent 0'
         monkey_format = '-v -v -v %s > %s' % (Constants.MONKEY_TOTAL_RUN_TIMES, self.monkey_log_path)
 
         return ' '.join((monkey_cmd, monkey_launch_params, monkey_ignore, monkey_actions_pct, monkey_format))
 
-    def __build_logcat_cmd(self):
-        return 'adb logcat -c && adb logcat -f %s -v threadtime *:%s' % (self.logcat_log_path_for_shell, Constants.LOGCAT_LOG_LEVEL)
-
-    # --------------------------------------------------------------
-    # Run Commands
-    # --------------------------------------------------------------
-    def __run_logcat_subprocess(self):
-        return subprocess.Popen(self.__build_logcat_cmd(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    def __run_monkey_subprocess(self):
+        return subprocess.Popen(self.__build_monkey_cmd(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
-    def __get_logcat_process_id(self):
-        return AdbUtils.get_process_id_by_name('logcat')
-
+    def __run_logcat_subprocess(self):
+        cmd = 'adb logcat -c && adb logcat -f %s -v threadtime *:%s' % (self.logcat_log_path_for_shell, Constants.LOGCAT_LOG_LEVEL) 
+        return subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    
     # --------------------------------------------------------------
-    # Functions: IO and report files
+    # Adb and shell utils
     # --------------------------------------------------------------
     def __is_device_busy(self, lines):
         for line in lines:
@@ -90,15 +84,10 @@ class MonkeyTest(object):
     def __create_log_dir_for_shell(self, dir_path):
         self.__is_device_busy(AdbUtils.create_dir_on_shell(dir_path))
         
-    def __remove_testing_log_files_on_device(self):
+    def __clear_log_dir_for_shell(self):
         self.__is_device_busy(AdbUtils.remove_files_on_shell(self.log_dir_path_for_shell))
 
     def __pull_all_testing_logs(self):
-        # the adb connection maybe disconnect when running the monkey
-        if not self.adbutils.is_adb_devices_connect():
-            self.logger.warning('Warn, no devices connected, NO files pulled!')
-            return
-    
         cmd_pull_logcat_log = 'adb pull %s %s' % (self.logcat_log_path_for_shell, self.log_dir_path_for_win)
         self.sysutils.run_sys_cmd(cmd_pull_logcat_log)
 
@@ -125,10 +114,14 @@ class MonkeyTest(object):
     # Monkey Test Main
     # --------------------------------------------------------------
     def __test_setup_main(self):
+        if not self.adbutils.is_devices_connected():
+            self.logger.error('No devices connected!')
+            exit(1)
+
         # shell env setup
         self.adbutils.clear_anr_dir()
         self.adbutils.clear_tombstone_dir()
-        self.__remove_testing_log_files_on_device()
+        self.__clear_log_dir_for_shell()
         self.__create_log_dir_for_shell(self.log_dir_path_for_shell)
     
         # win env setup
@@ -138,19 +131,24 @@ class MonkeyTest(object):
     def __test_main(self):
         self.logger.info('Start logcat process.')
         logcat_p = self.__run_logcat_subprocess()
+        self.logger.info('Start monkey main process.')
+        monkey_p = self.__run_monkey_subprocess()
     
         self.logger.info('Start monkey monitor process.')
         monitor_t = threading.Thread(target=self.monitor.process_monkey_monitor_main)
         monitor_t.start()
-        self.logger.info('Start to exec monkey process.')
-        self.sysutils.run_sys_cmd(self.__build_monkey_cmd())
         monitor_t.join()
 
+        monkey_p.kill()
         logcat_p.kill()
 
     def __test_clearup_main(self):
-        self.__pull_all_testing_logs()
-        self.adbutils.kill_process_by_pid(self.__get_logcat_process_id())
+        # the adb connection maybe disconnect when running the monkey
+        if self.adbutils.is_devices_connected():
+            self.__pull_all_testing_logs()
+            self.adbutils.clear_app_data(self.test_pkg_name)
+        else:
+            self.logger.error('Device disconnect.')
         self.log_manager.clear_log_handles()
     
     def mokeytest_main(self):
@@ -161,6 +159,6 @@ class MonkeyTest(object):
     
 if __name__ == '__main__':
     
-    test = MonkeyTest(Constants.PKG_NAME_ZGB, Constants.RUN_NUM, Constants.RUN_MINS)
+    test = MonkeyTest(Constants.PKG_NAME_ZGB, 5)
     test.mokeytest_main()
     print('Monkey test DONE.')

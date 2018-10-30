@@ -47,10 +47,10 @@ class LogManager(object):
         return self.logger
 
     def clear_log_handles(self):
-        if not self.logger.hasHandlers():
-            return
-        for fh in self.logger.handlers:
-            fh.close()
+        if self.logger.hasHandlers():
+            for fh in self.logger.handlers:
+                fh.close()
+# end class
 
 
 def sub_process(logger):
@@ -83,5 +83,5 @@ if __name__ == '__main__':
     logger.info('process %s done' % p2.name)
     
     manager.clear_log_handles()
-        
+
     print('log utils test DONE.')

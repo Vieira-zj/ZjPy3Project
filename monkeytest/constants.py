@@ -20,15 +20,25 @@ class Constants(object):
     IS_MONKEY_CRASH_IGNORE = True
 
     MAX_RUN_TIME = 12 * 60 * 60
-    WAIT_TIME_IN_LOOP = 10
+    WAIT_TIME_IN_LOOP = 15
     LOGCAT_LOG_LEVEL = 'I'
 
     PKG_NAME_ZGB = 'com.jd.b2b'   
     RUN_MINS = 10
-    RUN_NUM = 1
 
     def __init__(self, params):
         '''
         Constructor
         '''
-        
+
+
+if __name__ == '__main__':
+
+    import re
+    test_str = 'list: device offline'
+    if re.search('unknown|offline', test_str):
+        print('error')
+    else:
+        print('success')
+
+    print('test DONE.')
