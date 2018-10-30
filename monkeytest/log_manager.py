@@ -21,8 +21,12 @@ class LogManager(object):
         self.basic_log_level = basic_log_level
         self.file_log_level = file_log_level
         self.log_path = log_path
+        self.logger = None
         
     def get_logger(self):
+        if self.logger is not None:
+            return
+        
         log_format_long = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'
         log_format_short = '%(filename)s: [%(levelname)s] >>> %(message)s'
         date_format_long = '%a, %d %b %Y %H:%M:%S'
@@ -42,12 +46,20 @@ class LogManager(object):
         self.logger.debug('init logger config')
         return self.logger
 
+    def clear_log_handles(self):
+        if not self.logger.hasHandlers():
+            return
+        for fh in self.logger.handlers:
+            fh.close()
+
 
 if __name__ == '__main__':
 
-    logger = LogManager(Constants.LOG_FILE_PATH).get_logger()
+    manager = LogManager(Constants.LOG_FILE_PATH)
+    logger = manager.get_logger()
     logger.debug('debug message test')
     logger.info('info message test')
     logger.warning('warning message test')
-
-    print('log utils test DONE!')
+    manager.clear_log_handles()
+        
+    print('log utils test DONE.')

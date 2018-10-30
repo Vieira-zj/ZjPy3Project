@@ -39,7 +39,6 @@ class AdbUtils(object):
         cmd = 'adb logcat -c && adb logcat -s %s -v time -d > %s' % (tag, file_path)
         return self.sys_utils.run_sys_cmd(cmd)
 
-    @classmethod
     def dump_app_info(self, app_name, file_path):
         if os.path.exists(file_path):
             self.logger.warning('file %s is exist and will be override!' % file_path)
@@ -57,7 +56,7 @@ class AdbUtils(object):
         return self.sys_utils.run_sys_cmd(cmd)
 
     def clear_anr_dir(self):
-        cmd = 'adb shell rm /data/anr/*'
+        cmd = 'adb shell "rm -f /data/anr/* 2>/dev/null"'
         return self.sys_utils.run_sys_cmd(cmd)
 
     def dump_tombstone_files(self, save_path):
@@ -65,7 +64,7 @@ class AdbUtils(object):
         return self.sys_utils.run_sys_cmd(cmd)
 
     def clear_tombstone_dir(self):
-        cmd = 'adb shell rm /data/tombstones/*'
+        cmd = 'adb shell "rm -f /data/tombstones/* 2>/dev/null"'
         return self.sys_utils.run_sys_cmd(cmd)
 
     # --------------------------------------------------------------
@@ -80,6 +79,8 @@ class AdbUtils(object):
         return ''
 
     def kill_process_by_pid(self, p_id):
+        if p_id is None or len(p_id) == 0:
+            return
         cmd = 'adb shell kill %s' % p_id
         return self.sys_utils.run_sys_cmd(cmd)
 
@@ -88,12 +89,12 @@ class AdbUtils(object):
     # --------------------------------------------------------------
     @classmethod
     def create_dir_on_shell(cls, dir_path):
-        cmd = 'adb shell mkdir %s' % (dir_path)
+        cmd = 'adb shell mkdir %s' % dir_path
         return os.popen(cmd).readlines()
 
     @classmethod
-    def remove_file_on_shell(cls, file_path):
-        cmd = 'adb shell rm -rf %s' % file_path
+    def remove_files_on_shell(cls, file_path):
+        cmd = 'adb shell "rm -rf %s 2>/dev/null"' % file_path
         return os.popen(cmd).readlines()
 
 
@@ -102,7 +103,11 @@ if __name__ == '__main__':
     from log_manager import LogManager
     from constants import Constants
 
-    logger = LogManager(Constants.LOG_FILE_PATH).get_logger()
+    manager = LogManager(Constants.LOG_FILE_PATH)
+    logger = manager.get_logger()
     utils = AdbUtils(logger)
     print(utils.is_adb_devices_connect())
-    print('adb manager test DONE!')
+    print('Monkey pid:', AdbUtils.get_process_id_by_name('monkey'))
+    manager.clear_log_handles()
+    
+    print('adb manager test DONE.')

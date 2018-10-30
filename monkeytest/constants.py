@@ -19,7 +19,7 @@ class Constants(object):
     MONKEY_TOTAL_RUN_TIMES = '1000000'
     IS_MONKEY_CRASH_IGNORE = True
     MAX_RUN_TIME = 12 * 60 * 60
-    WAIT_TIME_IN_LOOP = 60
+    WAIT_TIME_IN_LOOP = 10
     LOGCAT_LOG_LEVEL = 'I'
 
     PKG_NAME_ZGB = 'com.jd.b2b'   

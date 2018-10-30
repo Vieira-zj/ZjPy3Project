@@ -90,7 +90,7 @@ class SysUtils(object):
         
         if os.path.exists(file_path):
             if is_override:
-                self.logger.info('The file(%s) is exist, and the content will be override!' % file_path)
+                self.logger.info('The file(%s) is exist, and the content will be overrided!' % file_path)
             else:
                 self.logger.error('The file(%s) is exist!' % file_path)
                 return
@@ -105,8 +105,11 @@ if __name__ == '__main__':
     from log_manager import LogManager
     from constants import Constants
 
-    logger = LogManager(Constants.LOG_FILE_PATH).get_logger()
+    manager = LogManager(Constants.LOG_FILE_PATH)
+    logger = manager.get_logger()
     utils = SysUtils(logger)
     utils.run_sys_cmd('python -V')
     utils.write_content_to_file(Constants.TEST_FILE_PATH, 'test')
-    print('system utils test DONE!')
+    manager.clear_log_handles()
+    
+    print('system utils test DONE.')

@@ -8,9 +8,9 @@ Created on 2018-10-29
 import os
 import subprocess
 import threading
-import time
 from adb_utils import AdbUtils
 from constants import Constants
+from monkey_monitor import MonkeyMonitor
 from log_manager import LogManager
 from sys_utils import SysUtils
 
@@ -32,20 +32,22 @@ class MonkeyTest(object):
         self.run_mins = run_mins
 
         cur_date = SysUtils.get_current_date()
-        self.log_root_path = os.path.join(os.getcwd(), 'MonkeyReprots', cur_date)
+        self.log_root_path = os.path.join(os.getcwd(), 'MonkeyReports')
         self.log_dir_path_for_win = r'%s\%s_%s' % (self.log_root_path, cur_date, self.run_num)
-        SysUtils.create_dir_on_win(self.log_dir_path_for_win)
         self.log_dir_path_for_shell = '/data/local/tmp/monkey_test_logs'
 
         self.exec_log_path = r'%s\exec_log.log' % self.log_dir_path_for_win
         self.logcat_log_path_for_shell = r'%s/\logcat_log.log' % self.log_dir_path_for_shell
         self.monkey_log_path = r'%s\monkey_log.log' % self.log_dir_path_for_win
-        self.rom_props_file_path = r'%s\rom_props.log' % self.log_dir_path_for_win
+        self.device_props_file_path = r'%s\device_props.log' % self.log_dir_path_for_win
         self.app_dump_file_path = r'%s\app_info.log' % self.log_dir_path_for_win
 
-        self.logger = LogManager(self.exec_log_path).get_logger()
+        SysUtils.create_dir_on_win(self.log_dir_path_for_win)
+        self.log_manager = LogManager(self.exec_log_path)
+        self.logger = self.log_manager.get_logger()
         self.sysutils = SysUtils(self.logger)
         self.adbutils = AdbUtils(self.logger)
+        self.monitor = MonkeyMonitor(self.logger)
         
     # --------------------------------------------------------------
     # Build Commands
@@ -93,100 +95,60 @@ class MonkeyTest(object):
         self.__is_device_busy(AdbUtils.create_dir_on_shell(dir_path))
         
     def __remove_testing_log_files_on_device(self):
-        self.__is_device_busy(AdbUtils.remove_file_on_shell(self.log_dir_path_for_shell))
+        self.__is_device_busy(AdbUtils.remove_files_on_shell(self.log_dir_path_for_shell))
 
     def __pull_all_testing_logs(self):
         # the adb connection maybe disconnect when running the monkey
-        if not AdbUtils.is_adb_devices_connect():
+        if not self.adbutils.is_adb_devices_connect():
             self.logger.warning('Warn, no devices connected, NO files pulled!')
             return
     
         cmd_pull_logcat_log = 'adb pull %s %s' % (self.logcat_log_path_for_shell, self.log_dir_path_for_win)
-        SysUtils.run_sys_cmd(cmd_pull_logcat_log)
+        self.sysutils.run_sys_cmd(cmd_pull_logcat_log)
 
-        AdbUtils.dump_anr_files(self.log_dir_path_for_win)
-        AdbUtils.dump_tombstone_files(self.llog_dir_path_for_win)
+        self.adbutils.dump_anr_files(self.log_dir_path_for_win)
+        self.adbutils.dump_tombstone_files(self.log_dir_path_for_win)
     
-    # --------------------------------------------------------------
-    # Workers
-    # --------------------------------------------------------------
-    def __wait_for_monkey_process_started(self):
-        monkey_process_id = ''
-        try_times = 3
-        wait_time_for_monkey_launch = 3
-        
-        for i in range(0, try_times):
-            monkey_process_id = AdbUtils.get_process_id_by_name('monkey')
-            if monkey_process_id != '':
-                break
-            time.sleep(wait_time_for_monkey_launch)
-        return monkey_process_id
-
-    def __process_monkey_monitor_main(self):
-
-        def _is_monkey_process_killed():
-            return AdbUtils.get_process_id_by_name('monkey') == ''
-    
-        spec_run_time = self.run_mins * 60
-        if spec_run_time >= Constants.MAX_RUN_TIME:
-            self.logger.warning('Warn, spec_time must be less than max_time(4 hours)!')
-            exit(1)
-    
-        monkey_p_id = self.wait_for_monkey_process_started()
-        if monkey_p_id == '':
-            self.logger.error('Error, the monkey process is NOT started!')
-            exit(1)
-        
-        # LOOP
-        start = int(time.clock())
-        while 1:
-            if _is_monkey_process_killed():
-                self.logger.error('Error, the monkey process is NOT running!')
-                return
-            
-            current_time = int(time.clock()) - start
-            self.logger.info('Monkey is running... %d minutes and %d seconds' % ((current_time / 60), (current_time % 60)))
-            if (current_time >= spec_run_time) or (current_time >= Constants.MAX_RUN_TIME):
-                AdbUtils.kill_process_by_pid(monkey_p_id)
-                break
-            time.sleep(Constants.WAIT_TIME_IN_LOOP)
-
     # --------------------------------------------------------------
     # Monkey Test Main
     # --------------------------------------------------------------
     def __test_setup_main(self):
         # shell env setup
-        AdbUtils.clear_anr_dir() # TODO:
-        AdbUtils.clear_tombstone_dir()
+        self.adbutils.clear_anr_dir()
+        self.adbutils.clear_tombstone_dir()
         self.__remove_testing_log_files_on_device()
         self.__create_log_dir_for_shell(self.log_dir_path_for_shell)
     
         # win env setup
-        SysUtils.create_dir_on_win(self.log_dir_path_for_win)
-        AdbUtils.dump_device_props(self.rom_props_file_path)
-        AdbUtils.dump_app_info(Constants.PKG_NAME_ZGB, self.app_dump_file_path)
+        self.adbutils.dump_device_props(self.device_props_file_path)
+        self.adbutils.dump_app_info(Constants.PKG_NAME_ZGB, self.app_dump_file_path)
 
     def __test_main(self):
-        logcat_p_id = self.__run_logcat_subprocess()
+        self.logger.info('Start logcat process.')
+        logcat_p = self.__run_logcat_subprocess()
     
-        monkey_t = threading.Thread(target=self.__process_monkey_monitor_main())
-        monkey_t.start()
-        SysUtils.run_sys_cmd_in_subprocess(self.__build_monkey_cmd())
-        monkey_t.join()
-        
-        AdbUtils.kill_process_by_pid(logcat_p_id)
+        self.logger.info('Start monkey monitor process.')
+        monitor_t = threading.Thread(target=self.monitor.process_monkey_monitor_main)
+        monitor_t.start()
+        self.logger.info('Start to exec monkey process.')
+        self.sysutils.run_sys_cmd(self.__build_monkey_cmd())
+        monitor_t.join()
+
+        logcat_p.kill()
 
     def __test_clearup_main(self):
         self.__pull_all_testing_logs()
-        AdbUtils.kill_process_by_pid(AdbUtils.get_process_id_by_name('logcat'))
+        self.adbutils.kill_process_by_pid(self.__get_logcat_process_id())
+        self.log_manager.clear_log_handles()
     
     def mokeytest_main(self):
         self.__test_setup_main()
-#         self.__test_main()
-#         self.__test_clearup_main()
+        self.__test_main()
+        self.__test_clearup_main()
     
     
 if __name__ == '__main__':
     
     test = MonkeyTest(Constants.PKG_NAME_ZGB, '1', 1)
-    print(test.mokeytest_main())
+    test.mokeytest_main()
+    print('Monkey test DONE.')
