@@ -8,6 +8,7 @@ Created on 2018-10-29
 import os
 import subprocess
 import sys
+import time
 import threading
 from adb_utils import AdbUtils
 from constants import Constants
@@ -92,7 +93,7 @@ class MonkeyTest(object):
         for line in lines:
             if 'busy' in line:
                 self.logger.error(line)
-                self.logger.error('Error, monkey test exit because of device busy!')
+                self.logger.error('Monkey test exit because of device busy!')
                 exit(1)
     
     def __create_log_dir_for_shell(self, dir_path):
@@ -124,6 +125,18 @@ class MonkeyTest(object):
             cmd = 'adb pull %s %s' % (f, save_path)
             self.sysutils.run_sys_cmd(cmd)
     
+    # --------------------------------------------------------------
+    # Win utils
+    # --------------------------------------------------------------
+    def __create_archive_report_file(self):
+        time.sleep(1)
+        root_dir = r'D:\JDTestLogs'
+        target_file = os.path.join(root_dir, 'monkey_' + os.path.basename(self.log_dir_path_for_win) + '.7z')
+        cmd = r'"C:\Program Files\7-Zip\7z" a -t7z %s %s' % (target_file, self.log_dir_path_for_win)
+
+        self.logger.debug('Create archive report file:', target_file)
+        return self.sysutils.run_sys_cmd(cmd)
+
     # --------------------------------------------------------------
     # Monkey Test Main
     # --------------------------------------------------------------
@@ -164,6 +177,7 @@ class MonkeyTest(object):
         else:
             self.logger.error('Device disconnect.')
         self.log_manager.clear_log_handles()
+        self.__create_archive_report_file()
     
     def mokeytest_main(self):
         self.__test_setup_main()
