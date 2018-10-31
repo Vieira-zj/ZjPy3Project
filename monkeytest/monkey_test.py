@@ -58,7 +58,7 @@ class MonkeyTest(object):
         monkey_ignore = ''
         if Constants.IS_MONKEY_CRASH_IGNORE:
             monkey_ignore = '--ignore-crashes --ignore-timeouts --ignore-security-exceptions --ignore-native-crashes'
-        monkey_actions_pct = '--pct-touch 60 --pct-motion 25 --pct-trackball 5 --pct-nav 0 ' + \
+        monkey_actions_pct = '--pct-touch 65 --pct-motion 20 --pct-trackball 5 --pct-nav 0 ' + \
             '--pct-majornav 5 --pct-syskeys 5 --pct-appswitch 0 --pct-flip 0 --pct-anyevent 0'
         monkey_format = '-v -v -v %s > %s' % (Constants.MONKEY_TOTAL_RUN_TIMES, self.monkey_log_path)
 
@@ -159,6 +159,6 @@ class MonkeyTest(object):
     
 if __name__ == '__main__':
     
-    test = MonkeyTest(Constants.PKG_NAME_ZGB, 5)
+    test = MonkeyTest(Constants.PKG_NAME_ZGB, 60)
     test.mokeytest_main()
     print('Monkey test DONE.')

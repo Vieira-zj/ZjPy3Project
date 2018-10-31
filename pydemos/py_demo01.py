@@ -1,36 +1,43 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 2018-10-30
+Created on 2018-10-31
 
 @author: zhengjin
 '''
 
-import threading
-import time
-import unittest
+import getopt
+import sys
 
 
-class Test(unittest.TestCase):
+def cmd_args_parse():
+    opts, _ = getopt.getopt(sys.argv[1:], "hi:o:")
 
-    def test01_threads(self):
-
-        def sub_process():
-            for i in range(3):
-                print('test and wait at %d' % i)
-                time.sleep(1)
-
-        t = threading.Thread(target=sub_process)
-        t.start()
-        print('in main thread and wait\n')
-        t.join()
-
-    def test02_time(self):
-        now = time.perf_counter()
-        time.sleep(3)
-        during = time.perf_counter() - now
-        print('during %d' % during)
+    if len(opts) == 0:
+        usage()
+        exit(0)
+    
+    input_file = ""
+    output_file = ""
+    for op, value in opts:
+        if op == "-i":
+            input_file = value
+        elif op == "-o":
+            output_file = value
+        elif op == "-h":
+            usage()
+            exit(0)
+    print('input file: %s, output file: %s' % (input_file, output_file))
 
 
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
+def usage():
+    lines = []
+    lines.append('usage:')
+    lines.append('-i: input file')
+    lines.append('-o: output file')
+    lines.append('-h: help')
+    print('\n'.join(lines))
+
+
+if __name__ == '__main__':
+    
+    cmd_args_parse()
