@@ -10,20 +10,21 @@ import sys
 
 
 def cmd_args_parse():
-    opts, _ = getopt.getopt(sys.argv[1:], "hi:o:")
+    # "hi:o:": h => -h, i: => -i input_file, o: => -o output_file
+    opts, _ = getopt.getopt(sys.argv[1:], 'hi:o:')
 
     if len(opts) == 0:
         usage()
         exit(0)
     
-    input_file = ""
-    output_file = ""
+    input_file = ''
+    output_file = ''
     for op, value in opts:
-        if op == "-i":
+        if op == '-i':
             input_file = value
-        elif op == "-o":
+        elif op == '-o':
             output_file = value
-        elif op == "-h":
+        elif op == '-h':
             usage()
             exit(0)
     print('input file: %s, output file: %s' % (input_file, output_file))

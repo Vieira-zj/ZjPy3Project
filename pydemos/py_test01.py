@@ -35,6 +35,12 @@ class TestPy01(unittest.TestCase):
         print('during %.3f' % during)
         self.assertEqual(3, int(round(during)), 'test time counter')
 
+    def test_reg_expr(self):
+        import re
+        test_str = 'list: device offline'
+        self.assertTrue(re.search('unknown|offline', test_str), 'search success')
+        self.assertFalse(re.search('unknown|online', test_str), 'search failed')
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
@@ -43,7 +49,8 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     tests = []
 #     tests.append(TestPy01('test_subprocess'))
-    tests.append(TestPy01('test_time_counter'))
+#     tests.append(TestPy01('test_time_counter'))
+    tests.append(TestPy01('test_reg_expr'))
     suite.addTests(tests)
     
     runner = unittest.TextTestRunner(verbosity=2)

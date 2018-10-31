@@ -7,6 +7,7 @@ Created on 2018-10-29
 
 import os
 import subprocess
+import sys
 import threading
 from adb_utils import AdbUtils
 from constants import Constants
@@ -23,7 +24,7 @@ class MonkeyTest(object):
     # --------------------------------------------------------------
     # Init
     # --------------------------------------------------------------
-    def __init__(self, test_pkg_name, run_mins=Constants.RUN_MINS):
+    def __init__(self, test_pkg_name, run_mins):
         '''
         Constructor
         '''
@@ -58,11 +59,24 @@ class MonkeyTest(object):
         monkey_ignore = ''
         if Constants.IS_MONKEY_CRASH_IGNORE:
             monkey_ignore = '--ignore-crashes --ignore-timeouts --ignore-security-exceptions --ignore-native-crashes'
-        monkey_actions_pct = '--pct-touch 65 --pct-motion 20 --pct-trackball 5 --pct-nav 0 ' + \
-            '--pct-majornav 5 --pct-syskeys 5 --pct-appswitch 0 --pct-flip 0 --pct-anyevent 0'
+#         monkey_actions_pct = '--pct-touch 65 --pct-motion 20 --pct-trackball 5 --pct-nav 0 ' + \
+#             '--pct-majornav 5 --pct-syskeys 5 --pct-appswitch 0 --pct-flip 0 --pct-anyevent 0'
+        monkey_actions_pct = self.__build_monkey_action_cmd()
         monkey_format = '-v -v -v %s > %s' % (Constants.MONKEY_TOTAL_RUN_TIMES, self.monkey_log_path)
 
         return ' '.join((monkey_cmd, monkey_launch_params, monkey_ignore, monkey_actions_pct, monkey_format))
+
+    def __build_monkey_action_cmd(self):
+        options = []
+        options.append('--pct-touch ' + Constants.PCT_TOUCH)
+        options.append('--pct-motion ' + Constants.PCT_MOTION)
+        options.append('--pct-trackball ' + Constants.PCT_TRACKBALL)
+        options.append('--pct-nav ' + Constants.PCT_NAV)
+        options.append('--pct-majornav ' + Constants.PCT_MAJORNAV)
+        options.append('--pct-syskeys ' + Constants.PCT_SYSKEYS)
+        options.append('--pct-appswitch ' + Constants.PCT_APPSWITCH)
+        options.append('--pct-anyevent ' + Constants.PCT_ANYEVENT)
+        return ' '.join(options)
 
     def __run_monkey_subprocess(self):
         return subprocess.Popen(self.__build_monkey_cmd(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -155,10 +169,42 @@ class MonkeyTest(object):
         self.__test_setup_main()
         self.__test_main()
         self.__test_clearup_main()
+# end class
+
     
+def cmd_args_parse():
+
+    def usage():
+        lines = []
+        lines.append('usage:')
+        lines.append('  python monkey_test.py [-t 30]')
+        lines.append('options:')
+        lines.append('  -t: time, monkey test run xx minutes. if not set, use RUN_MINS in constants.py as default.')
+        lines.append('  -h: help')
+        print('\n'.join(lines))
+
+    import getopt
+    opts, _ = getopt.getopt(sys.argv[1:], 'ht:')
+
+    ret_dict = {}
+    if len(opts) == 0:
+        # print usage and use default monkey test confs.
+        usage()
+        return ret_dict
     
+    for op, value in opts:
+        if op == '-t':
+            ret_dict.update({Constants.RUN_MINS_TEXT:value})
+        elif op == '-h':
+            usage()
+            exit(0)
+
+    return ret_dict
+
+
 if __name__ == '__main__':
     
-    test = MonkeyTest(Constants.PKG_NAME_ZGB, 60)
+    args_dict = cmd_args_parse()
+    test = MonkeyTest(Constants.PKG_NAME_ZGB, args_dict.get(Constants.RUN_MINS_TEXT, Constants.RUN_MINS))
     test.mokeytest_main()
     print('Monkey test DONE.')

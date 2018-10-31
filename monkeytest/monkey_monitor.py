@@ -19,7 +19,7 @@ class MonkeyMonitor(object):
         '''
         Constructor
         '''
-        self.run_mins = run_mins
+        self.run_mins = int(run_mins)
         self.interval = interval
         self.logger = logger
         self.adbutils = AdbUtils(logger)
