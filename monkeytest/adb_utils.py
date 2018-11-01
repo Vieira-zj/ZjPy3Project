@@ -91,15 +91,13 @@ class AdbUtils(object):
     # --------------------------------------------------------------
     # IO function
     # --------------------------------------------------------------
-    @classmethod
-    def create_dir_on_shell(cls, dir_path):
+    def create_dir_on_shell(self, dir_path):
         cmd = 'adb shell "mkdir %s 2>/dev/null"' % dir_path
-        return os.popen(cmd).readlines()
+        return self.sys_utils.run_sys_cmd_and_ret_lines(cmd)
 
-    @classmethod
-    def remove_files_on_shell(cls, file_path):
+    def remove_files_on_shell(self, file_path):
         cmd = 'adb shell "rm -rf %s 2>/dev/null"' % file_path
-        return os.popen(cmd).readlines()
+        return self.sys_utils.run_sys_cmd_and_ret_lines(cmd)
 
 
 if __name__ == '__main__':

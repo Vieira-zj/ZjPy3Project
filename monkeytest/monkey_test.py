@@ -97,10 +97,10 @@ class MonkeyTest(object):
                 exit(1)
     
     def __create_log_dir_for_shell(self, dir_path):
-        self.__is_device_busy(AdbUtils.create_dir_on_shell(dir_path))
+        self.__is_device_busy(self.adbutils.create_dir_on_shell(dir_path))
         
     def __clear_log_dir_for_shell(self):
-        self.__is_device_busy(AdbUtils.remove_files_on_shell(self.log_dir_path_for_shell))
+        self.__is_device_busy(self.adbutils.remove_files_on_shell(self.log_dir_path_for_shell))
 
     def __pull_all_testing_logs(self):
         cmd_pull_logcat_log = 'adb pull %s %s' % (self.logcat_log_path_for_shell, self.log_dir_path_for_win)
@@ -134,7 +134,7 @@ class MonkeyTest(object):
         target_file = os.path.join(root_dir, 'monkey_' + os.path.basename(self.log_dir_path_for_win) + '.7z')
         cmd = r'"C:\Program Files\7-Zip\7z" a -t7z %s %s' % (target_file, self.log_dir_path_for_win)
 
-        self.logger.debug('Create archive report file:', target_file)
+        self.logger.debug('Create archive report file: ' + target_file)
         return self.sysutils.run_sys_cmd(cmd)
 
     # --------------------------------------------------------------
