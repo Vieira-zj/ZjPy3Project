@@ -7,14 +7,13 @@ Created on 2018-10-29
 
 import os
 import subprocess
-import sys
 import time
 import threading
-from adb_utils import AdbUtils
-from constants import Constants
-from monkey_monitor import MonkeyMonitor
-from log_manager import LogManager
-from sys_utils import SysUtils
+from monkeytest.adb_utils import AdbUtils
+from monkeytest.constants import Constants
+from monkeytest.log_manager import LogManager
+from monkeytest.monkey_monitor import MonkeyMonitor
+from monkeytest.sys_utils import SysUtils
 
 
 class MonkeyTest(object):
@@ -183,42 +182,10 @@ class MonkeyTest(object):
         self.__test_setup_main()
         self.__test_main()
         self.__test_clearup_main()
-# end class
 
     
-def cmd_args_parse():
-
-    def usage():
-        lines = []
-        lines.append('usage:')
-        lines.append('  python monkey_test.py [-t 30]')
-        lines.append('options:')
-        lines.append('  -t: time, monkey test run xx minutes. if not set, use RUN_MINS in constants.py as default.')
-        lines.append('  -h: help')
-        print('\n'.join(lines))
-
-    import getopt
-    opts, _ = getopt.getopt(sys.argv[1:], 'ht:')
-
-    ret_dict = {}
-    if len(opts) == 0:
-        # print usage and use default monkey test confs.
-        usage()
-        return ret_dict
-    
-    for op, value in opts:
-        if op == '-t':
-            ret_dict.update({Constants.RUN_MINS_TEXT:value})
-        elif op == '-h':
-            usage()
-            exit(0)
-
-    return ret_dict
-
-
 if __name__ == '__main__':
     
-    args_dict = cmd_args_parse()
-    test = MonkeyTest(Constants.PKG_NAME_ZGB, args_dict.get(Constants.RUN_MINS_TEXT, Constants.RUN_MINS))
+    test = MonkeyTest(Constants.PKG_NAME_ZGB, Constants.RUN_MINS)
     test.mokeytest_main()
     print('Monkey test DONE.')

@@ -6,8 +6,8 @@ Created on 2018-10-30
 '''
 
 import time
-from adb_utils import AdbUtils
-from constants import Constants
+from monkeytest.adb_utils import AdbUtils
+from monkeytest.constants import Constants
 
 
 class MonkeyMonitor(object):

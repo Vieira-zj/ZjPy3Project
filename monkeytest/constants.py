@@ -42,7 +42,7 @@ class Constants(object):
 
     PKG_NAME_ZGB = 'com.jd.b2b'
     RUN_MINS_TEXT = 'run_mins'
-    RUN_MINS = 10
+    RUN_MINS = 3
 
     def __init__(self, params):
         '''
