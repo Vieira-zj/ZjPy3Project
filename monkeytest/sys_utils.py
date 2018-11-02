@@ -102,8 +102,8 @@ class SysUtils(object):
 
 if __name__ == '__main__':
 
-    from log_manager import LogManager
     from constants import Constants
+    from log_manager import LogManager
 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()

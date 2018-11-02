@@ -8,7 +8,7 @@ Created on 2018-10-26
 
 import re
 import os
-from sys_utils import SysUtils
+from monkeytest.sys_utils import SysUtils
 
 
 class AdbUtils(object):
@@ -16,6 +16,11 @@ class AdbUtils(object):
     def __init__(self, logger):
         self.logger = logger
         self.sys_utils = SysUtils(self.logger)
+
+    @classmethod
+    def print_adb_info(cls):
+        cmd = 'adb version'
+        return os.popen(cmd).read()
 
     def is_devices_connected(self):
         # support one device
@@ -102,14 +107,14 @@ class AdbUtils(object):
 
 if __name__ == '__main__':
     
-    from log_manager import LogManager
     from constants import Constants
+    from log_manager import LogManager
 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
     utils = AdbUtils(logger)
-    print(utils.is_adb_devices_connect())
-    print('Monkey pid:', AdbUtils.get_process_id_by_name('monkey'))
+    print(utils.is_devices_connected())
+    print('Monkey pid:', utils.get_process_id_by_name('monkey'))
     manager.clear_log_handles()
     
     print('adb manager test DONE.')
