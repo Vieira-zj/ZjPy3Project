@@ -22,27 +22,23 @@ class ProfileMonitor(object):
     __hand_log_dir = 'handTest'
     __hand_log_dir_path = __log_root_dir_path + '/' + __hand_log_dir
 
-    def __init__(self, logger, local_log_dir):
+    def __init__(self, logger):
         '''
         Constructor
         '''
         self.__logger = logger
         self.__sys_utils = SysUtils(logger)
         self.__adb_utils = AdbUtils(logger)
-        self.__local_log_dir = local_log_dir
 
     # --------------------------------------------------------------
     # Start Monitor
     # --------------------------------------------------------------
     def clear_itest_logs(self):
-        cmd = 'adb shell "cd %s;rm -rf handTest*"' % self.__log_root_dir_path
+        cmd = 'adb shell "cd %s;rm -rf %s*"' % (self.__log_root_dir_path, self.__hand_log_dir)
         self.__sys_utils.run_sys_cmd(cmd)
         if not self.__sys_utils.run_sys_cmd(cmd):
             raise Exception('clear iTest log files failed!')
 
-    def clear_local_itest_logs(self):
-        self.__sys_utils.delete_files_in_dir(os.path.join(self.__local_log_dir, self.__hand_log_dir))
-    
     def __launch_itest(self):
         cmd = 'adb shell am start ' + self.__itest_pkg_name + '/' + self.__itest_boot_act
         self.__sys_utils.run_sys_cmd(cmd)
@@ -103,7 +99,7 @@ class ProfileMonitor(object):
         start = time.perf_counter()
         while 1:
             time.sleep(interval)
-            if not monitor.__is_itest_running():
+            if not self.__is_itest_running():
                 self.__logger.error('iTest process is NOT running!')
                 return
             if time.perf_counter() - start >= run_secs and self.__is_itest_running():
@@ -117,22 +113,25 @@ class ProfileMonitor(object):
         cmd = 'adb shell am force-stop ' + self.__itest_pkg_name
         self.__sys_utils.run_sys_cmd(cmd)
 
-    def __pull_itest_logfiles(self, local_save_path):
+    def stop_monitor(self):
+        self.__launch_itest()
+        time.sleep(1)
+        self.__click_itest_monitor_btn()
+        time.sleep(1)
+        self.__force_stop_itest()
+
+    def __clear_local_itest_logs(self, dir_path):
+        SysUtils.delete_files_in_dir(dir_path)
+    
+    def pull_itest_logfiles(self, local_save_path):
         if len(local_save_path) == 0:
             self.__logger.warn('skip dump iTest logs!')
             return
         
+        self.__clear_local_itest_logs(os.path.join(local_save_path, self.__hand_log_dir))
         cmd = 'adb pull %s %s' % (self.__hand_log_dir_path, local_save_path)
         if not self.__sys_utils.run_sys_cmd(cmd):
             self.__logger.error('dump iTest logs failed!')
-
-    def stop_monitor(self):
-        self.__launch_itest()
-        self.__click_itest_monitor_btn()
-        time.sleep(1)
-        self.__force_stop_itest()
-        time.sleep(1)
-        self.__pull_itest_logfiles(self.__local_log_dir)
 
 
 if __name__ == '__main__':
@@ -142,10 +141,13 @@ if __name__ == '__main__':
 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
-    monitor = ProfileMonitor(logger, 'D:\JDTestLogs')
-    monitor.clear_local_itest_logs()
+    
+    monitor = ProfileMonitor(logger)
     monitor.start_monitor()
     monitor.running_monitor(0.5)
+    time.sleep(1)
+    monitor.pull_itest_logfiles(r'D:\JDTestLogs')
+    
     manager.clear_log_handles()
     
     print('profile monitor test DONE.')

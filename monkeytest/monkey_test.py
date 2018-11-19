@@ -49,7 +49,7 @@ class MonkeyTest(object):
         self.__sysutils = SysUtils(self.__logger)
         self.__adbutils = AdbUtils(self.__logger)
         self.__monitor = MonkeyMonitor(self.__logger)
-        self.__profile_monitor = ProfileMonitor(self.__logger, self.__log_dir_path_for_win)
+        self.__profile_monitor = ProfileMonitor(self.__logger)
         
     # --------------------------------------------------------------
     # Processes
@@ -58,7 +58,7 @@ class MonkeyTest(object):
         monkey_cmd = 'adb shell monkey --throttle 500 -p %s' % self.__test_pkg_name
 
         monkey_launch_params = '-c android.intent.category.MONKEY -c android.intent.category.LAUNCHER -c ' + \
-            'android.intent.category.DEFAULT --__monitor-native-crashes --kill-process-after-error'
+            'android.intent.category.DEFAULT --monitor-native-crashes --kill-process-after-error'
         monkey_ignore = ''
         if Constants.IS_MONKEY_CRASH_IGNORE:
             monkey_ignore = '--ignore-crashes --ignore-timeouts --ignore-security-exceptions --ignore-native-crashes'
@@ -82,7 +82,9 @@ class MonkeyTest(object):
         return ' '.join(options)
 
     def __run_monkey_subprocess(self):
-        return subprocess.Popen(self.__build_monkey_cmd(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd = self.__build_monkey_cmd()
+        self.__logger.info('Run monkey command: ' + cmd)
+        return subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
     def __run_logcat_subprocess(self):
         cmd = 'adb logcat -c && adb logcat -f %s -v threadtime *:%s' % (self.__logcat_log_path_for_shell, Constants.LOGCAT_LOG_LEVEL) 
@@ -166,8 +168,8 @@ class MonkeyTest(object):
         monkey_p = self.__run_monkey_subprocess()
     
         self.__logger.info('Start monkey __monitor process.')
-        monkey_monitor_t = threading.Thread(target=self.__monitor.process_monkey_monitor_main, args=(self.__run_mins))
-        profile_monitor_t = threading.Thread(target=self.__profile_monitor.running_monitor, args=(self.__run_mins))
+        monkey_monitor_t = threading.Thread(target=self.__monitor.process_monkey_monitor_main, args=(self.__run_mins,))
+        profile_monitor_t = threading.Thread(target=self.__profile_monitor.running_monitor, args=(self.__run_mins,))
         threads = []
         threads.append(monkey_monitor_t)
         threads.append(profile_monitor_t)
@@ -183,11 +185,14 @@ class MonkeyTest(object):
         # the adb connection maybe disconnect when running the monkey
         if self.__adbutils.is_devices_connected():
             self.__pull_all_testing_logs()
+            self.__profile_monitor.pull_itest_logfiles(self.__log_dir_path_for_win)
             self.__adbutils.clear_app_data(self.__test_pkg_name)
         else:
             self.__logger.error('Device disconnect.')
         self.__log_manager.clear_log_handles()
-        self.__create_archive_report_file()
+    
+        if Constants.IS_CREATE_ARCHIVE:
+            self.__create_archive_report_file()
     
     def mokeytest_main(self):
         self.__test_setup_main()
