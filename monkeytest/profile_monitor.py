@@ -14,6 +14,7 @@ from monkeytest.sys_utils import SysUtils
 class ProfileMonitor(object):
     '''
     Android app profile monitor by iTest.
+    Pre-conditions: APP under test is added into iTest, and configs is set ( by manual).
     '''
 
     __itest_pkg_name = 'iflytek.testTech.propertytool'
@@ -35,7 +36,6 @@ class ProfileMonitor(object):
     # --------------------------------------------------------------
     def clear_itest_logs(self):
         cmd = 'adb shell "cd %s;rm -rf %s*"' % (self.__log_root_dir_path, self.__hand_log_dir)
-        self.__sys_utils.run_sys_cmd(cmd)
         if not self.__sys_utils.run_sys_cmd(cmd):
             raise Exception('clear iTest log files failed!')
 
@@ -60,12 +60,12 @@ class ProfileMonitor(object):
     def start_monitor(self):
         self.clear_itest_logs()
         self.__launch_itest()
-        time.sleep(1)
+        time.sleep(2)
         self.__click_itest_monitor_btn()
         time.sleep(1)
         if not self.__is_itest_logfile_created():
             raise Exception('start iTest monitor failed!')
-    
+
     # --------------------------------------------------------------
     # Running Monitor
     # --------------------------------------------------------------
@@ -115,7 +115,7 @@ class ProfileMonitor(object):
 
     def stop_monitor(self):
         self.__launch_itest()
-        time.sleep(1)
+        time.sleep(2)
         self.__click_itest_monitor_btn()
         time.sleep(1)
         self.__force_stop_itest()

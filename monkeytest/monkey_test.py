@@ -19,7 +19,8 @@ from monkeytest.sys_utils import SysUtils
 
 class MonkeyTest(object):
     '''
-    classdocs
+    Monkey test for APP, and collect APP and profile logs. 
+    Pre-condition: login into APP before monkey test (by manual).
     '''
 
     # --------------------------------------------------------------
@@ -159,7 +160,8 @@ class MonkeyTest(object):
         self.__adbutils.dump_device_props(self.__device_props_file_path)
         self.__adbutils.dump_app_info(Constants.PKG_NAME_ZGB, self.__app_dump_file_path)
         
-        self.__profile_monitor.start_monitor()
+        if Constants.IS_PROFILE_TEST:
+            self.__profile_monitor.start_monitor()
 
     def __test_main(self):
         self.__logger.info('Start logcat process.')
@@ -169,7 +171,8 @@ class MonkeyTest(object):
     
         self.__logger.info('Start monkey __monitor process.')
         monkey_monitor_t = threading.Thread(target=self.__monitor.process_monkey_monitor_main, args=(self.__run_mins,))
-        profile_monitor_t = threading.Thread(target=self.__profile_monitor.running_monitor, args=(self.__run_mins,))
+        if Constants.IS_PROFILE_TEST:
+            profile_monitor_t = threading.Thread(target=self.__profile_monitor.running_monitor, args=(self.__run_mins, Constants.WAIT_TIME_IN_LOOP))
         threads = []
         threads.append(monkey_monitor_t)
         threads.append(profile_monitor_t)
@@ -185,8 +188,10 @@ class MonkeyTest(object):
         # the adb connection maybe disconnect when running the monkey
         if self.__adbutils.is_devices_connected():
             self.__pull_all_testing_logs()
-            self.__profile_monitor.pull_itest_logfiles(self.__log_dir_path_for_win)
             self.__adbutils.clear_app_data(self.__test_pkg_name)
+            if Constants.IS_PROFILE_TEST:
+                time.sleep(1)
+                self.__profile_monitor.pull_itest_logfiles(self.__log_dir_path_for_win)
         else:
             self.__logger.error('Device disconnect.')
         self.__log_manager.clear_log_handles()
