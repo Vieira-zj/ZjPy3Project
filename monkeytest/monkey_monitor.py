@@ -15,20 +15,18 @@ class MonkeyMonitor(object):
     classdocs
     '''
 
-    def __init__(self, logger, run_mins, interval=Constants.WAIT_TIME_IN_LOOP):
+    def __init__(self, logger):
         '''
         Constructor
         '''
-        self.run_mins = int(run_mins)
-        self.interval = interval
-        self.logger = logger
-        self.adbutils = AdbUtils(logger)
+        self.__logger = logger
+        self.__adbutils = AdbUtils(logger)
     
     def __get_monkey_process_id(self):
-        return self.adbutils.get_process_id_by_name('monkey')
+        return self.__adbutils.get_process_id_by_name('monkey')
 
     def __get_logcat_process_id(self):
-        return self.adbutils.get_process_id_by_name('logcat')
+        return self.__adbutils.get_process_id_by_name('logcat')
 
     def __wait_for_monkey_process_started(self):
         monkey_process_id = ''
@@ -41,35 +39,37 @@ class MonkeyMonitor(object):
                 break
         return monkey_process_id
 
-    def process_monkey_monitor_main(self):
+    def process_monkey_monitor_main(self, run_mins, interval=Constants.WAIT_TIME_IN_LOOP):
 
         def _is_monkey_process_killed():
             return self.__get_monkey_process_id() == ''
-    
-        spec_run_time = self.run_mins * 60
+
+        spec_run_time = int(run_mins) * 60
+        interval = int(interval)
+
         if spec_run_time >= Constants.MAX_RUN_TIME:
-            self.logger.error('Error, spec_time must be less than max_time (12 hours)!')
+            self.__logger.error('Error, spec_time must be less than max_time (12 hours)!')
             exit(1)
     
         monkey_p_id = self.__wait_for_monkey_process_started()
         if monkey_p_id == '':
-            self.logger.error('Error, the monkey process is NOT started!')
+            self.__logger.error('Error, the monkey process is NOT started!')
             exit(1)
         
         # LOOP
         start = time.perf_counter()
         while 1:
             if _is_monkey_process_killed():
-                self.logger.error('Error, the monkey process is NOT running!')
+                self.__logger.error('Error, the monkey process is NOT running!')
                 return
             
             current_time = time.perf_counter() - start
-            self.logger.info('Monkey is running... %d minutes and %d seconds' % ((current_time / 60), (current_time % 60)))
+            self.__logger.info('Monkey is running... %d minutes and %d seconds' % ((current_time / 60), (current_time % 60)))
             if (current_time >= spec_run_time) or (current_time >= Constants.MAX_RUN_TIME):
-                self.adbutils.kill_process_by_pid(monkey_p_id)
-                self.adbutils.kill_process_by_pid(self.__get_logcat_process_id())
+                self.__adbutils.kill_process_by_pid(monkey_p_id)
+                self.__adbutils.kill_process_by_pid(self.__get_logcat_process_id())
                 break
-            time.sleep(self.interval)
+            time.sleep(interval)
 
 
 if __name__ == '__main__':

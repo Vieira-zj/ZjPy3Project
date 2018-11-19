@@ -14,8 +14,8 @@ from monkeytest.sys_utils import SysUtils
 class AdbUtils(object):
 
     def __init__(self, logger):
-        self.logger = logger
-        self.sys_utils = SysUtils(self.logger)
+        self.__logger = logger
+        self.__sys_utils = SysUtils(self.__logger)
 
     @classmethod
     def print_adb_info(cls):
@@ -24,58 +24,58 @@ class AdbUtils(object):
 
     def is_devices_connected(self):
         # support one device
-        self.logger.debug('check adb devices connected.')
+        self.__logger.debug('check adb devices connected.')
         
         cmd = 'adb devices -l'
 #         cmd = 'adb get-serialno'
-        ret_content = self.sys_utils.run_sys_cmd_and_ret_content(cmd)
+        ret_content = self.__sys_utils.run_sys_cmd_and_ret_content(cmd)
         if len(ret_content.strip()) == 0:
             return False
         if re.search('unknown|error|offline', ret_content):
             return False
-        self.logger.info('connected devices: \n%s', ret_content)
+        self.__logger.info('connected devices: \n%s', ret_content)
         return True
 
     def is_package_on_top(self, pkg_name):
         cmd = 'adb shell "dumpsys activity | grep mFocusedActivity | grep %s"' % pkg_name
-        ret_content = self.sys_utils.run_sys_cmd_and_ret_content(cmd)
+        ret_content = self.__sys_utils.run_sys_cmd_and_ret_content(cmd)
         return len(ret_content) != 0
 
     def dump_logcat_by_tag(self, tag, file_path):
         cmd = 'adb logcat -c && adb logcat -s %s -v time -d > %s' % (tag, file_path)
-        return self.sys_utils.run_sys_cmd(cmd)
+        return self.__sys_utils.run_sys_cmd(cmd)
 
     def dump_app_info(self, app_name, file_path):
         if os.path.exists(file_path):
-            self.logger.warning('file %s is exist and will be override!' % file_path)
+            self.__logger.warning('file %s is exist and will be override!' % file_path)
         cmd = 'adb shell dumpsys package %s > %s' % (app_name, file_path)
-        return self.sys_utils.run_sys_cmd(cmd)
+        return self.__sys_utils.run_sys_cmd(cmd)
 
     def clear_app_data(self, pkg_name):
         cmd = 'adb shell pm clear %s' % pkg_name
-        return self.sys_utils.run_sys_cmd(cmd)
+        return self.__sys_utils.run_sys_cmd(cmd)
 
     def dump_device_props(self, file_path):
         if os.path.exists(file_path):
-            self.logger.warning('file %s is exist and will be override!' % file_path)
+            self.__logger.warning('file %s is exist and will be override!' % file_path)
         cmd = 'adb shell getprop > %s' % file_path
-        return self.sys_utils.run_sys_cmd(cmd)
+        return self.__sys_utils.run_sys_cmd(cmd)
 
     def dump_anr_files(self, save_path):
         cmd = 'adb pull /data/anr %s' % save_path
-        return self.sys_utils.run_sys_cmd(cmd)
+        return self.__sys_utils.run_sys_cmd(cmd)
 
     def clear_anr_dir(self):
         cmd = 'adb shell "rm -f /data/anr/* 2>/dev/null"'
-        return self.sys_utils.run_sys_cmd(cmd)
+        return self.__sys_utils.run_sys_cmd(cmd)
 
     def dump_tombstone_files(self, save_path):
         cmd = 'adb pull /data/tombstones %s' % save_path
-        return self.sys_utils.run_sys_cmd(cmd)
+        return self.__sys_utils.run_sys_cmd(cmd)
 
     def clear_tombstone_dir(self):
         cmd = 'adb shell "rm -f /data/tombstones/* 2>/dev/null"'
-        return self.sys_utils.run_sys_cmd(cmd)
+        return self.__sys_utils.run_sys_cmd(cmd)
 
     # --------------------------------------------------------------
     # Process handle function
@@ -91,18 +91,18 @@ class AdbUtils(object):
         if p_id is None or len(p_id) == 0:
             return
         cmd = 'adb shell kill %s' % p_id
-        return self.sys_utils.run_sys_cmd(cmd)
+        return self.__sys_utils.run_sys_cmd(cmd)
 
     # --------------------------------------------------------------
     # IO function
     # --------------------------------------------------------------
     def create_dir_on_shell(self, dir_path):
         cmd = 'adb shell "mkdir %s 2>/dev/null"' % dir_path
-        return self.sys_utils.run_sys_cmd_and_ret_lines(cmd)
+        return self.__sys_utils.run_sys_cmd_and_ret_lines(cmd)
 
     def remove_files_on_shell(self, file_path):
         cmd = 'adb shell "rm -rf %s 2>/dev/null"' % file_path
-        return self.sys_utils.run_sys_cmd_and_ret_lines(cmd)
+        return self.__sys_utils.run_sys_cmd_and_ret_lines(cmd)
 
 
 if __name__ == '__main__':

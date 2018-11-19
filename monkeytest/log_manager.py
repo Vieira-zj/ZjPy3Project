@@ -21,10 +21,10 @@ class LogManager(object):
         self.basic_log_level = basic_log_level
         self.file_log_level = file_log_level
         self.log_path = log_path
-        self.logger = None
+        self.__logger = None
         
     def get_logger(self):
-        if self.logger is not None:
+        if self.__logger is not None:
             return
         
         log_format_long = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'
@@ -41,14 +41,14 @@ class LogManager(object):
         fh.setFormatter(logging.Formatter(fmt=log_format_long, datefmt=date_format_long))
         fh.setLevel(self.file_log_level)
 
-        self.logger = logging.getLogger()
-        self.logger.addHandler(fh)
-        self.logger.debug('init logger config')
-        return self.logger
+        self.__logger = logging.getLogger()
+        self.__logger.addHandler(fh)
+        self.__logger.debug('init __logger config')
+        return self.__logger
 
     def clear_log_handles(self):
-        if self.logger.hasHandlers():
-            for fh in self.logger.handlers:
+        if self.__logger.hasHandlers():
+            for fh in self.__logger.handlers:
                 fh.close()
 # end class
 

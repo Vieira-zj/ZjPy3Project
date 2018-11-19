@@ -20,7 +20,7 @@ class SysUtils(object):
         '''
         Constructor
         '''
-        self.logger = logger
+        self.__logger = logger
 
     # --------------------------------------------------------------
     # Time functions
@@ -37,30 +37,30 @@ class SysUtils(object):
     # Run system commands
     # --------------------------------------------------------------    
     def run_sys_cmd(self, cmd):
-        self.logger.debug('Exec command: %s' % cmd)
+        self.__logger.debug('Exec command: %s' % cmd)
         ret = os.system(cmd)
         if not ret == 0:
-            self.logger.warning('Failed, run command => %s, return code is %d' % (cmd, ret))
+            self.__logger.warning('Failed, run command => %s, return code is %d' % (cmd, ret))
             return False
         return True
     
     def run_sys_cmd_and_ret_lines(self, cmd):
-        self.logger.debug('Exec command: %s' % cmd)
+        self.__logger.debug('Exec command: %s' % cmd)
         lines = os.popen(cmd).readlines()
         if len(lines) == 0:
-            self.logger.warning('The output is null for command => %s' % cmd)
+            self.__logger.warning('The output is null for command => %s' % cmd)
         return lines
 
     def run_sys_cmd_and_ret_content(self, cmd):
-        self.logger.debug('Exec command: %s' % cmd)
+        self.__logger.debug('Exec command: %s' % cmd)
         content = os.popen(cmd).read()
         if content is None or content == '':
-            self.logger.warning('The output is null for command => %s' % cmd)
+            self.__logger.warning('The output is null for command => %s' % cmd)
             content = ''
         return content.strip('\r\n')
 
     def run_sys_cmd_in_subprocess(self, cmd):
-        self.logger.debug('Exec command: %s' % cmd)
+        self.__logger.debug('Exec command: %s' % cmd)
     
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         p.wait()
@@ -71,7 +71,7 @@ class SysUtils(object):
             return lines_error
         if len(lines_output) > 0:
             return lines_output
-        self.logger.warning('The output is null for command => %s' % cmd)
+        self.__logger.warning('The output is null for command => %s' % cmd)
         return ''
 
     # --------------------------------------------------------------
@@ -83,16 +83,23 @@ class SysUtils(object):
             return
         os.makedirs(path)
 
+    @classmethod
+    def delete_files_in_dir(cls, dir_path):
+        if not os.path.exists(dir_path):
+            return
+        import shutil
+        shutil.rmtree(dir_path)
+
     def write_content_to_file(self, file_path, content, is_override=True):
         if len(content) == 0:
-            self.logger.error('The input content is empty!')
+            self.__logger.error('The input content is empty!')
             return
         
         if os.path.exists(file_path):
             if is_override:
-                self.logger.info('The file(%s) is exist, and the content will be overrided!' % file_path)
+                self.__logger.info('The file(%s) is exist, and the content will be overrided!' % file_path)
             else:
-                self.logger.error('The file(%s) is exist!' % file_path)
+                self.__logger.error('The file(%s) is exist!' % file_path)
                 return
             
         with codecs.open(file_path, 'w', 'utf-8') as f:
@@ -102,9 +109,11 @@ class SysUtils(object):
 
 if __name__ == '__main__':
 
-    from constants import Constants
-    from log_manager import LogManager
-
+#     SysUtils.delete_files_in_dir(r'D:\JDTestLogs\handTest')
+    
+    from monkeytest.constants import Constants
+    from monkeytest.log_manager import LogManager
+ 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
     utils = SysUtils(logger)
