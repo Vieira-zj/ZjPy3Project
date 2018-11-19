@@ -37,9 +37,9 @@ class AdbUtils(object):
         return True
 
     def is_package_on_top(self, pkg_name):
-        cmd = 'adb shell dumpsys activity | findstr mFocusedActivity | findstr ' + pkg_name
-        tmp_lines = self.sys_utils.run_sys_cmd(cmd)
-        return len(tmp_lines) != 0
+        cmd = 'adb shell "dumpsys activity | grep mFocusedActivity | grep %s"' % pkg_name
+        ret_content = self.sys_utils.run_sys_cmd_and_ret_content(cmd)
+        return len(ret_content) != 0
 
     def dump_logcat_by_tag(self, tag, file_path):
         cmd = 'adb logcat -c && adb logcat -s %s -v time -d > %s' % (tag, file_path)

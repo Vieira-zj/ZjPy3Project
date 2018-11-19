@@ -4,6 +4,7 @@ encoding//monkeytest/constants.py=utf-8
 encoding//monkeytest/log_manager.py=utf-8
 encoding//monkeytest/monkey_monitor.py=utf-8
 encoding//monkeytest/monkey_test.py=utf-8
+encoding//monkeytest/profile_monitor.py=utf-8
 encoding//monkeytest/sys_utils.py=utf-8
 encoding//pydemos/py_demo01.py=utf-8
 encoding//pydemos/py_test01.py=utf-8

@@ -57,7 +57,7 @@ class SysUtils(object):
         if content is None or content == '':
             self.logger.warning('The output is null for command => %s' % cmd)
             content = ''
-        return content
+        return content.strip('\r\n')
 
     def run_sys_cmd_in_subprocess(self, cmd):
         self.logger.debug('Exec command: %s' % cmd)
