@@ -13,32 +13,30 @@ from monkeytest.sys_utils import SysUtils
 
 class ChartParser(object):
     '''
-    classdocs
+    Generate profile chart include CPU, Memory (Pss), Upflow, Downflow.
     '''
 
-    PROFILE_TYPE_CPU = 0
-    PROFILE_TYPE_MEM = 1
-    PROFILE_TYPE_UPFLOW = 2
-    PROFILE_TYPE_DOWNFLOW = 3
+    CATEGORY_CPU = 0
+    CATEGORY_MEM = 1
+    CATEGORY_UPFLOW = 2
+    CATEGORY_DOWNFLOW = 3
 
     __profile_type_list = ('cpu_com_jd_b2b.txt,cpuSystem.txt', 'pss_com_jd_b2b.txt,pssSystemLeft.txt', 'upflow_com_jd_b2b.txt', 'downflow_com_jd_b2b.txt')
 
-    def __init__(self, logger, report_root_path):
+    def __init__(self, logger, report_root_path, is_show=False):
         '''
         Constructor
         '''
         self.__logger = logger
+        self.__is_show = is_show
         self.__report_root_path = report_root_path
         self.__handtest_dir_path = os.path.join(self.__report_root_path, 'handTest')
-        self.__profile_types = self.__profile_type_list[0].split(',')  # default cpu
         self.sysutils = SysUtils(logger)
         
     # --------------------------------------------------------------
     # Read Profile Source Data
     # --------------------------------------------------------------
-    def __read_profile_data(self, p_type):
-        profile_types = self.__profile_type_list[p_type].split(',')
-        
+    def __read_profile_data(self, profile_types):
         y1_arr = []
         y2_arr = []
         if len(profile_types) == 1:
@@ -48,6 +46,9 @@ class ChartParser(object):
             y2_arr = self.sysutils.read_lines_from_file(self.__get_abs_profile_filepath(profile_types[1]))
         else:
             raise Exception('Invalid profile type!')
+        
+        if len(y1_arr) == 0:
+            raise Exception('y1_arr size is zero!')
         
         ret_y1_arr = [int(float(item.split()[1])) for item in y1_arr]
         ret_y2_arr = []
@@ -66,45 +67,78 @@ class ChartParser(object):
         return arr
     
     # --------------------------------------------------------------
-    # Generate Chart
+    # Build Charts
     # --------------------------------------------------------------
-    def generate_chart(self, p_type):
-        if p_type == self.PROFILE_TYPE_CPU:
-            self.__generate_cpu_chart(p_type)
-        elif p_type == self.PROFILE_TYPE_MEM:
-            self.__generate_mem_pss_chart(p_type)
+    def build_chart(self, p_category):
+        plt.title('APP Profile Test')
+        plt.grid(True, color='green', linestyle='--', linewidth='1')
+        
+        profile_types = self.__profile_type_list[p_category].split(',')
+        if p_category == self.CATEGORY_CPU:
+            self.__build_cpu_chart(profile_types)
+            self.__save_image('cpu')
+        elif p_category == self.CATEGORY_MEM:
+            self.__build_mem_pss_chart(profile_types)
+            self.__save_image('mem')
+        elif p_category == self.CATEGORY_UPFLOW:
+            self.__build_upflow_chart(profile_types)
+            self.__save_image('upflow')
+        elif p_category == self.CATEGORY_DOWNFLOW:
+            self.__build_downflow_chart(profile_types)
+            self.__save_image('downflow')
         else:
             raise Exception('Invalid input profile type!')
     
-        plt.title('APP Profile Test')
-        plt.grid(True, color='green', linestyle='--', linewidth='1')
-        plt.show()
-        
-    def __generate_cpu_chart(self, p_type):
-        y1_arr, y2_arr = self.__read_profile_data(p_type)
-        
-        x_label_desc1 = 'Red: %s, average: %.2f' % (self.__profile_types[0].rstrip('.txt'), np.average(y1_arr))
-        x_label_desc2 = 'Blue: %s, average: %.2f' % (self.__profile_types[1].rstrip('.txt'), np.average(y2_arr))
-        plt.xlabel('Time (secs)\n%s\n%s' % (x_label_desc1, x_label_desc2))
-        plt.ylabel('MEM usage (%)')
- 
+        if self.__is_show:
+            plt.show()
+        plt.close('all')
+    
+    def __build_cpu_chart(self, profile_types):
+        y1_arr, y2_arr = self.__read_profile_data(profile_types)
         x_arr = [x for x in range(0, len(y1_arr))]
         plt.plot(x_arr, y1_arr, color='red')
         plt.plot(x_arr, y2_arr, color='blue')
- 
-    def __generate_mem_pss_chart(self, p_type):
-        y1_arr, y2_arr = self.__read_profile_data(p_type)
 
-        x_label_desc1 = 'Red: %s, average: %.2f MB' % (self.__profile_types[0].rstrip('.txt'), np.average(y1_arr))
-        x_label_desc2 = 'Blue: %s, average: %.2f MB' % (self.__profile_types[1].rstrip('.txt'), np.average(y2_arr))
+        x_label_desc1 = 'Red: %s, average: %.2f' % (profile_types[0].rstrip('.txt'), np.average(y1_arr))
+        x_label_desc2 = 'Blue: %s, average: %.2f' % (profile_types[1].rstrip('.txt'), np.average(y2_arr))
+        plt.xlabel('Time (secs)\n%s\n%s' % (x_label_desc1, x_label_desc2))
+        plt.ylabel('CPU usage (%)')
+
+    def __build_mem_pss_chart(self, profile_types):
+        y1_arr, y2_arr = self.__read_profile_data(profile_types)
+        x_arr = [x for x in range(0, len(y1_arr))]
+        plt.plot(x_arr, y1_arr, color='red')
+        plt.plot(x_arr, y2_arr, color='blue')
+        
+        x_label_desc1 = 'Red: %s, average: %.2f MB' % (profile_types[0].rstrip('.txt'), np.average(y1_arr))
+        x_label_desc2 = 'Blue: %s, average: %.2f MB' % (profile_types[1].rstrip('.txt'), np.average(y2_arr))
         plt.xlabel('Time (secs)\n%s\n%s' % (x_label_desc1, x_label_desc2))
         plt.ylabel('Memory Pss Usage (MB)')
  
-        x_arr = [x for x in range(0, len(y1_arr))]
-        plt.plot(x_arr, y1_arr, color='red')
-        plt.plot(x_arr, y2_arr, color='blue')
+    def __build_upflow_chart(self, profile_types):
+        y_arr, _ = self.__read_profile_data(profile_types)
+        x_arr = [x for x in range(0, len(y_arr))]
+        plt.plot(x_arr, y_arr, color='red')
         
+        x_label_desc = '%s, average: %.2f KB' % (profile_types[0].rstrip('.txt'), np.average(y_arr))
+        plt.xlabel('Time (secs)\n%s' % x_label_desc)
+        plt.ylabel('Upflow (KB)')
+
+    def __build_downflow_chart(self, profile_types):
+        y_arr, _ = self.__read_profile_data(profile_types)
+        x_arr = [x for x in range(0, len(y_arr))]
+        plt.plot(x_arr, y_arr, color='red')
         
+        x_label_desc = '%s, average: %.2f KB' % (profile_types[0].rstrip('.txt'), np.average(y_arr))
+        plt.xlabel('Time (secs)\n%s' % x_label_desc)
+        plt.ylabel('Downflow (KB)')
+
+    def __save_image(self, key):
+        save_dpi = 300
+        save_path = os.path.join(self.__report_root_path, 'profile_%s.png' % key)
+        plt.savefig(save_path, format='png', dpi=save_dpi)
+        
+
 if __name__ == '__main__':
     
     from monkeytest.constants import Constants
@@ -115,8 +149,10 @@ if __name__ == '__main__':
 
     root_path = r'D:\ZJWorkspaces\ZjPy3Project\MonkeyReports\18-11-19_202559'
     parser = ChartParser(logger, root_path)
-#     parser.generate_chart(ChartParser.PROFILE_TYPE_CPU)
-    parser.generate_chart(ChartParser.PROFILE_TYPE_MEM)
+    parser.build_chart(ChartParser.CATEGORY_CPU)
+    parser.build_chart(ChartParser.CATEGORY_MEM)
+    parser.build_chart(ChartParser.CATEGORY_UPFLOW)
+    parser.build_chart(ChartParser.CATEGORY_DOWNFLOW)
 
     manager.clear_log_handles()
     print('chart parser test DONE.')

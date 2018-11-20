@@ -58,17 +58,28 @@ def chart_demo():
     z_arr = [y for y in range(0, 20) if y % 2 != 0]
 
     plt.title('Chart Test')
-    ave_desc = 'y average: %d, z average: %d' %(np.average(y_arr), np.average(z_arr))
+    ave_desc = 'y average: %d, z average: %d' % (np.average(y_arr), np.average(z_arr))
     plt.xlabel('X_label_text\n green: system_cpu, blue: user_cpu\n' + ave_desc)
     plt.ylabel('Y_label_text')
     
     plt.plot(x_arr, y_arr, color='red')
     plt.plot(x_arr, z_arr, color='blue')
     plt.grid(True, color='green', linestyle='--', linewidth='1')
-    plt.show()
+
+#     plt.show()
+
+    # default pixel [6.0,4.0]
+    # if set dpi=100, image size 600*400
+    # if set dpi=200, image size 1200*800
+    # if set dpi=300，image size 1800*1200
+
+    plt.savefig(r'd:\profile.png', format='png', dpi=300)    
+    plt.close()
 
 
 if __name__ == '__main__':
     
 #     cmd_args_parse()
     chart_demo()
+    
+    print('Python demo DONE.')
