@@ -53,13 +53,15 @@ def chart_demo():
 
     import matplotlib.pyplot as plt
 
-    plt.title('Chart Test')
-    plt.xlabel('X_label_text\n green: system_cpu, blue: user_cpu')
-    plt.ylabel('Y_label_text')
-    
     x_arr = [x for x in range(0, 10)]
     y_arr = [y for y in range(0, 20) if y % 2 == 0]
     z_arr = [y for y in range(0, 20) if y % 2 != 0]
+
+    plt.title('Chart Test')
+    ave_desc = 'y average: %d, z average: %d' %(np.average(y_arr), np.average(z_arr))
+    plt.xlabel('X_label_text\n green: system_cpu, blue: user_cpu\n' + ave_desc)
+    plt.ylabel('Y_label_text')
+    
     plt.plot(x_arr, y_arr, color='red')
     plt.plot(x_arr, z_arr, color='blue')
     plt.grid(True, color='green', linestyle='--', linewidth='1')

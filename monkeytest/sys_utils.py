@@ -75,7 +75,7 @@ class SysUtils(object):
         return ''
 
     # --------------------------------------------------------------
-    # IO function
+    # IO functions
     # --------------------------------------------------------------    
     @classmethod
     def create_dir_on_win(cls, path):
@@ -89,6 +89,28 @@ class SysUtils(object):
             return
         import shutil
         shutil.rmtree(dir_path)
+
+    def read_lines_from_file(self, file_path):
+        ret_lines = []
+        if not os.path.exists(file_path):
+            self.__logger.error('File is NOT exist: ' + file_path)
+            return ret_lines
+#             raise IOError('File not exist!')
+        
+        with open(file_path, 'r') as f:
+            ret_lines = f.readlines()
+        return ret_lines
+
+    def read_content_from_file(self, file_path):
+        ret_content = ''
+        if not os.path.exists(file_path):
+            self.__logger.error('File is NOT exist: ' + file_path)
+            return ret_content
+#             raise IOError('File not exist!')
+        
+        with open(file_path, 'r') as f:
+            ret_content = f.read()
+        return ret_content
 
     def write_content_to_file(self, file_path, content, is_override=True):
         if len(content) == 0:

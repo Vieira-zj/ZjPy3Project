@@ -14,7 +14,7 @@ from monkeytest.sys_utils import SysUtils
 class ProfileMonitor(object):
     '''
     Android app profile monitor by iTest.
-    Pre-conditions: APP under test is added into iTest, and configs is set ( by manual).
+    Pre-conditions: APP under test is added into iTest, and data collect interval configs is set (by manual), prefer 3s-5s.
     '''
 
     __itest_pkg_name = 'iflytek.testTech.propertytool'
@@ -94,7 +94,7 @@ class ProfileMonitor(object):
             return True
         return False
 
-    def running_monitor(self, run_mins, interval=5):
+    def running_monitor(self, run_mins, interval=15):
         run_secs = run_mins * 60
         start = time.perf_counter()
         while 1:
