@@ -37,7 +37,7 @@ class Constants(object):
     MONKEY_TOTAL_RUN_TIMES = '1000000'
 
     MAX_RUN_TIME = 12 * 60 * 60
-    WAIT_TIME_IN_LOOP = 30
+    WAIT_TIME_IN_LOOP = 15
     LOGCAT_LOG_LEVEL = 'I'
 
     PKG_NAME_ZGB = 'com.jd.b2b'

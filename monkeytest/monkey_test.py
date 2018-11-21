@@ -9,12 +9,13 @@ import os
 import subprocess
 import time
 import threading
-from monkeytest.adb_utils import AdbUtils
 from monkeytest.constants import Constants
 from monkeytest.log_manager import LogManager
+from monkeytest.adb_utils import AdbUtils
+from monkeytest.sys_utils import SysUtils
 from monkeytest.monkey_monitor import MonkeyMonitor
 from monkeytest.profile_monitor import ProfileMonitor
-from monkeytest.sys_utils import SysUtils
+from monkeytest.chart_parser import ChartParser
 
 
 class MonkeyTest(object):
@@ -50,7 +51,9 @@ class MonkeyTest(object):
         self.__sysutils = SysUtils(self.__logger)
         self.__adbutils = AdbUtils(self.__logger)
         self.__monitor = MonkeyMonitor(self.__logger)
+        
         self.__profile_monitor = ProfileMonitor(self.__logger)
+        self.__chart_parser = ChartParser(self.__logger, self.__log_dir_path_for_win)
         
     # --------------------------------------------------------------
     # Processes
@@ -192,8 +195,9 @@ class MonkeyTest(object):
             if Constants.IS_PROFILE_TEST:
                 time.sleep(1)
                 self.__profile_monitor.pull_itest_logfiles(self.__log_dir_path_for_win)
+                self.__chart_parser.build_all_profile_charts()
         else:
-            self.__logger.error('Device disconnect.')
+            self.__logger.error('Device disconnect!')
         self.__log_manager.clear_log_handles()
     
         if Constants.IS_CREATE_ARCHIVE:
