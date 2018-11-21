@@ -116,7 +116,7 @@ class ProfileMonitor(object):
     def stop_monitor(self):
         self.__launch_itest()
         time.sleep(2)
-        self.__click_itest_monitor_btn()
+        self.__click_itest_monitor_btn()  # TODO: fix action failed
         time.sleep(1)
         self.__force_stop_itest()
 

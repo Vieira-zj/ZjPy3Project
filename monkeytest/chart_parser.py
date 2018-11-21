@@ -123,7 +123,7 @@ class ChartParser(object):
         x_arr = [x for x in range(0, len(y_arr))]
         plt.plot(x_arr, y_arr, color='red')
         
-        x_label_desc = 'Red: %s, average: %.2f KB' % (profile_types[0].rstrip('.txt'), np.average(y_arr))
+        x_label_desc = 'Red: ' + profile_types[0].rstrip('.txt')
         plt.xlabel('Time (secs)\n%s' % x_label_desc)
         plt.ylabel('Upflow (KB)')
 
@@ -132,7 +132,7 @@ class ChartParser(object):
         x_arr = [x for x in range(0, len(y_arr))]
         plt.plot(x_arr, y_arr, color='red')
         
-        x_label_desc = 'Red: %s, average: %.2f KB' % (profile_types[0].rstrip('.txt'), np.average(y_arr))
+        x_label_desc = 'Red: ' + profile_types[0].rstrip('.txt')
         plt.xlabel('Time (secs)\n%s' % x_label_desc)
         plt.ylabel('Downflow (KB)')
 
