@@ -159,6 +159,12 @@ class MonkeyTest(object):
         # TODO:
         pass
     
+    def get_exception_sum_info(self):
+        pass
+    
+    def get_anr_sum_info(self):
+        pass
+    
     def __create_archive_report_file(self):
         time.sleep(1)
         root_dir = r'D:\JDTestLogs'

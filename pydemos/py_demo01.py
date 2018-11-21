@@ -77,9 +77,37 @@ def chart_demo():
     plt.close()
 
 
+def regexp_demo():
+    '''
+    Get Java exceptions sum info from input content.
+    '''
+    input_lines = []
+    input_lines.append('W System.err: org.json.JSONException: No value for preSaleSkuInfo')
+    input_lines.append('W System.err: java.lang.NullPointerException: Attempt to invoke virtual method \'int java.lang.String.length()\' on a null object reference')
+    input_lines.append('W System.err: net.grandcentrix.tray.core.TrayException: could not access stored data with uri')
+    input_lines.append('W System.err: org.json.JSONException: No value for preSaleSkuInfo')
+
+    import re
+    ret_dict = {}
+    for line in input_lines:
+        re_results = re.match('.*:\s+(.*Exception)', line)
+        exception_key = re_results.group(1)
+        
+        tmp_val = 0
+        try:
+            tmp_val = ret_dict[exception_key]
+        except KeyError as e:
+            print(e)
+            ret_dict[exception_key] = 1
+        ret_dict[exception_key] = tmp_val + 1
+    
+    print(ret_dict)
+
+
 if __name__ == '__main__':
     
 #     cmd_args_parse()
-    chart_demo()
+#     chart_demo()
+    regexp_demo()
     
     print('Python demo DONE.')
