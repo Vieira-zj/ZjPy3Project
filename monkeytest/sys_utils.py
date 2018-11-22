@@ -97,7 +97,7 @@ class SysUtils(object):
             return ret_lines
 #             raise IOError('File not exist!')
         
-        with open(file_path, 'r') as f:
+        with codecs.open(file_path, 'r', 'utf-8') as f:
             ret_lines = f.readlines()
         return ret_lines
 
@@ -108,25 +108,38 @@ class SysUtils(object):
             return ret_content
 #             raise IOError('File not exist!')
         
-        with open(file_path, 'r') as f:
+        with codecs.open(file_path, 'r', 'utf-8') as f:
             ret_content = f.read()
         return ret_content
-
-    def write_content_to_file(self, file_path, content, is_override=True):
-        if len(content) == 0:
-            self.__logger.error('The input content is empty!')
+    
+    def write_lines_to_file(self, file_path, lines, is_override=True):
+        if not self.__check_file_before_write(file_path, lines, is_override):
             return
-        
-        if os.path.exists(file_path):
-            if is_override:
-                self.__logger.info('The file(%s) is exist, and the content will be overrided!' % file_path)
-            else:
-                self.__logger.error('The file(%s) is exist!' % file_path)
-                return
+    
+        with codecs.open(file_path, 'w', 'utf-8') as f:
+            f.writelines(lines)  # input lines should be unicode
+            f.flush()
+    
+    def write_content_to_file(self, file_path, content, is_override=True):
+        if not self.__check_file_before_write(file_path, content, is_override):
+            return
             
         with codecs.open(file_path, 'w', 'utf-8') as f:
             f.write(content)
             f.flush()
+
+    def __check_file_before_write(self, file_path, inputs, is_override):
+        if len(inputs) == 0:
+            self.__logger.error('The input inputs is empty!')
+            return False
+        
+        if os.path.exists(file_path): 
+            if is_override:
+                self.__logger.info('File (%s) is exist, and the inputs will be override!' % file_path)
+            else:
+                self.__logger.error('File (%s) is exist!' % file_path)
+                return False
+        return True
 
 
 if __name__ == '__main__':
@@ -141,6 +154,7 @@ if __name__ == '__main__':
     utils = SysUtils(logger)
     utils.run_sys_cmd('python -V')
     utils.write_content_to_file(Constants.TEST_FILE_PATH, 'test')
+#     utils.write_content_to_file(Constants.TEST_FILE_PATH, 'test')
     manager.clear_log_handles()
     
     print('system utils test DONE.')

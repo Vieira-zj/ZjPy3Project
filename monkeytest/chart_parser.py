@@ -102,8 +102,8 @@ class ChartParser(object):
         plt.plot(x_arr, y1_arr, color='red')
         plt.plot(x_arr, y2_arr, color='blue')
 
-        x_label_desc1 = 'Red: %s, average: %.2f' % (profile_types[0].rstrip('.txt'), np.average(y1_arr))
-        x_label_desc2 = 'Blue: %s, average: %.2f' % (profile_types[1].rstrip('.txt'), np.average(y2_arr))
+        x_label_desc1 = 'Red: %s (average: %.2f%%, max: %d%%)' % (profile_types[0].rstrip('.txt'), np.average(y1_arr), np.max(y1_arr))
+        x_label_desc2 = 'Blue: %s (average: %.2f%%, max: %d%%)' % (profile_types[1].rstrip('.txt'), np.average(y2_arr), np.max(y2_arr))
         plt.xlabel('Time (secs)\n%s\n%s' % (x_label_desc1, x_label_desc2))
         plt.ylabel('CPU usage (%)')
 
@@ -113,8 +113,8 @@ class ChartParser(object):
         plt.plot(x_arr, y1_arr, color='red')
         plt.plot(x_arr, y2_arr, color='blue')
         
-        x_label_desc1 = 'Red: %s, average: %.2f MB' % (profile_types[0].rstrip('.txt'), np.average(y1_arr))
-        x_label_desc2 = 'Blue: %s, average: %.2f MB' % (profile_types[1].rstrip('.txt'), np.average(y2_arr))
+        x_label_desc1 = 'Red: %s (average: %.2f MB, max: %d MB)' % (profile_types[0].rstrip('.txt'), np.average(y1_arr), np.max(y1_arr))
+        x_label_desc2 = 'Blue: %s (average: %.2f MB, max: %d MB)' % (profile_types[1].rstrip('.txt'), np.average(y2_arr), np.max(y2_arr))
         plt.xlabel('Time (secs)\n%s\n%s' % (x_label_desc1, x_label_desc2))
         plt.ylabel('Memory Pss Usage (MB)')
  
@@ -150,11 +150,11 @@ if __name__ == '__main__':
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
 
-    root_path = r'D:\ZJWorkspaces\ZjPy3Project\MonkeyReports\18-11-19_202559'
+    root_path = r'D:\ZJWorkspaces\ZjPy3Project\MonkeyReports\18-11-21_121528'
     parser = ChartParser(logger, root_path)
-    parser.build_all_profile_charts()
-#     parser.build_profile_chart(ChartParser.CATEGORY_CPU)
-#     parser.build_profile_chart(ChartParser.CATEGORY_MEM)
+#     parser.build_all_profile_charts()
+    parser.build_profile_chart(ChartParser.CATEGORY_CPU, True)
+#     parser.build_profile_chart(ChartParser.CATEGORY_MEM, True)
 #     parser.build_profile_chart(ChartParser.CATEGORY_UPFLOW)
 #     parser.build_profile_chart(ChartParser.CATEGORY_DOWNFLOW, True)
 

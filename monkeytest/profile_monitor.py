@@ -23,13 +23,15 @@ class ProfileMonitor(object):
     __hand_log_dir = 'handTest'
     __hand_log_dir_path = __log_root_dir_path + '/' + __hand_log_dir
 
-    def __init__(self, logger):
+    def __init__(self, logger, itest_collect_interval):
         '''
         Constructor
         '''
         self.__logger = logger
         self.__sys_utils = SysUtils(logger)
         self.__adb_utils = AdbUtils(logger)
+        # note: this value should be greater than interval config in iTest
+        self.__wait_time_between_check = itest_collect_interval + 1
 
     # --------------------------------------------------------------
     # Start Monitor
@@ -84,7 +86,7 @@ class ProfileMonitor(object):
     def __is_cpu_logfile_updated(self):
         before_record_time = self.__get_cpu_logfile_record_time()
         self.__logger.info('before time: ' + before_record_time)
-        time.sleep(2)
+        time.sleep(self.__wait_time_between_check)
         after_record_time = self.__get_cpu_logfile_record_time()
         self.__logger.info('after time: ' + after_record_time)
         return before_record_time != after_record_time
@@ -142,7 +144,7 @@ if __name__ == '__main__':
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
     
-    monitor = ProfileMonitor(logger)
+    monitor = ProfileMonitor(logger, 3)
     monitor.start_monitor()
     monitor.running_monitor(0.5)
     time.sleep(1)

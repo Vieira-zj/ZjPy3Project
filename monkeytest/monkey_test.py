@@ -6,6 +6,7 @@ Created on 2018-10-29
 '''
 
 import os
+import re
 import subprocess
 import time
 import threading
@@ -43,9 +44,15 @@ class MonkeyTest(object):
         self.__monkey_log_path = os.path.join(self.__log_dir_path_for_win, 'monkey_log.log')
         self.__device_props_file_path = os.path.join(self.__log_dir_path_for_win, 'device_props.log')
         self.__app_dump_file_path = os.path.join(self.__log_dir_path_for_win, 'app_info.log')
-        self.__logcat_log_path_for_shell = '%s/%s' % (self.__log_dir_path_for_shell, 'logcat_log.log')
-        self.__logcat_filter_exception_path_for_shell = '%s/%s' % (self.__log_dir_path_for_shell, 'logcat_filter_exception.log')
-        self.__logcat_filter_anr_path_for_shell = '%s/%s' % (self.__log_dir_path_for_shell, 'logcat_filter_anr.log')
+        self.__logcat_log_path_for_shell = '%s/%s' % (self.__log_dir_path_for_shell, 'logcat_full_log.log')
+
+        self.__logcat_exception_file_name = 'logcat_exception.log'
+        self.__logcat_exception_path_for_shell = '%s/%s' % (self.__log_dir_path_for_shell, self.__logcat_exception_file_name)
+        self.__logcat_exception_path_for_win = os.path.join(self.__log_dir_path_for_win, self.__logcat_exception_file_name)
+        self.__logcat_anr_file_name = 'logcat_anr.log'
+        self.__logcat_anr_path_for_shell = '%s/%s' % (self.__log_dir_path_for_shell, self.__logcat_anr_file_name)
+        self.__logcat_anr_path_for_win = os.path.join(self.__log_dir_path_for_win, self.__logcat_anr_file_name)
+        self.__monkey_test_report_path_for_win = os.path.join(self.__log_dir_path_for_win, 'monkey_test_report.txt')
         
         SysUtils.create_dir_on_win(self.__log_dir_path_for_win)
         self.__log_manager = LogManager(self.__exec_log_path)
@@ -54,7 +61,7 @@ class MonkeyTest(object):
         self.__adbutils = AdbUtils(self.__logger)
         self.__monitor = MonkeyMonitor(self.__logger)
         
-        self.__profile_monitor = ProfileMonitor(self.__logger)
+        self.__profile_monitor = ProfileMonitor(self.__logger, Constants.ITEST_COLLECT_INTERVAL)
         self.__chart_parser = ChartParser(self.__logger, self.__log_dir_path_for_win)
         
     # --------------------------------------------------------------
@@ -99,71 +106,58 @@ class MonkeyTest(object):
     # --------------------------------------------------------------
     # Adb and Shell utils
     # --------------------------------------------------------------
-    def __is_device_busy(self, lines):
+    def __create_log_dir_for_shell(self, dir_path):
+        self.__check_adb_action(self.__adbutils.create_dir_on_shell(dir_path))
+        
+    def __clear_log_dir_for_shell(self):
+        self.__check_adb_action(self.__adbutils.remove_files_on_shell(self.__log_dir_path_for_shell))
+
+    def __check_adb_action(self, lines):
         for line in lines:
             if 'busy' in line:
                 self.__logger.error(line)
-                self.__logger.error('Monkey test exit because of device busy!')
-                exit(1)
+                raise Exception('Monkey test exit because of device busy!')
     
-    def __create_log_dir_for_shell(self, dir_path):
-        self.__is_device_busy(self.__adbutils.create_dir_on_shell(dir_path))
-        
-    def __clear_log_dir_for_shell(self):
-        self.__is_device_busy(self.__adbutils.remove_files_on_shell(self.__log_dir_path_for_shell))
-
-    def __logcat_filter_exception(self):
-        cmd = 'adb shell \"cat %s | grep \'at com.jd.b2b\' -C 20 > %s"' % (self.__logcat_log_path_for_shell, self.__logcat_filter_exception_path_for_shell)
+    def __filter_shell_logcat_exception(self):
+        cmd = 'adb shell \"cat %s | grep \'at com.jd.b2b\' -C 20 > %s"' % (self.__logcat_log_path_for_shell, self.__logcat_exception_path_for_shell)
         if not self.__sysutils.run_sys_cmd(cmd):
-            self.__logger.warn('Filter exception for logcat failed!')
+            self.__logger.warning('Filter exception for logcat failed!')
 
-    def __logcat_filter_anr(self):
-        cmd = 'adb shell \"cat %s | grep \'E ANRManager: ANR\' -C 20 > %s"' % (self.__logcat_log_path_for_shell, self.__logcat_filter_anr_path_for_shell)
+    def __filter_shell_logcat_anr(self):
+        cmd = 'adb shell \"cat %s | grep \'E ANRManager: ANR\' -C 20 > %s"' % (self.__logcat_log_path_for_shell, self.__logcat_anr_path_for_shell)
         if not self.__sysutils.run_sys_cmd(cmd):
-            self.__logger.warn('Filter anr for logcat failed!')
+            self.__logger.warning('Filter anr for logcat failed!')
 
     def __pull_all_testing_logs(self):
-        cmd_pull_logcat_log = 'adb pull %s %s' % (self.__logcat_log_path_for_shell, self.__log_dir_path_for_win)
-        if not self.__sysutils.run_sys_cmd(cmd_pull_logcat_log):
-            self.__logger.warn('Pull logcat file failed!')
+        shell_log_files = (self.__logcat_log_path_for_shell, self.__logcat_exception_path_for_shell, self.__logcat_anr_path_for_shell)
+        for shell_f in shell_log_files:
+            cmd_pull_log_files = 'adb pull %s %s' % (shell_f, self.__log_dir_path_for_win)
+            if not self.__sysutils.run_sys_cmd(cmd_pull_log_files):
+                self.__logger.warning('Pull logcat file failed: ' + shell_f)
+
+        if not self.__adbutils.dump_tombstone_files(self.__log_dir_path_for_win):
+            self.__logger.warning('Pull tombstone file failed!')
 
         self.__pull_latest_anr_files()
-        if not self.__adbutils.dump_tombstone_files(self.__log_dir_path_for_win):
-            self.__logger.warn('Pull tombstone file failed!')
-    
+
     def __pull_latest_anr_files(self):
         '''
         Get anr files in 24 hours.
         '''
-        cmd = 'adb shell "find /data/anr/ -name \'*.txt\' -mtime -1 2>/dev/null"'
+        cmd = 'adb shell "find /data/anr/ -name *.txt -mtime -1 2>/dev/null"'
         anr_files = self.__sysutils.run_sys_cmd_and_ret_lines(cmd)
         if len(anr_files) == 0:
             return
         
-        save_path = r'%s\anr' % self.__log_dir_path_for_win
+        save_path = os.path.join(self.__log_dir_path_for_win, 'anr')
         self.__sysutils.create_dir_on_win(save_path)
         for f in anr_files:
             f = f.strip('\r\n')
             if len(f) == 0:
                 continue
             cmd = 'adb pull %s %s' % (f, save_path)
-            self.__sysutils.run_sys_cmd(cmd)
-    
-    # --------------------------------------------------------------
-    # Create report and Archive
-    # --------------------------------------------------------------
-    def __create_monkey_test_summary_report(self):
-        '''
-        Include: run time, device info, app info, exception number, anr number
-        '''
-        # TODO:
-        pass
-    
-    def get_exception_sum_info(self):
-        pass
-    
-    def get_anr_sum_info(self):
-        pass
+            if not self.__sysutils.run_sys_cmd(cmd):
+                self.__logger.warning('Pull anr file failed: ' + f)
     
     def __create_archive_report_file(self):
         time.sleep(1)
@@ -173,15 +167,62 @@ class MonkeyTest(object):
 
         self.__logger.debug('Create archive report file: ' + target_file)
         if not self.__sysutils.run_sys_cmd(cmd):
-            self.__logger.warn('Create archive report file failed!')
+            self.__logger.warning('Create archive report file failed!')
 
+    # --------------------------------------------------------------
+    # Create report and Archive
+    # --------------------------------------------------------------
+    def __create_monkey_test_summary_report(self):
+        '''
+        Include: run time, device info, app info, exception number, anr number
+        '''
+        output_lines = []
+        output_lines.append('APP exceptions summary info:\n')
+        output_lines = output_lines + self.__get_exception_sum_info()
+
+        output_lines.append('\rAPP ANR summary info:\n')
+        output_lines.append('Total ANR: %d\n' % self.__get_anr_sum_info())
+        
+        self.__sysutils.write_lines_to_file(self.__monkey_test_report_path_for_win, output_lines)
+    
+    def __get_exception_sum_info(self):
+        input_lines = self.__sysutils.read_lines_from_file(self.__logcat_exception_path_for_win)
+
+        ret_dict = {}
+        for line in input_lines:
+            re_results = re.match('.*:\s+(.*Exception)', line)
+            exception_key = ''
+            try:
+                exception_key = re_results.group(1)
+            except AttributeError as e:
+                continue
+            
+            tmp_val = 0
+            try:
+                tmp_val = ret_dict[exception_key]
+                ret_dict[exception_key] = tmp_val + 1
+            except KeyError as e:
+                ret_dict[exception_key] = 1
+        
+        if len(ret_dict) == 0:
+            return ['null\n']
+        return ['%s: %d\n' % (k, v) for k, v in ret_dict.items()]
+    
+    def __get_anr_sum_info(self):
+        input_lines = self.__sysutils.read_lines_from_file(self.__logcat_anr_path_for_win)
+        totals = 0
+
+        for line in input_lines:
+            if 'E ANRManager: ANR' in line:
+                totals = totals + 1
+        return totals
+    
     # --------------------------------------------------------------
     # Monkey Test Main
     # --------------------------------------------------------------
     def __test_setup_main(self):
         if not self.__adbutils.is_devices_connected():
-            self.__logger.error('No devices connected!')
-            exit(1)
+            raise Exception('No devices connected!')
 
         # shell env setup
         self.__adbutils.clear_anr_dir()
@@ -202,13 +243,15 @@ class MonkeyTest(object):
         self.__logger.info('Start monkey main process.')
         monkey_p = self.__run_monkey_subprocess()
     
-        self.__logger.info('Start monkey __monitor process.')
+        self.__logger.info('Start monkey monitor process.')
         monkey_monitor_t = threading.Thread(target=self.__monitor.process_monkey_monitor_main, args=(self.__run_mins,))
-        if Constants.IS_PROFILE_TEST:
-            profile_monitor_t = threading.Thread(target=self.__profile_monitor.running_monitor, args=(self.__run_mins, Constants.WAIT_TIME_IN_LOOP))
         threads = []
         threads.append(monkey_monitor_t)
-        threads.append(profile_monitor_t)
+        if Constants.IS_PROFILE_TEST:
+            self.__logger.info('Start APP profile monitor process.')
+            profile_monitor_t = threading.Thread(target=self.__profile_monitor.running_monitor, args=(self.__run_mins, Constants.WAIT_TIME_IN_LOOP))
+            threads.append(profile_monitor_t)
+
         for t in threads:
             t.start()
         for t in threads:
@@ -220,10 +263,12 @@ class MonkeyTest(object):
     def __test_clearup_main(self):
         # the adb connection maybe disconnect when running the monkey
         if self.__adbutils.is_devices_connected():
-            self.__logcat_filter_exception()
-            self.__logcat_filter_anr()
+            self.__filter_shell_logcat_exception()
+            self.__filter_shell_logcat_anr()
             self.__pull_all_testing_logs()
             self.__adbutils.clear_app_data(self.__test_pkg_name)
+            self.__create_monkey_test_summary_report()
+
             if Constants.IS_PROFILE_TEST:
                 time.sleep(1)
                 self.__profile_monitor.pull_itest_logfiles(self.__log_dir_path_for_win)
