@@ -41,9 +41,9 @@ class MonkeyTest(object):
         self.__log_dir_path_for_shell = '/data/local/tmp/monkey_test_logs'
 
         self.__exec_log_path = os.path.join(self.__log_dir_path_for_win, 'run_log.log')
-        self.__monkey_log_path = os.path.join(self.__log_dir_path_for_win, 'monkey_log.log')
         self.__device_props_file_path = os.path.join(self.__log_dir_path_for_win, 'device_props.log')
         self.__app_dump_file_path = os.path.join(self.__log_dir_path_for_win, 'app_info.log')
+        self.__monkey_log_path_for_shell = '%s/%s' % (self.__log_dir_path_for_shell, 'monkey_log.log')
         self.__logcat_log_path_for_shell = '%s/%s' % (self.__log_dir_path_for_shell, 'logcat_full_log.log')
 
         self.__logcat_exception_file_name = 'logcat_exception.log'
@@ -68,7 +68,7 @@ class MonkeyTest(object):
     # Processes
     # --------------------------------------------------------------
     def __build_monkey_cmd(self):
-        monkey_cmd = 'adb shell monkey --throttle 500 -p %s' % self.__test_pkg_name
+        monkey_cmd = 'adb shell "monkey --throttle 500 -p %s' % self.__test_pkg_name
 
         monkey_launch_params = '-c android.intent.category.MONKEY -c android.intent.category.LAUNCHER -c ' + \
             'android.intent.category.DEFAULT --monitor-native-crashes --kill-process-after-error'
@@ -78,7 +78,7 @@ class MonkeyTest(object):
 #         monkey_actions_pct = '--pct-touch 65 --pct-motion 20 --pct-trackball 5 --pct-nav 0 ' + \
 #             '--pct-majornav 5 --pct-syskeys 5 --pct-appswitch 0 --pct-flip 0 --pct-anyevent 0'
         monkey_actions_pct = self.__build_monkey_action_cmd()
-        monkey_format = '-v -v -v %s > %s' % (Constants.MONKEY_TOTAL_RUN_TIMES, self.__monkey_log_path)
+        monkey_format = '-v -v -v %s > %s"' % (Constants.MONKEY_TOTAL_RUN_TIMES, self.__monkey_log_path_for_shell)
 
         return ' '.join((monkey_cmd, monkey_launch_params, monkey_ignore, monkey_actions_pct, monkey_format))
 
@@ -129,7 +129,8 @@ class MonkeyTest(object):
             self.__logger.warning('Filter anr for logcat failed!')
 
     def __pull_all_testing_logs(self):
-        shell_log_files = (self.__logcat_log_path_for_shell, self.__logcat_exception_path_for_shell, self.__logcat_anr_path_for_shell)
+        shell_log_files = (self.__logcat_log_path_for_shell, self.__monkey_log_path_for_shell,
+                           self.__logcat_exception_path_for_shell, self.__logcat_anr_path_for_shell)
         for shell_f in shell_log_files:
             cmd_pull_log_files = 'adb pull %s %s' % (shell_f, self.__log_dir_path_for_win)
             if not self.__sysutils.run_sys_cmd(cmd_pull_log_files):

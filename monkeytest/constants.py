@@ -44,7 +44,7 @@ class Constants(object):
     RUN_MINS_TEXT = 'run_mins'
     RUN_MINS = 3
     
-    IS_PROFILE_TEST = False
+    IS_PROFILE_TEST = True
     ITEST_COLLECT_INTERVAL = 3
     IS_CREATE_ARCHIVE = False
 

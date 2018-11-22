@@ -37,7 +37,7 @@ class SysUtils(object):
     # Run system commands
     # --------------------------------------------------------------    
     def run_sys_cmd(self, cmd):
-        self.__logger.debug('Exec command: %s' % cmd)
+        self.__logger.debug('Exec command: ' + cmd)
         ret = os.system(cmd)
         if not ret == 0:
             self.__logger.warning('Failed, run command => %s, return code is %d' % (cmd, ret))
@@ -45,22 +45,22 @@ class SysUtils(object):
         return True
     
     def run_sys_cmd_and_ret_lines(self, cmd):
-        self.__logger.debug('Exec command: %s' % cmd)
+        self.__logger.debug('Exec command: ' + cmd)
         lines = os.popen(cmd).readlines()
         if len(lines) == 0:
-            self.__logger.warning('The output is null for command => %s' % cmd)
+            self.__logger.warning('The output is empty for command => ' + cmd)
         return lines
 
     def run_sys_cmd_and_ret_content(self, cmd):
-        self.__logger.debug('Exec command: %s' % cmd)
+        self.__logger.debug('Exec command: ' + cmd)
         content = os.popen(cmd).read()
         if content is None or content == '':
-            self.__logger.warning('The output is null for command => %s' % cmd)
+            self.__logger.warning('The output is empty for command => ' + cmd)
             content = ''
         return content.strip('\r\n')
 
     def run_sys_cmd_in_subprocess(self, cmd):
-        self.__logger.debug('Exec command: %s' % cmd)
+        self.__logger.debug('Exec command: ' + cmd)
     
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         p.wait()
@@ -71,7 +71,7 @@ class SysUtils(object):
             return lines_error
         if len(lines_output) > 0:
             return lines_output
-        self.__logger.warning('The output is null for command => %s' % cmd)
+        self.__logger.warning('The output is empty for command => ' + cmd)
         return ''
 
     # --------------------------------------------------------------
@@ -130,7 +130,7 @@ class SysUtils(object):
 
     def __check_file_before_write(self, file_path, inputs, is_override):
         if len(inputs) == 0:
-            self.__logger.error('The input inputs is empty!')
+            self.__logger.error('The input is empty!')
             return False
         
         if os.path.exists(file_path): 
