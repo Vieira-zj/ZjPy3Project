@@ -144,8 +144,8 @@ class ChartParser(object):
 
 if __name__ == '__main__':
     
-    from monkeytest.constants import Constants
-    from monkeytest.log_manager import LogManager
+    from monkeytest import Constants
+    from monkeytest import LogManager
 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()

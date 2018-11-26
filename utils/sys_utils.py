@@ -78,7 +78,7 @@ class SysUtils(object):
     # IO functions
     # --------------------------------------------------------------    
     @classmethod
-    def create_dir_on_win(cls, path):
+    def create_dir(cls, path):
         if os.path.exists(path):
             return
         os.makedirs(path)
@@ -146,8 +146,8 @@ if __name__ == '__main__':
 
 #     SysUtils.delete_files_in_dir(r'D:\JDTestLogs\handTest')
     
-    from monkeytest.constants import Constants
-    from monkeytest.log_manager import LogManager
+    from monkeytest import Constants
+    from monkeytest import LogManager
  
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()

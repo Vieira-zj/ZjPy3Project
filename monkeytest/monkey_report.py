@@ -64,7 +64,7 @@ class MonkeyReport(object):
         
         if len(ret_dict) == 0:
             return ['null\n']
-        return ['total: %d, details: %s\n' % (v, k) for k, v in ret_dict.items()]
+        return ['total: %d, desc: %s\n' % (v, k) for k, v in ret_dict.items()]
     
     def __get_anr_sum_info(self):
         input_lines = self.__sysutils.read_lines_from_file(self.__log_anr_path)
@@ -78,8 +78,8 @@ class MonkeyReport(object):
 
 if __name__ == '__main__':
 
-    from monkeytest.constants import Constants
-    from monkeytest.log_manager import LogManager
+    from monkeytest import Constants
+    from monkeytest import LogManager
 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
