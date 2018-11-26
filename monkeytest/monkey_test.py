@@ -180,6 +180,9 @@ class MonkeyTest(object):
     # --------------------------------------------------------------
     # Monkey Test Main
     # --------------------------------------------------------------
+    def __is_profile_test_ok(self):
+        return Constants.IS_PROFILE_TEST and int(self.__adbutils.get_android_version()[0]) <= 7
+    
     def __test_setup_main(self):
         if not self.__adbutils.is_devices_connected():
             raise Exception('No devices connected!')
@@ -194,7 +197,7 @@ class MonkeyTest(object):
         self.__adbutils.dump_device_props(self.__device_props_file_path)
         self.__adbutils.dump_app_info(Constants.PKG_NAME_ZGB, self.__app_dump_file_path)
         
-        if Constants.IS_PROFILE_TEST:
+        if self.__is_profile_test_ok():
             self.__profile_monitor.start_monitor()
 
     def __test_main(self):
@@ -207,7 +210,7 @@ class MonkeyTest(object):
         monkey_monitor_t = threading.Thread(target=self.__monitor.process_monkey_monitor_main, args=(self.__run_mins,))
         threads = []
         threads.append(monkey_monitor_t)
-        if Constants.IS_PROFILE_TEST:
+        if self.__is_profile_test_ok():
             self.__logger.info('Start APP profile monitor process.')
             profile_monitor_t = threading.Thread(target=self.__profile_monitor.running_monitor, args=(self.__run_mins, False, Constants.WAIT_TIME_IN_LOOP))
             threads.append(profile_monitor_t)
@@ -231,7 +234,7 @@ class MonkeyTest(object):
             self.__pull_all_testing_logs()
             self.__create_monkey_test_report()
 
-            if Constants.IS_PROFILE_TEST:
+            if self.__is_profile_test_ok():
                 time.sleep(1)
                 self.__profile_monitor.pull_itest_logfiles(self.__log_dir_path_for_win)
                 self.__chart_parser.build_all_profile_charts()

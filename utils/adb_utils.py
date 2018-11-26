@@ -59,6 +59,11 @@ class AdbUtils(object):
         cmd = 'adb shell dumpsys package %s > %s' % (app_name, file_path)
         return self.__sys_utils.run_sys_cmd(cmd)
 
+    def get_android_version(self):
+        cmd = 'adb shell "getprop | grep \'ro.build.version.release\' | cut -f 2 -d \' \'"'
+        ret_content = self.__sys_utils.run_sys_cmd_and_ret_content(cmd)
+        return ret_content.lstrip('[').rstrip(']')
+
     def dump_device_props(self, file_path):
         if os.path.exists(file_path):
             self.__logger.warning('file %s is exist and will be override!' % file_path)
@@ -120,9 +125,11 @@ if __name__ == '__main__':
 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
+
     utils = AdbUtils(logger)
     print(utils.is_devices_connected())
     print('Monkey pid:', utils.get_process_id_by_name('monkey'))
-    manager.clear_log_handles()
+    print('android version:', utils.get_android_version())
     
+    manager.clear_log_handles()
     print('adb manager test DONE.')
