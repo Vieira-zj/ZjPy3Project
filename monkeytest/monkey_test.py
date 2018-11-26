@@ -36,7 +36,7 @@ class MonkeyTest(object):
         self.__run_mins = int(run_mins)
 
         cur_time = SysUtils.get_current_date_and_time()
-        self.__log_root_path = os.path.join(os.getcwd(), 'MonkeyReports')
+        self.__log_root_path = os.path.join(os.getcwd(), 'monkeyreports')
         self.__log_dir_path_for_win = os.path.join(self.__log_root_path, cur_time)
         self.__log_dir_path_for_shell = '/data/local/tmp/monkey_test_logs'
 
