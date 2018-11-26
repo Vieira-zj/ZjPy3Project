@@ -22,6 +22,18 @@ class AdbUtils(object):
         cmd = 'adb version'
         return os.popen(cmd).read()
 
+    def start_app(self, app_launch_info):
+        cmd = 'adb shell am start -S ' + app_launch_info
+        return self.__sys_utils.run_sys_cmd(cmd)
+    
+    def stop_app(self, package_name):
+        cmd = 'adb shell am force-stop ' + package_name
+        return self.__sys_utils.run_sys_cmd(cmd)
+
+    def clear_app_data(self, pkg_name):
+        cmd = 'adb shell pm clear %s' % pkg_name
+        return self.__sys_utils.run_sys_cmd(cmd)
+
     def is_devices_connected(self):
         # support one device
         self.__logger.debug('check adb devices connected.')
@@ -41,24 +53,20 @@ class AdbUtils(object):
         ret_content = self.__sys_utils.run_sys_cmd_and_ret_content(cmd)
         return len(ret_content) != 0
 
-    def dump_logcat_by_tag(self, tag, file_path):
-        cmd = 'adb logcat -c && adb logcat -s %s -v time -d > %s' % (tag, file_path)
-        return self.__sys_utils.run_sys_cmd(cmd)
-
     def dump_app_info(self, app_name, file_path):
         if os.path.exists(file_path):
             self.__logger.warning('file %s is exist and will be override!' % file_path)
         cmd = 'adb shell dumpsys package %s > %s' % (app_name, file_path)
         return self.__sys_utils.run_sys_cmd(cmd)
 
-    def clear_app_data(self, pkg_name):
-        cmd = 'adb shell pm clear %s' % pkg_name
-        return self.__sys_utils.run_sys_cmd(cmd)
-
     def dump_device_props(self, file_path):
         if os.path.exists(file_path):
             self.__logger.warning('file %s is exist and will be override!' % file_path)
         cmd = 'adb shell getprop > %s' % file_path
+        return self.__sys_utils.run_sys_cmd(cmd)
+
+    def dump_logcat_by_tag(self, tag, file_path):
+        cmd = 'adb logcat -c && adb logcat -s %s -v time -d > %s' % (tag, file_path)
         return self.__sys_utils.run_sys_cmd(cmd)
 
     def dump_anr_files(self, save_path):

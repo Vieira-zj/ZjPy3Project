@@ -90,7 +90,7 @@ def regexp_demo():
     import re
     ret_dict = {}
     for line in input_lines:
-        re_results = re.match('.*:\s+(.*Exception)', line)
+        re_results = re.match('.*:\s+(.*Exception.{20,30})', line)
         exception_key = ''
         try:
             exception_key = re_results.group(1)

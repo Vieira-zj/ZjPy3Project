@@ -6,7 +6,6 @@ Created on 2018-10-29
 '''
 
 import os
-import re
 import subprocess
 import time
 import threading
@@ -17,6 +16,7 @@ from monkeytest.sys_utils import SysUtils
 from monkeytest.monkey_monitor import MonkeyMonitor
 from monkeytest.profile_monitor import ProfileMonitor
 from monkeytest.chart_parser import ChartParser
+from monkeytest.monkey_report import MonkeyReport
 
 
 class MonkeyTest(object):
@@ -48,11 +48,8 @@ class MonkeyTest(object):
 
         self.__logcat_exception_file_name = 'logcat_exception.log'
         self.__logcat_exception_path_for_shell = '%s/%s' % (self.__log_dir_path_for_shell, self.__logcat_exception_file_name)
-        self.__logcat_exception_path_for_win = os.path.join(self.__log_dir_path_for_win, self.__logcat_exception_file_name)
         self.__logcat_anr_file_name = 'logcat_anr.log'
         self.__logcat_anr_path_for_shell = '%s/%s' % (self.__log_dir_path_for_shell, self.__logcat_anr_file_name)
-        self.__logcat_anr_path_for_win = os.path.join(self.__log_dir_path_for_win, self.__logcat_anr_file_name)
-        self.__monkey_test_report_path_for_win = os.path.join(self.__log_dir_path_for_win, 'monkey_test_report.txt')
         
         SysUtils.create_dir_on_win(self.__log_dir_path_for_win)
         self.__log_manager = LogManager(self.__exec_log_path)
@@ -63,9 +60,10 @@ class MonkeyTest(object):
         
         self.__profile_monitor = ProfileMonitor(self.__logger, Constants.ITEST_COLLECT_INTERVAL)
         self.__chart_parser = ChartParser(self.__logger, self.__log_dir_path_for_win)
+        self.__report = MonkeyReport(self.__logger, self.__log_dir_path_for_win, self.__logcat_exception_file_name, self.__logcat_anr_file_name)
         
     # --------------------------------------------------------------
-    # Processes
+    # Monkey and logcat processes
     # --------------------------------------------------------------
     def __build_monkey_cmd(self):
         monkey_cmd = 'adb shell "monkey --throttle 500 -p %s' % self.__test_pkg_name
@@ -160,9 +158,18 @@ class MonkeyTest(object):
             if not self.__sysutils.run_sys_cmd(cmd):
                 self.__logger.warning('Pull anr file failed: ' + f)
     
+    # --------------------------------------------------------------
+    # Create report and archive
+    # --------------------------------------------------------------
+    def __create_monkey_test_report(self):
+        title_dict = {}
+        title_dict['TEST PACKAGE'] = self.__test_pkg_name
+        title_dict['RUN TIME'] = str(self.__run_mins)
+        self.__report.create_monkey_test_report(title_dict)
+    
     def __create_archive_report_file(self):
         time.sleep(1)
-        root_dir = r'D:\JDTestLogs'
+        root_dir = r'D:\JDTestLogs'  # temp local save path
         target_file = os.path.join(root_dir, 'monkey_' + os.path.basename(self.__log_dir_path_for_win) + '.7z')
         cmd = r'"C:\Program Files\7-Zip\7z" a -t7z %s %s' % (target_file, self.__log_dir_path_for_win)
 
@@ -170,54 +177,6 @@ class MonkeyTest(object):
         if not self.__sysutils.run_sys_cmd(cmd):
             self.__logger.warning('Create archive report file failed!')
 
-    # --------------------------------------------------------------
-    # Create report and Archive
-    # --------------------------------------------------------------
-    def __create_monkey_test_summary_report(self):
-        '''
-        Include: run time, device info, app info, exception number, anr number
-        '''
-        output_lines = []
-        output_lines.append('APP exceptions summary info:\n')
-        output_lines = output_lines + self.__get_exception_sum_info()
-
-        output_lines.append('\rAPP ANR summary info:\n')
-        output_lines.append('Total ANR: %d\n' % self.__get_anr_sum_info())
-        
-        self.__sysutils.write_lines_to_file(self.__monkey_test_report_path_for_win, output_lines)
-    
-    def __get_exception_sum_info(self):
-        input_lines = self.__sysutils.read_lines_from_file(self.__logcat_exception_path_for_win)
-
-        ret_dict = {}
-        for line in input_lines:
-            re_results = re.match('.*:\s+(.*Exception)', line)
-            exception_key = ''
-            try:
-                exception_key = re_results.group(1)
-            except AttributeError as e:
-                continue
-            
-            tmp_val = 0
-            try:
-                tmp_val = ret_dict[exception_key]
-                ret_dict[exception_key] = tmp_val + 1
-            except KeyError as e:
-                ret_dict[exception_key] = 1
-        
-        if len(ret_dict) == 0:
-            return ['null\n']
-        return ['%s: %d\n' % (k, v) for k, v in ret_dict.items()]
-    
-    def __get_anr_sum_info(self):
-        input_lines = self.__sysutils.read_lines_from_file(self.__logcat_anr_path_for_win)
-        totals = 0
-
-        for line in input_lines:
-            if 'E ANRManager: ANR' in line:
-                totals = totals + 1
-        return totals
-    
     # --------------------------------------------------------------
     # Monkey Test Main
     # --------------------------------------------------------------
@@ -267,8 +226,8 @@ class MonkeyTest(object):
             self.__filter_shell_logcat_exception()
             self.__filter_shell_logcat_anr()
             self.__pull_all_testing_logs()
-            self.__adbutils.clear_app_data(self.__test_pkg_name)
-            self.__create_monkey_test_summary_report()
+            self.__adbutils.stop_app(self.__test_pkg_name)
+            self.__create_monkey_test_report()
 
             if Constants.IS_PROFILE_TEST:
                 time.sleep(1)
