@@ -8,7 +8,7 @@ Created on 2018-10-26
 
 import re
 import os
-from monkeytest.sys_utils import SysUtils
+from utils import SysUtils
 
 
 class AdbUtils(object):

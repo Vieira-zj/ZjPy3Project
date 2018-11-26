@@ -6,10 +6,10 @@ Created on 2018-11-2
 '''
 
 import sys
-from monkeytest import AdbUtils
 from monkeytest import Constants
 from monkeytest import MonkeyTest
-from monkeytest import SysUtils
+from utils import AdbUtils
+from utils import SysUtils
 
 
 def test_imports():

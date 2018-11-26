@@ -8,7 +8,7 @@ Created on 2018-11-20
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-from monkeytest.sys_utils import SysUtils
+from utils import SysUtils
 
 
 class ChartParser(object):

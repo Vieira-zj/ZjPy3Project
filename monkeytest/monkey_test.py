@@ -9,14 +9,14 @@ import os
 import subprocess
 import time
 import threading
-from monkeytest.constants import Constants
-from monkeytest.log_manager import LogManager
-from monkeytest.adb_utils import AdbUtils
-from monkeytest.sys_utils import SysUtils
-from monkeytest.monkey_monitor import MonkeyMonitor
-from monkeytest.profile_monitor import ProfileMonitor
-from monkeytest.chart_parser import ChartParser
-from monkeytest.monkey_report import MonkeyReport
+from monkeytest import Constants
+from monkeytest import LogManager
+from monkeytest import MonkeyMonitor
+from monkeytest import ProfileMonitor
+from monkeytest import ChartParser
+from monkeytest import MonkeyReport
+from utils import AdbUtils
+from utils import SysUtils
 
 
 class MonkeyTest(object):
@@ -164,7 +164,7 @@ class MonkeyTest(object):
     def __create_monkey_test_report(self):
         title_dict = {}
         title_dict['TEST PACKAGE'] = self.__test_pkg_name
-        title_dict['RUN TIME'] = str(self.__run_mins)
+        title_dict['RUN TIME'] = str(self.__run_mins) + ' minutes'
         self.__report.create_monkey_test_report(title_dict)
     
     def __create_archive_report_file(self):
@@ -209,7 +209,7 @@ class MonkeyTest(object):
         threads.append(monkey_monitor_t)
         if Constants.IS_PROFILE_TEST:
             self.__logger.info('Start APP profile monitor process.')
-            profile_monitor_t = threading.Thread(target=self.__profile_monitor.running_monitor, args=(self.__run_mins, Constants.WAIT_TIME_IN_LOOP))
+            profile_monitor_t = threading.Thread(target=self.__profile_monitor.running_monitor, args=(self.__run_mins, False, Constants.WAIT_TIME_IN_LOOP))
             threads.append(profile_monitor_t)
 
         for t in threads:
@@ -223,10 +223,12 @@ class MonkeyTest(object):
     def __test_clearup_main(self):
         # the adb connection maybe disconnect when running the monkey
         if self.__adbutils.is_devices_connected():
+            self.__profile_monitor.stop_monitor()
+            self.__adbutils.stop_app(self.__test_pkg_name)
+
             self.__filter_shell_logcat_exception()
             self.__filter_shell_logcat_anr()
             self.__pull_all_testing_logs()
-            self.__adbutils.stop_app(self.__test_pkg_name)
             self.__create_monkey_test_report()
 
             if Constants.IS_PROFILE_TEST:

@@ -6,7 +6,7 @@ Created on 2018-10-26
 '''
 
 import logging
-from monkeytest.constants import Constants
+from monkeytest import Constants
 
 
 class LogManager(object):
