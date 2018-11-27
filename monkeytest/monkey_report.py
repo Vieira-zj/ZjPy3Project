@@ -47,20 +47,22 @@ class MonkeyReport(object):
         input_lines = self.__sysutils.read_lines_from_file(self.__log_exception_path)
 
         ret_dict = {}
+        exception_key = ''
         for line in input_lines:
-            re_results = re.match('.*:\s+(.*Exception.{20,100})', line)
-            exception_key = ''
+            if 'W System.err' not in line:
+                continue
+
+            re_results = re.match('.+:\s+(.*Exception.{20,100})', line)
             try:
                 exception_key = re_results.group(1)
             except AttributeError as e:
                 continue
             
-            tmp_val = 0
             try:
-                tmp_val = ret_dict[exception_key]
-                ret_dict[exception_key] = tmp_val + 1
+                ret_dict[exception_key] = ret_dict[exception_key] + 1
             except KeyError as e:
                 ret_dict[exception_key] = 1
+        # end for
         
         if len(ret_dict) == 0:
             return ['null\n']
@@ -80,17 +82,17 @@ if __name__ == '__main__':
 
     from monkeytest import Constants
     from monkeytest import LogManager
-
+ 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
-
-    log_dir_path = r'D:\ZJWorkspaces\ZjPy3Project\MonkeyReports\18-11-22_145607'
+ 
+    log_dir_path = r'D:\ZJWorkspaces\ZjPy3Project\monkeyreports\18-11-27_150443'
     report = MonkeyReport(logger, log_dir_path, 'logcat_exception.log', 'logcat_anr.log')
-    
+     
     title_dict = {}
     title_dict['TEST PACKAGE'] = 'com.jd.b2b'
     title_dict['RUN TIME'] = '60'
     report.create_monkey_test_report(title_dict)
-    
+     
     manager.clear_log_handles()
     print('Monkey report DONE.')
