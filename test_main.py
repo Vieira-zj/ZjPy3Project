@@ -30,9 +30,9 @@ def cmd_args_parse():
 
     def usage():
         lines = []
-        lines.append('usage:')
-        lines.append('  python monkey_test.py [-t 30]')
-        lines.append('options:')
+        lines.append('Usage:')
+        lines.append('  $ python test_main.py -t 30')
+        lines.append('Options:')
         lines.append('  -t: time, monkey test run xx minutes. if not set, use RUN_MINS in constants.py as default.')
         lines.append('  -h: help')
         print('\n'.join(lines))
