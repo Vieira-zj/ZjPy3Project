@@ -139,6 +139,7 @@ class ChartParser(object):
     def __save_profile_image(self, key):
         save_dpi = 300
         save_path = os.path.join(self.__report_root_path, 'profile_%s.png' % key)
+        plt.tight_layout()
         plt.savefig(save_path, format='png', dpi=save_dpi)
         
 
