@@ -28,7 +28,7 @@ def run_monkey_test(args_kv):
 
 def cmd_args_parse():
 
-    def usage():
+    def __usage():
         lines = []
         lines.append('Usage:')
         lines.append('  $ python test_main.py -t 30')
@@ -43,14 +43,14 @@ def cmd_args_parse():
     ret_dict = {}
     if len(opts) == 0:
         # print usage and use default monkey test confs.
-        usage()
+        __usage()
         return ret_dict
     
     for op, value in opts:
         if op == '-t':
             ret_dict.update({Constants.RUN_MINS_TEXT:value})
         elif op == '-h':
-            usage()
+            __usage()
             exit(0)
 
     return ret_dict

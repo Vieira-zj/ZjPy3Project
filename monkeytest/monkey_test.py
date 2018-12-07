@@ -181,7 +181,7 @@ class MonkeyTest(object):
     # Monkey Test Main
     # --------------------------------------------------------------
     def __is_profile_test_ok(self):
-        return Constants.IS_PROFILE_TEST and int(self.__adbutils.get_android_version()[0]) <= 7
+        return Constants.IS_PROFILE_TEST and int(self.__adbutils.get_android_version()[0]) < 7
     
     def __test_setup_main(self):
         if not self.__adbutils.is_devices_connected():
