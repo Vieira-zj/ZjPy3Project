@@ -1,3 +1,5 @@
 *.pyc
 monkeytest/__pycache__/
 monkeyreports/
+
+.vscode/
