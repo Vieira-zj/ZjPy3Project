@@ -41,17 +41,52 @@ class TestPy01(unittest.TestCase):
         self.assertTrue(re.search('unknown|offline', test_str), 'search success')
         self.assertFalse(re.search('unknown|online', test_str), 'search failed')
 
+    def test_selenium_chrome(self):
+        from selenium import webdriver
+
+        open_url = 'http://www.baidu.com'
+        chrome_driver = "/Users/zhengjin/Downloads/selenium_driver/chromedriver"
+
+        browser = webdriver.Chrome(chrome_driver)
+        browser.get(open_url)
+        print('page title:', browser.title)
+
+        browser.find_element_by_id('')
+
+        time.sleep(1)
+        browser.quit()
+
+    def test_selenium_grid_chrome(self):
+        from selenium import webdriver
+        from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
+        open_url = 'http://www.baidu.com'
+        hub_url = ''
+
+        driver = webdriver.Remote(command_executor=hub_url, desired_capabilities=DesiredCapabilities.CHROME)
+        driver.get(open_url)
+        driver.find_element_by_id('')
+        driver.close()
+
+    def test_selenium_grid_any(self):
+        # TODO:
+        pass
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
-#     unittest.main(verbosity=2)
-    
+    # unittest.main(verbosity=2)
+
     suite = unittest.TestSuite()
     tests = []
-#     tests.append(TestPy01('test_subprocess'))
-#     tests.append(TestPy01('test_time_counter'))
-    tests.append(TestPy01('test_reg_expr'))
-    suite.addTests(tests)
+    # tests.append(TestPy01('test_subprocess'))
+    # tests.append(TestPy01('test_time_counter'))
+    # tests.append(TestPy01('test_reg_expr'))
     
+    # selenium test
+    tests.append(TestPy01('test_selenium_chrome'))
+
+    suite.addTests(tests)
+
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
