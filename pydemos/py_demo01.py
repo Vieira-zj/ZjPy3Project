@@ -66,7 +66,7 @@ def chart_demo():
     plt.plot(x_arr, z_arr, color='blue')
     plt.grid(True, color='green', linestyle='--', linewidth='1')
 
-#     plt.show()
+    # plt.show()
 
     # default pixel [6.0,4.0]
     # if set dpi=100, image size 600*400
@@ -111,8 +111,8 @@ def regexp_demo():
 
 if __name__ == '__main__':
     
-#     cmd_args_parse()
-#     chart_demo()
+    # cmd_args_parse()
+    # chart_demo()
     regexp_demo()
     
     print('Python demo DONE.')
