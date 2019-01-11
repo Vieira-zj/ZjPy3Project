@@ -4,8 +4,8 @@ Created on 2019-01-08
 @author: zhengjin
 
 Condition: 
-1) installation: pip3 install kafka-python 
-2) add /etc/hosts: 192.168.1.3 zjmbp
+1) kafka libs: pip3 install kafka-python 
+2) add /etc/hosts: 127.0.0.1 zjmbp
 
 Reference:
 https://kafka-python.readthedocs.io/en/latest/usage.html
@@ -22,7 +22,7 @@ from kafka import KafkaProducer
 
 def process_producer(topic, server):
     def _on_send_sucess(record_metadata):
-        print('send message.')
+        print('send message success.')
         print('meta topic:', record_metadata.topic)
         print('meta partition:', record_metadata.partition)
         print("offset:", record_metadata.offset)
@@ -38,7 +38,7 @@ def process_producer(topic, server):
             value_serializer=lambda m: json.dumps(m).encode('utf-8'))
         for i in range(10):
             msg_dict = {
-                'index': '%d_%d' % (i, random.randint(1, 100)),
+                'index': str(i + random.randint(1, 100)),
                 'stat': 'ok',
             }
             future = producer.send(topic, value=msg_dict)
@@ -46,14 +46,14 @@ def process_producer(topic, server):
     finally:
         if producer is not None:
             producer.flush()
-            print('close producer session.')
             producer.close()
+            print('close producer session.')
 
 
 def process_consumer(topic, server):
+    print('consumer receive msg ...')
     consumer = None
     try:
-        print('consumer receive msg ...')
         consumer = KafkaConsumer(
             topic, bootstrap_servers=[server],
             value_deserializer=lambda m: json.loads(m.decode('utf-8')))
@@ -63,23 +63,25 @@ def process_consumer(topic, server):
             print(recv_msg)
     finally:
         if consumer is not None:
-            print('close consumer session.')
             consumer.close()
+            print('close consumer session.')
 
 
 if __name__ == '__main__':
 
     topic = 'topic'
     server = 'zjmbp:9094'
+
     p1 = threading.Thread(target=process_producer, args=(topic, server))
     p2 = threading.Thread(target=process_producer, args=(topic, server))
     c1 = threading.Thread(target=process_consumer, args=(topic, server))
 
+    # consumer
+    c1.start()
+    time.sleep(2)
     # producer1
     p1.start()
     p1.join()
-    # consumer
-    c1.start()
     time.sleep(2)
     # producer2
     p2.start()

@@ -4,8 +4,8 @@ Created on 2019-01-08
 @author: zhengjin
 
 Condition: 
-1) installation: pip3 install kafka-python 
-2) add /etc/hosts: 192.168.1.3 zjmbp
+1) kafka libs: pip3 install kafka-python 
+2) add /etc/hosts: 127.0.0.1 zjmbp
 '''
 
 import json
@@ -28,7 +28,7 @@ class Producer(object):
         - acks 0表示发送不理睬发送是否成功; 1表示需要等待leader成功写入日志才返回; all表示所有副本都写入日志才返回
         - buffer_memory 默认33554432也就是32M, 该参数用于设置producer用于缓存消息的缓冲区大小. 如果采用异步发送消息, 
             那么生产者启动后会创建一个内存缓冲区用于存放待发送的消息, 然后由专属线程来把放在缓冲区的消息进行真正发送. 
-            如果要给生产者要给很多分区发消息那么就需要考虑这个参数的大小防止过小降低吞吐量.
+            如果要给生产者要给很多分区发消息那么就需要考虑这个参数的大小, 防止过小降低吞吐量.
         - compression_type 是否启用压缩, 默认是none, 可选类型为gzip, lz4, snappy三种.
             压缩会降低网络IO但是会增加生产者端的CPU消耗.
             另外如果broker端的压缩设置和生产者不同, 那么也会给broker带来重新解压缩和重新压缩的CPU负担.
@@ -39,7 +39,7 @@ class Producer(object):
             buffer_memeory可以看做池子, 而这个batch_size可以看做池子里装有消息的小盒子. 
             这个值默认16384也就是16K, 其实不大. 生产者会把发往同一个分区的消息放在一个batch中, 
             当batch满了就会发送里面的消息, 但是也不一定非要等到满了才会发. 
-            这个数值大那么生产者吞吐量高, 但是性能低因为盒子太大占用内存发送的时候这个数据量也就大. 
+            这个数值大那么生产者吞吐量高, 但是性能低, 因为盒子太大占用内存发送的时候这个数据量也就大. 
             如果你设置成1M, 那么显然生产者的吞吐量要比16K高的多.
         - linger_ms 上面说batch没有填满也可以发送, 那显然有一个时间控制, 就是这个参数, 默认是0毫秒. 
             这个参数就是用于控制消息发送延迟多久的. 默认是立即发送, 无需关系batch是否填满. 
@@ -48,8 +48,6 @@ class Producer(object):
             那个这个时间长度就是这个参数控制的, 默认30000, 也就是30秒. 
             如果broker在30秒内没有给生产者响应, 那么生产者就会认为请求超时, 并在回调函数中进行特殊处理, 或者进行重试.
         '''
-        self._topic = topic
-
         self._kwargs = {
             'bootstrap_servers': server_list,
             'client_id': client_id,
@@ -62,6 +60,7 @@ class Producer(object):
             'value_serializer': lambda m: json.dumps(m).encode('utf-8'),
         }
         self._producer = KafkaProducer(**self._kwargs)
+        self._topic = topic
 
     def close_connection(self, timeout=3):
         # 关闭生产者, 可以指定超时时间, 也就是等待关闭成功最多等待多久.
@@ -116,8 +115,8 @@ class Producer(object):
 
 class Consumer:
 
-    def __init__(self, kafka_server, group_id, client_id, topic):
-        self._bootstrap_server = kafka_server
+    def __init__(self, server_list, group_id, client_id, topic):
+        self._server_list = server_list
         self._group_id = group_id
         self._topic = topic
         self._client_id = client_id
@@ -131,7 +130,7 @@ class Consumer:
         - auto_offset_reset='earliest' 重置偏移量, earliest移到最早的可用消息, latest最新的消息, 默认为latest
         '''
         consumer = KafkaConsumer(
-            self._topic, bootstrap_servers=self._bootstrap_server,
+            self._topic, bootstrap_servers=self._server_list,
             group_id=self._group_id, client_id=self._client_id,
             enable_auto_commit=True, auto_commit_interval_ms=5000, auto_offset_reset='latest',
             value_deserializer=lambda m: json.loads(m.decode('utf-8')))
@@ -156,9 +155,9 @@ class Consumer:
                 consumer.close()
 
 
-def process_producer(Kafka_server_list, client_id, topic):
-    print('send message.')
-    producer = Producer(Kafka_server_list, client_id, topic)
+def process_producer(server_list, client_id, topic):
+    print('send message ...')
+    producer = Producer(server_list, client_id, topic)
     try:
         for i in range(10):
             msg = {
@@ -173,9 +172,9 @@ def process_producer(Kafka_server_list, client_id, topic):
             producer.close_connection()
 
 
-def process_consumer(Kafka_server, group_id, client_id, topic):
-    print('receive message.')
-    consumer = Consumer(Kafka_server, group_id, client_id, topic)
+def process_consumer(server_list, group_id, client_id, topic):
+    print('receive message ...')
+    consumer = Consumer(server_list, group_id, client_id, topic)
     consumer.consume_msg()
 
 
@@ -196,7 +195,7 @@ if __name__ == '__main__':
     # producer1
     p1.start()
     p1.join()
-    time.sleep(2)
+    time.sleep(5)
     # consumer
     c.start()
     time.sleep(2)
