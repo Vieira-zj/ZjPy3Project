@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 '''
 Created on 2018-10-30
-
 @author: zhengjin
+
+Run test demos by using python "unittest" module.
 '''
 
 import threading
@@ -154,13 +155,13 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     tests = []
     # tests.append(TestPy01('test_subprocess'))
-    # tests.append(TestPy01('test_time_counter'))
+    tests.append(TestPy01('test_time_counter'))
     # tests.append(TestPy01('test_reg_expr'))
 
     # selenium test
     # tests.append(TestPy01('test_selenium_chrome'))
     # tests.append(TestPy01('test_selenium_grid_debug'))
-    tests.append(TestPy01('test_selenium_grid_headless'))
+    # tests.append(TestPy01('test_selenium_grid_headless'))
 
     suite.addTests(tests)
 

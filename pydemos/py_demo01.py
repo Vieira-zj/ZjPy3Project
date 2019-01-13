@@ -115,4 +115,4 @@ if __name__ == '__main__':
     # chart_demo()
     regexp_demo()
     
-    print('Python demo DONE.')
+    print('python demo DONE.')
