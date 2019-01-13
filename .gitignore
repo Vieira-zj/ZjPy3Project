@@ -2,4 +2,5 @@
 monkeytest/__pycache__/
 monkeyreports/
 
-.vscode/
+pydemos/__pycache__/
+pydemos/.pytest_cache/

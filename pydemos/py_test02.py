@@ -8,6 +8,10 @@ Run test demos by using "pytest" module.
 pytest commands:
 $ py.test -h
 $ py.test --version
+
+pytest plugins:
+pytest-html
+pytest-rerunfailures
 '''
 
 import logging
@@ -19,6 +23,7 @@ class TestPy02(object):
     @pytest.mark.skip(reason='no run')
     def test_01_collections_deque(self):
         names = ['jack', 'leo', 'sam', 'peter', 'jeo']
+
         import collections
         deque_names = collections.deque(names)
         deque_names.popleft()
