@@ -8,7 +8,6 @@ Read json body from excel, and sent post request.
 
 import json
 import xlrd
-
 from urllib import parse, request
 
 
@@ -20,15 +19,18 @@ def read_req_json_body_from_excel(file_path, col_num):
         raise Exception('excel file path is null!')
 
     workbook = xlrd.open_workbook(file_path)
-
     sheets = workbook.sheet_names()
     for sheet in sheets:
         print('excel sheet:', sheet)
 
     sheet_api_test = workbook.sheet_by_index(1)
     # for i in range(4, sheet_api_test.nrows):
-    for i in range(4, 10):
-        print('request json body:', sheet_api_test.cell(i, col_num).value)
+    for i in range(3, 6):
+        req_body = sheet_api_test.cell(i, col_num).value
+        if req_body is None or len(req_body) == 0:
+            print('loop at %d, request body is null and skip' % i)
+            continue
+        print('loop at %d, request json body: %s' % (i, req_body))
 
 
 def http_post_req(url, req_json_body):
@@ -44,9 +46,12 @@ def http_post_req(url, req_json_body):
 
 if __name__ == '__main__':
 
-    # file_path = '/Users/zhengjin/Downloads/tmp_files/smoke_test.xlsx'
-    # col_num = 5
-    # read_req_json_body_from_excel(file_path, col_num)
+    import os
+
+    file_path = os.path.join(
+        os.getenv('HOME'), 'Downloads/tmp_files/smoke_test.xlsx')
+    col_num = 5
+    read_req_json_body_from_excel(file_path, col_num)
 
     url = 'http://localhost:17891/index'
     req_json = {'key1': 'value1'}
