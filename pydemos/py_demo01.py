@@ -9,6 +9,19 @@ import getopt
 import sys
 
 
+def import_utils_lib_test():
+    sys.path.append('../')
+
+    from monkeytest import Constants
+    from monkeytest import LogManager
+    from utils import SysUtils
+
+    manager = LogManager(Constants.LOG_FILE_PATH)
+    logger = manager.get_logger()
+    utils = SysUtils(logger)
+    utils.run_sys_cmd('python -V')
+
+
 def cmd_args_parse():
     # "hi:o:": h => -h, i: => -i input_file, o: => -o output_file
     opts, _ = getopt.getopt(sys.argv[1:], 'hi:o:')
@@ -16,7 +29,7 @@ def cmd_args_parse():
     if len(opts) == 0:
         usage()
         exit(0)
-    
+
     input_file = ''
     output_file = ''
     for op, value in opts:
@@ -58,10 +71,11 @@ def chart_demo():
     z_arr = [y for y in range(0, 20) if y % 2 != 0]
 
     plt.title('Chart Test')
-    ave_desc = 'y average: %d, z average: %d' % (np.average(y_arr), np.average(z_arr))
+    ave_desc = 'y average: %d, z average: %d' % (
+        np.average(y_arr), np.average(z_arr))
     plt.xlabel('X_label_text\n green: system_cpu, blue: user_cpu\n' + ave_desc)
     plt.ylabel('Y_label_text')
-    
+
     plt.plot(x_arr, y_arr, color='red')
     plt.plot(x_arr, z_arr, color='blue')
     plt.grid(True, color='green', linestyle='--', linewidth='1')
@@ -73,7 +87,7 @@ def chart_demo():
     # if set dpi=200, image size 1200*800
     # if set dpi=300，image size 1800*1200
 
-    plt.savefig(r'd:\profile.png', format='png', dpi=300)    
+    plt.savefig(r'd:\profile.png', format='png', dpi=300)
     plt.close()
 
 
@@ -82,10 +96,14 @@ def regexp_demo():
     Get Java exceptions sum info from input content.
     '''
     input_lines = []
-    input_lines.append('W System.err: org.json.JSONException: No value for preSaleSkuInfo')
-    input_lines.append('W System.err: Attempt to invoke virtual method \'int java.lang.String.length()\' on a null object reference')
-    input_lines.append('W System.err: net.grandcentrix.tray.core.TrayException: could not access stored data with uri')
-    input_lines.append('W System.err: org.json.JSONException: No value for preSaleSkuInfo')
+    input_lines.append(
+        'W System.err: org.json.JSONException: No value for preSaleSkuInfo')
+    input_lines.append(
+        'W System.err: Attempt to invoke virtual method \'int java.lang.String.length()\' on a null object reference')
+    input_lines.append(
+        'W System.err: net.grandcentrix.tray.core.TrayException: could not access stored data with uri')
+    input_lines.append(
+        'W System.err: org.json.JSONException: No value for preSaleSkuInfo')
 
     import re
     ret_dict = {}
@@ -97,7 +115,7 @@ def regexp_demo():
         except AttributeError as e:
             print(e)
             continue
-        
+
         tmp_val = 0
         try:
             tmp_val = ret_dict[exception_key]
@@ -105,14 +123,15 @@ def regexp_demo():
         except KeyError as e:
             print(e)
             ret_dict[exception_key] = 1
-    
+
     print(ret_dict)
 
 
 if __name__ == '__main__':
-    
+
+    import_utils_lib_test()
     # cmd_args_parse()
     # chart_demo()
-    regexp_demo()
-    
+    # regexp_demo()
+
     print('python demo DONE.')

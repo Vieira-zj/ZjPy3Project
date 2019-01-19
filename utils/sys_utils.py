@@ -144,6 +144,9 @@ class SysUtils(object):
 
 if __name__ == '__main__':
 
+    import sys
+    sys.path.append('../')
+
 #     SysUtils.delete_files_in_dir(r'D:\JDTestLogs\handTest')
     
     from monkeytest import Constants
