@@ -5,9 +5,8 @@ Created on 2018-11-2
 @author: zhengjin
 '''
 
-import sys
-from monkeytest import Constants
 from monkeytest import MonkeyTest
+from utils import Constants
 from utils import AdbUtils
 from utils import SysUtils
 
@@ -38,6 +37,7 @@ def cmd_args_parse():
         print('\n'.join(lines))
 
     import getopt
+    import sys
     opts, _ = getopt.getopt(sys.argv[1:], 'ht:')
 
     ret_dict = {}
@@ -60,6 +60,6 @@ if __name__ == '__main__':
     
 #     test_imports()
 
-    args_dict = cmd_args_parse()
-    run_monkey_test(args_dict)
+    # args_dict = cmd_args_parse()
+    # run_monkey_test(args_dict)
     print('Python main DONE.')

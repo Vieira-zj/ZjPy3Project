@@ -11,6 +11,9 @@ class Constants(object):
     classdocs
     '''
 
+    # common
+    CHARSET_UTF8 = 'utf-8'
+
     # test conf
     TEST_FILE_PATH = '/Users/zhengjin/Downloads/tmp_files/test.out'
     LOG_FILE_PATH = '/Users/zhengjin/Downloads/tmp_files/test_log.txt'
