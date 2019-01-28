@@ -12,14 +12,18 @@ import sys
 def import_utils_lib_test():
     sys.path.append('../')
 
-    from monkeytest import Constants
-    from monkeytest import LogManager
+    from utils import Constants
+    from utils import LogManager
     from utils import SysUtils
 
     manager = LogManager(Constants.LOG_FILE_PATH)
-    logger = manager.get_logger()
-    utils = SysUtils(logger)
-    utils.run_sys_cmd('python -V')
+    try:
+        logger = manager.get_logger()
+        utils = SysUtils(logger)
+        utils.run_sys_cmd('python --version')
+    finally:
+        if manager is not None:
+            manager.clear_log_handles()
 
 
 def cmd_args_parse():

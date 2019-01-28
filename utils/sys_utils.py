@@ -149,15 +149,16 @@ if __name__ == '__main__':
 
 #     SysUtils.delete_files_in_dir(r'D:\JDTestLogs\handTest')
     
-    from monkeytest import Constants
-    from monkeytest import LogManager
+    from utils import Constants
+    from utils import LogManager
  
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
+    
     utils = SysUtils(logger)
-    utils.run_sys_cmd('python -V')
+    utils.run_sys_cmd('python --version')
     utils.write_content_to_file(Constants.TEST_FILE_PATH, 'test')
 #     utils.write_content_to_file(Constants.TEST_FILE_PATH, 'test')
-    manager.clear_log_handles()
     
+    manager.clear_log_handles()
     print('system utils test DONE.')

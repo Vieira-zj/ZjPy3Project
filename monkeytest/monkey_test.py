@@ -9,14 +9,18 @@ import os
 import subprocess
 import time
 import threading
-from monkeytest import Constants
-from monkeytest import LogManager
+import sys
+sys.path.append('../')
+
+from utils import Constants
+from utils import LogManager
+from utils import AdbUtils
+from utils import SysUtils
+
 from monkeytest import MonkeyMonitor
 from monkeytest import ProfileMonitor
 from monkeytest import ChartParser
 from monkeytest import MonkeyReport
-from utils import AdbUtils
-from utils import SysUtils
 
 
 class MonkeyTest(object):
@@ -250,9 +254,9 @@ class MonkeyTest(object):
         self.__test_main()
         self.__test_clearup_main()
 
-    
+
 if __name__ == '__main__':
-    
+
     test = MonkeyTest(Constants.PKG_NAME_ZGB, Constants.RUN_MINS)
     test.mokeytest_main()
     print('Monkey test DONE.')

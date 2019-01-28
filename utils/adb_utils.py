@@ -8,6 +8,9 @@ Created on 2018-10-26
 
 import re
 import os
+import sys
+sys.path.append('../')
+
 from utils import SysUtils
 
 
@@ -120,16 +123,18 @@ class AdbUtils(object):
 
 if __name__ == '__main__':
     
-    from monkeytest import Constants
-    from monkeytest import LogManager
+    from utils import Constants
+    from utils import LogManager
 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
 
     utils = AdbUtils(logger)
-    print(utils.is_devices_connected())
-    print('Monkey pid:', utils.get_process_id_by_name('monkey'))
-    print('android version:', utils.get_android_version())
+    if utils.is_devices_connected():
+        logger.info('Monkey pid:', utils.get_process_id_by_name('monkey'))
+        logger.info('android version:', utils.get_android_version())
+    else:
+        logger.info('no adb device connect!')
     
     manager.clear_log_handles()
     print('adb manager test DONE.')

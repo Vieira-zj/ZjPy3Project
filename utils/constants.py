@@ -12,8 +12,8 @@ class Constants(object):
     '''
 
     # test conf
-    TEST_FILE_PATH = r'd:\test.txt'
-    LOG_FILE_PATH = r'd:\test_log.txt'
+    TEST_FILE_PATH = '/Users/zhengjin/Downloads/tmp_files/test.out'
+    LOG_FILE_PATH = '/Users/zhengjin/Downloads/tmp_files/test_log.txt'
 
     # monkey conf
     # (Touch events are a down-up event in a single place on the screen.)

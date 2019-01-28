@@ -6,8 +6,11 @@ Created on 2018-10-30
 '''
 
 import time
-from monkeytest import Constants
+import sys
+sys.path.append('../')
+
 from utils import AdbUtils
+from utils import Constants
 
 
 class MonkeyMonitor(object):
@@ -74,4 +77,4 @@ class MonkeyMonitor(object):
 
 if __name__ == '__main__':
 
-    pass
+    print('monkey monitor test DONE.')

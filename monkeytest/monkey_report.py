@@ -6,6 +6,9 @@ Created on 2018-11-26
 
 import re
 import os
+import sys
+sys.path.append('../')
+
 from utils import SysUtils
 
 
@@ -80,8 +83,8 @@ class MonkeyReport(object):
 
 if __name__ == '__main__':
 
-    from monkeytest import Constants
-    from monkeytest import LogManager
+    from utils import Constants
+    from utils import LogManager
  
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()

@@ -6,7 +6,10 @@ Created on 2018-10-26
 '''
 
 import logging
-from monkeytest import Constants
+import sys
+sys.path.append('../')
+
+from utils import Constants
 
 
 class LogManager(object):

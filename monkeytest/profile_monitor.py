@@ -7,6 +7,9 @@ Created on 2018-11-19
 
 import time
 import os
+import sys
+sys.path.append('../')
+
 from utils import AdbUtils
 from utils import SysUtils
 
@@ -146,8 +149,8 @@ class ProfileMonitor(object):
 
 if __name__ == '__main__':
 
-    from monkeytest import Constants
-    from monkeytest import LogManager
+    from utils import Constants
+    from utils import LogManager
 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
@@ -158,7 +161,7 @@ if __name__ == '__main__':
     monitor.stop_monitor()
     time.sleep(1)
     monitor.pull_itest_logfiles(r'D:\JDTestLogs')
-    
+
     manager.clear_log_handles()
     
     print('profile monitor test DONE.')

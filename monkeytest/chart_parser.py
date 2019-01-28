@@ -5,9 +5,13 @@ Created on 2018-11-20
 @author: zhengjin
 '''
 
-import os
 import matplotlib.pyplot as plt
 import numpy as np
+
+import os
+import sys
+sys.path.append('../')
+
 from utils import SysUtils
 
 
@@ -145,13 +149,13 @@ class ChartParser(object):
 
 if __name__ == '__main__':
     
-    from monkeytest import Constants
-    from monkeytest import LogManager
+    from utils import Constants
+    from utils import LogManager
 
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
 
-    root_path = r'D:\ZJWorkspaces\ZjPy3Project\MonkeyReports\18-11-21_121528'
+    root_path = '/Users/zhengjin/Downloads/tmp_files'
     parser = ChartParser(logger, root_path)
 #     parser.build_all_profile_charts()
     parser.build_profile_chart(ChartParser.CATEGORY_CPU, True)

@@ -10,44 +10,45 @@ libs: xlrd (excel read), xlwt (excel write)
 import json
 import os
 import xlrd
+
 from urllib import parse, request
 
 
 CHARSET_UTF8 = 'utf-8'
 
+class api_test_by_excel(object):
 
-def read_json_body_from_excel(file_path, req_col_num, resp_col_num):
-    if len(file_path) == 0:
-        print('input excel file path is null!')
-        exit(1)
-    if not os.path.exists(file_path):
-        print('input excel file path is not exist:', file_path)
-        exit(1)
+    def __init__(self, file_path):
+        if len(file_path) == 0:
+            raise IOError('input excel file path is null!')
+        if not os.path.exists(file_path):
+            raise IOError('input excel file path is not exist:', file_path)
+        self.workbook = xlrd.open_workbook(file_path)
 
-    workbook = xlrd.open_workbook(file_path)
-    sheets = workbook.sheet_names()
-    for sheet in sheets:
-        print('excel sheet:', sheet)
+    def read_req_json_body_from_excel(self, req_col_num):
+        sheets = self.workbook.sheet_names()
+        for sheet in sheets:
+            print('excel sheet:', sheet)
 
-    sheet_api_test = workbook.sheet_by_index(1)
+        sheet_api_test = self.workbook.sheet_by_index(1)
 
-    # for i in range(4, sheet_api_test.nrows):
-    for i in range(3, 6):
-        # get request json body
-        req_json_body = sheet_api_test.cell(i, req_col_num).value
-        if req_json_body is None or len(req_json_body) == 0:
-            print('loop at %d, request body is null and skip' % i)
-            continue
-        print('loop at %d, request json body: %s' % (i, req_json_body))
+        # for i in range(4, sheet_api_test.nrows):
+        for i in range(3, 6):
+            # get request json body
+            req_json_body = sheet_api_test.cell(i, req_col_num).value
+            if req_json_body is None or len(req_json_body) == 0:
+                print('loop at %d, request body is null and skip' % i)
+                continue
+            print('loop at %d, request json body: %s' % (i, req_json_body))
 
-        # get expect response json body
-        resp_json_body = sheet_api_test.cell(i, resp_col_num).value
-        if resp_json_body is None or len(resp_json_body) == 0:
-            print('loop at %d, expect response body is null and skip' % i)
-            continue
-        json_body = json.loads(resp_json_body)
-        print('expect resp json: status => %s, score => %s' %
-              (json_body['status'], json_body['score']))
+            # get expect response json body
+            resp_json_body = sheet_api_test.cell(i, resp_col_num).value
+            if resp_json_body is None or len(resp_json_body) == 0:
+                print('loop at %d, expect response body is null and skip' % i)
+                continue
+            json_body = json.loads(resp_json_body)
+            print('expect resp json: status => %s, score => %s' %
+                (json_body['status'], json_body['score']))
 
 
 def http_post_req(url, req_json_body):
