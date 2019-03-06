@@ -5,6 +5,8 @@ Created on 2018-10-26
 @author: zhengjin
 '''
 
+import os
+
 
 class Constants(object):
     '''
@@ -15,8 +17,9 @@ class Constants(object):
     CHARSET_UTF8 = 'utf-8'
 
     # test conf
-    TEST_FILE_PATH = '/Users/zhengjin/Downloads/tmp_files/test.out'
-    LOG_FILE_PATH = '/Users/zhengjin/Downloads/tmp_files/test_log.txt'
+    __tmp_file_path = 'Downloads/tmp_files'
+    TEST_FILE_PATH = os.path.join(os.getenv('HOME'), __tmp_file_path, 'test.out')
+    LOG_FILE_PATH = os.path.join(os.getenv('HOME'), __tmp_file_path, 'test_log.txt')
 
     # monkey conf
     # (Touch events are a down-up event in a single place on the screen.)
@@ -35,7 +38,7 @@ class Constants(object):
     PCT_APPSWITCH = '5'
     # This is a catch-all for all other types of events such as keypresses, other less-used buttons on the device, and so forth.
     PCT_ANYEVENT = '0'
-    
+
     IS_MONKEY_CRASH_IGNORE = True
     MONKEY_TOTAL_RUN_TIMES = '1000000'
 
@@ -46,17 +49,16 @@ class Constants(object):
     PKG_NAME_ZGB = 'com.jd.b2b'
     RUN_MINS_TEXT = 'run_mins'
     RUN_MINS = 3
-    
+
     IS_PROFILE_TEST = True
     ITEST_COLLECT_INTERVAL = 3
     IS_CREATE_ARCHIVE = False
 
-    def __init__(self, params):
-        '''
-        Constructor
-        '''
-
 
 if __name__ == '__main__':
 
-    pass
+    if os.path.exists(Constants.TEST_FILE_PATH):
+        print('test input file:', Constants.TEST_FILE_PATH)
+    print('current project path:', Constants.get_project_path())
+
+    print('constants test DONE.')
