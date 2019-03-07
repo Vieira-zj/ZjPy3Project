@@ -56,7 +56,7 @@ def usage():
     print('\n'.join(lines))
 
 
-def chart_demo():
+def chart_line_demo():
     '''
     pre-conditions: 
     $ pip install numpy
@@ -75,8 +75,7 @@ def chart_demo():
     z_arr = [y for y in range(0, 20) if y % 2 != 0]
 
     plt.title('Chart Test')
-    ave_desc = 'y average: %d, z average: %d' % (
-        np.average(y_arr), np.average(z_arr))
+    ave_desc = 'y average: %d, z average: %d' % (np.average(y_arr), np.average(z_arr))
     plt.xlabel('X_label_text\n green: system_cpu, blue: user_cpu\n' + ave_desc)
     plt.ylabel('Y_label_text')
 
@@ -93,6 +92,25 @@ def chart_demo():
 
     plt.savefig(r'd:\profile.png', format='png', dpi=300)
     plt.close()
+
+
+def chart_spot_demo():
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    x_arr = [float(x) for x in range(0, 10)]
+    y_arr = [float(y) for y in range(0, 20) if y % 2 == 0]
+
+    # 计算颜色值
+    color = np.arctan2(y_arr, x_arr)
+    # 绘制散点图
+    plt.scatter(x_arr, y_arr, s=75, c=color, alpha=0.5)
+
+    # 设置坐标轴范围
+    plt.xlim((-1, 10))
+    plt.ylim((-1, 20))
+
+    plt.show()
 
 
 def regexp_demo():
@@ -133,9 +151,10 @@ def regexp_demo():
 
 if __name__ == '__main__':
 
-    import_utils_lib_test()
+    # import_utils_lib_test()
     # cmd_args_parse()
-    # chart_demo()
+    # chart_line_demo()
+    chart_spot_demo()
     # regexp_demo()
 
     print('python demo DONE.')

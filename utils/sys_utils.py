@@ -16,6 +16,14 @@ class SysUtils(object):
     classdocs
     '''
 
+    __utils = None
+
+    @classmethod
+    def get_instance(cls, logger):
+        if cls.__utils is None:
+            cls.__utils = SysUtils(logger)
+        return cls.__utils
+
     def __init__(self, logger):
         '''
         Constructor
@@ -155,7 +163,7 @@ if __name__ == '__main__':
     manager = LogManager(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
     
-    utils = SysUtils(logger)
+    utils = SysUtils.get_instance(logger)
     utils.run_sys_cmd('python --version')
     utils.write_content_to_file(Constants.TEST_FILE_PATH, 'test')
 #     utils.write_content_to_file(Constants.TEST_FILE_PATH, 'test')

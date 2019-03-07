@@ -16,9 +16,17 @@ from utils import SysUtils
 
 class AdbUtils(object):
 
+    __utils = None
+
+    @classmethod
+    def get_instance(cls, logger):
+        if cls.__utils == None:
+            cls.__utils = AdbUtils(logger)
+        return cls.__utils
+
     def __init__(self, logger):
         self.__logger = logger
-        self.__sys_utils = SysUtils(self.__logger)
+        self.__sys_utils = SysUtils.get_instance(self.__logger)
 
     @classmethod
     def print_adb_info(cls):
