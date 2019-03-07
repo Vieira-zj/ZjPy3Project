@@ -6,3 +6,5 @@ pydemos/__pycache__/
 pydemos/.pytest_cache/
 
 interfacetest/outputs/
+
+.DS_Store

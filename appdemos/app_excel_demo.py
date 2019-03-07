@@ -11,8 +11,8 @@ import json
 import os
 import sys
 import xlrd
-sys.path.append('../')
 
+sys.path.append('../')
 from utils import LogManager
 from utils import Constants
 from urllib import parse, request
@@ -24,8 +24,7 @@ class ApiTestByExcel(object):
         if len(file_path) == 0:
             raise ValueError('input excel file path is null!')
         if not os.path.exists(file_path):
-            raise FileNotFoundError(
-                'input excel file path is not exist:', file_path)
+            raise FileNotFoundError('input excel file path is not exist: ' + file_path)
 
         self.__workbook = xlrd.open_workbook(file_path)
         self.__logger = logger
@@ -93,8 +92,7 @@ if __name__ == '__main__':
     if is_post_req:
         url = 'http://localhost:17891/index'
         req_json = {'key1': 'value1'}
-        req_json_text = json.dumps(req_json).encode(
-            encoding=Constants.CHARSET_UTF8)
+        req_json_text = json.dumps(req_json).encode(encoding=Constants.CHARSET_UTF8)
         resp_json_body = api_test.http_post_req(url, req_json_text)
 
         # mock json response

@@ -31,7 +31,6 @@ class HttpUtils(object):
 
     def set_default_headers(self, headers):
         self.__headers = headers
-        self.__headers['X-Test'] = 'X-Test-Default'
         return self
 
     # --------------------------------------------------------------
@@ -59,7 +58,7 @@ class HttpUtils(object):
     # --------------------------------------------------------------
     # Http Post Request
     # --------------------------------------------------------------
-    def set_post_request_data(self, url, data, headers={}, timeout=0.5):
+    def set_post_request_data(self, url, data, headers={}, timeout=1):
         if len(headers) > 0:
             self.__append_headers(headers)
 
@@ -73,7 +72,7 @@ class HttpUtils(object):
 
         return resp
 
-    def set_post_request_json(self, url, json_obj, headers={}, timeout=0.5):
+    def set_post_request_json(self, url, json_obj, headers={}, timeout=1):
         if len(headers) > 0:
             self.__append_headers(headers)
 
@@ -95,9 +94,9 @@ class HttpUtils(object):
     # Print Logs
     # --------------------------------------------------------------
     def __log_request_info(self, url, data, headers={}):
-        print('\n\n')
+        self.__logger.debug('\n\n')
         self.__print_div_line()
-        self.__print_with_prefix('Get Request: ' + url)
+        self.__print_with_prefix('Request: ' + url)
 
         self.__print_div_line()
         self.__print_with_prefix('Headers:')
@@ -133,27 +132,30 @@ class HttpUtils(object):
         self.__print_with_prefix('-'*60)
 
     def __print_with_prefix(self, text):
-        print('* ' + text)
+        self.__logger.debug('* ' + text)
 
 
 if __name__ == '__main__':
 
     mock_url = 'http://127.0.0.1:17891/index'
     headers = {'X-Test-Method': 'X-Test-Get'}
-
     log_manager = LogManager(Constants.LOG_FILE_PATH)
     http_utils = HttpUtils.get_instance(log_manager.get_logger()).set_default_headers(headers)
 
     # get request
+    headers['Content-Type'] = 'text/plain; charset=utf-8'
     query = 'k1=v1&k2=v2'
-    resp = http_utils.send_get_request(mock_url, query)
+    resp = http_utils.send_get_request(mock_url, query, headers=headers, timeout=0.5)
     assert(resp is not None and resp.status_code == 200)
 
     # post request
-    headers = {'X-Test-Method':'X-Test-Post'}
+    headers = {'X-Test-Method': 'X-Test-Post'}
+    http_utils.set_default_headers(headers)
+
+    headers['Content-Type'] = 'text/json; charset=utf-8'
     data_dict = {'email': '123456@163.com', 'password': '123456'}
-    resp = http_utils.set_post_request_data(mock_url, json.dumps(data_dict))
-    resp = http_utils.set_post_request_json(mock_url, data_dict)
+    resp = http_utils.set_post_request_data(mock_url, json.dumps(data_dict), headers=headers)
+    resp = http_utils.set_post_request_json(mock_url, data_dict, headers=headers)
     assert(resp is not None and resp.status_code == 200)
 
     log_manager.clear_log_handles()
