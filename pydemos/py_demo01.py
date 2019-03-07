@@ -7,6 +7,9 @@ Created on 2018-10-31
 
 import getopt
 import sys
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
 
 
 def import_utils_lib_test():
@@ -62,10 +65,7 @@ def chart_line_demo():
     $ pip install numpy
     $ pip install matplotlib
     '''
-    import numpy as np
     print('numpy version: ' + np.__version__)
-
-    import matplotlib
     print('matplotlib version: ' + matplotlib.__version__)
 
     import matplotlib.pyplot as plt
@@ -90,25 +90,33 @@ def chart_line_demo():
     # if set dpi=200, image size 1200*800
     # if set dpi=300，image size 1800*1200
 
+    plt.tight_layout()
     plt.savefig(r'd:\profile.png', format='png', dpi=300)
     plt.close()
 
 
 def chart_spot_demo():
-    import numpy as np
-    import matplotlib.pyplot as plt
+    # data
+    # y_arr = [float(y) for y in range(0, 100) if y % 2 == 0]
+    # x_arr = [x for x in range(0, len(y_arr))]
 
-    x_arr = [float(x) for x in range(0, 10)]
-    y_arr = [float(y) for y in range(0, 20) if y % 2 == 0]
+    n = 1024
+    # 均值为0, 方差为1的随机数
+    x_arr = np.random.normal(0, 1, n)
+    y_arr = np.random.normal(0, 1, n)
 
     # 计算颜色值
-    color = np.arctan2(y_arr, x_arr)
+    color = np.arctan2(x_arr, y_arr)
     # 绘制散点图
-    plt.scatter(x_arr, y_arr, s=75, c=color, alpha=0.5)
+    plt.scatter(x_arr, y_arr, s=30, c=color, alpha=0.5)
 
     # 设置坐标轴范围
-    plt.xlim((-1, 10))
-    plt.ylim((-1, 20))
+    plt.xlim((0, max(x_arr)))
+    plt.ylim((0, max(y_arr)))
+
+    # 不显示坐标轴的值
+    plt.xticks(())
+    plt.yticks(())
 
     plt.show()
 
@@ -154,7 +162,7 @@ if __name__ == '__main__':
     # import_utils_lib_test()
     # cmd_args_parse()
     # chart_line_demo()
-    chart_spot_demo()
+    # chart_spot_demo()
     # regexp_demo()
 
     print('python demo DONE.')
