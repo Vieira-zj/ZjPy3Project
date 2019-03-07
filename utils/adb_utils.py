@@ -9,8 +9,8 @@ Created on 2018-10-26
 import re
 import os
 import sys
-sys.path.append('../')
 
+sys.path.append('../')
 from utils import SysUtils
 
 
