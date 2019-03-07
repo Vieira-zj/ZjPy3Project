@@ -19,43 +19,50 @@ class LoadConfigs(object):
     SECTION_TEST = 'test'
     SECTION_PROPHET = 'prophet'
 
-    # save all configs
-    test_configs = {}
+    __logger = None
+    all_configs = {}
 
-    def __init__(self, logger, cfg_file_path=''):
+    @classmethod
+    def set_logger(cls, logger):
+        cls.__logger = logger
+        return cls
+
+    @classmethod
+    def load_configs(cls, cfg_file_path=''):
+        if cls.__logger is None:
+            raise ValueError('logger is not set and null!')
+
         if len(cfg_file_path) == 0:
             cfg_file_path = os.path.join(os.path.dirname(os.getcwd()), 'configs.ini')
         if not os.path.exists(cfg_file_path):
-            raise FileNotFoundError('configs file %s is not exist!' % cfg_file_path)
+            raise FileNotFoundError('configs file %s is not found!' % cfg_file_path)
 
-        self.__logger = logger
-        self.__load_configs(cfg_file_path)
+        cls.__logger.info('load configs: ' + cfg_file_path)
+        cfg_reader = configparser.ConfigParser()
+        cfg_reader.read(cfg_file_path)
 
-    def __load_configs(self, cfg_file_path):
-        self.__logger.info('load configs from: ' + cfg_file_path)
-        self.__cfg_reader = configparser.ConfigParser()
-        self.__cfg_reader.read(cfg_file_path)
-
-        for section in self.__cfg_reader.sections():
-            options = self.__cfg_reader.options(section)
+        for section in cfg_reader.sections():
+            options = cfg_reader.options(section)
             tmp_dict = {}
             for option in options:
-                tmp_dict[option] = self.__cfg_reader.get(section, option)
-            self.test_configs[section] = tmp_dict
+                tmp_dict[option] = cfg_reader.get(section, option)
+            cls.all_configs[section] = tmp_dict
 
-    def get_svc_test_ip(self):
-        return self.test_configs.get(self.SECTION_TEST).get('ip')
+    @classmethod
+    def get_svc_test_ip(cls):
+        return cls.all_configs.get(cls.SECTION_TEST).get('ip')
 
-    def get_svc_test_port(self):
-        return self.test_configs.get(self.SECTION_TEST).get('port')
+    @classmethod
+    def get_svc_test_port(cls):
+        return cls.all_configs.get(cls.SECTION_TEST).get('port')
 
 
 if __name__ == '__main__':
 
     log_manager = LogManager(Constants.LOG_FILE_PATH)
-    cfg = LoadConfigs(log_manager.get_logger())
-    print('test http server url: %s:%s' % (cfg.get_svc_test_ip(), cfg.get_svc_test_port()))
-    print('prophet user id:', cfg.test_configs.get(LoadConfigs.SECTION_PROPHET).get('id'))
+    LoadConfigs.set_logger(log_manager.get_logger()).load_configs()
+    print('test http server url: %s:%s' % (LoadConfigs.get_svc_test_ip(), LoadConfigs.get_svc_test_port()))
+    print('prophet user id:', LoadConfigs.all_configs.get(LoadConfigs.SECTION_PROPHET).get('id'))
 
     log_manager.clear_log_handles()
     print('read ini configs DONE.')
