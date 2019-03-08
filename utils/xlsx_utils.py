@@ -20,26 +20,29 @@ class XlsxUtils(object):
     __utils = None
 
     @classmethod
-    def get_instance(cls, logger, file_path, sheet_name, has_header_line=True):
+    def get_instance(cls):
         if cls.__utils is None:
-            cls.__utils = XlsxUtils(logger, file_path, sheet_name, has_header_line)
+            logger = LogManager.get_instance().get_logger()
+            cls.__utils = XlsxUtils(logger)
         return cls.__utils
 
-    def __init__(self, logger, file_path, sheet_name, has_header_line):
+    def __init__(self, logger):
+        self.__logger = logger
+        self.__sheet = None
+        self.__has_header_line = None
+
+    def load_sheet_data(self, file_path, sheet_name, has_header_line=True):
         if not os.path.exists(file_path):
             raise FileNotFoundError('Excel file is not exist: ' + file_path)
 
-        self.__logger = logger
-        self.__sheet = None
         self.__has_header_line = has_header_line
 
-        self.load_sheet_data(file_path, sheet_name)
-
-    def load_sheet_data(self, file_path, sheet_name, has_header_line=True):
         self.__logger.info('load file %s sheet %s' % (file_path, sheet_name))
         workbook = xlrd.open_workbook(file_path)
         self.__sheet = workbook.sheet_by_name(sheet_name)
         self.__has_header_line = has_header_line
+
+        return self
 
     # --------------------------------------------------------------
     # Read data from excel sheet
@@ -73,11 +76,11 @@ class XlsxUtils(object):
 
 if __name__ == '__main__':
 
-    file_path = os.path.join(os.path.dirname(os.getcwd()), 'apitest', 'TestCases.xlsx')
-    sheet_name = 'Module01'
+    log_manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
 
-    log_manager = LogManager(Constants.LOG_FILE_PATH)
-    xlsx = XlsxUtils.get_instance(log_manager.get_logger(), file_path, sheet_name)
+    sheet_name = 'Module01'
+    file_path = os.path.join(os.path.dirname(os.getcwd()), 'apitest', 'TestCases.xlsx')
+    xlsx = XlsxUtils.get_instance().load_sheet_data(file_path, sheet_name)
 
     # excel cell index start with (0,0)
     # print(xlsx.read_all_rows())

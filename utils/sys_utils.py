@@ -7,8 +7,13 @@ Created on 2018-10-26
 
 import codecs
 import os
+import sys
 import subprocess
 import time
+
+sys.path.append('../')
+from utils import Constants
+from utils import LogManager
 
 
 class SysUtils(object):
@@ -19,8 +24,9 @@ class SysUtils(object):
     __utils = None
 
     @classmethod
-    def get_instance(cls, logger):
+    def get_instance(cls):
         if cls.__utils is None:
+            logger = LogManager.get_instance().get_logger()
             cls.__utils = SysUtils(logger)
         return cls.__utils
 
@@ -152,21 +158,13 @@ class SysUtils(object):
 
 if __name__ == '__main__':
 
-    import sys
-    sys.path.append('../')
+    manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
 
 #     SysUtils.delete_files_in_dir(r'D:\JDTestLogs\handTest')
-    
-    from utils import Constants
-    from utils import LogManager
- 
-    manager = LogManager(Constants.LOG_FILE_PATH)
-    logger = manager.get_logger()
-    
-    utils = SysUtils.get_instance(logger)
+
+    utils = SysUtils.get_instance()
     utils.run_sys_cmd('python --version')
     utils.write_content_to_file(Constants.TEST_FILE_PATH, 'test')
-#     utils.write_content_to_file(Constants.TEST_FILE_PATH, 'test')
-    
+
     manager.clear_log_handles()
     print('system utils test DONE.')

@@ -20,8 +20,9 @@ class HttpUtils(object):
     __utils = None
 
     @classmethod
-    def get_instance(cls, logger):
+    def get_instance(cls):
         if cls.__utils is None:
+            logger = LogManager.get_instance().get_logger()
             cls.__utils = HttpUtils(logger)
         return cls.__utils
 
@@ -139,8 +140,8 @@ if __name__ == '__main__':
 
     mock_url = 'http://127.0.0.1:17891/index'
     headers = {'X-Test-Method': 'X-Test-Get'}
-    log_manager = LogManager(Constants.LOG_FILE_PATH)
-    http_utils = HttpUtils.get_instance(log_manager.get_logger()).set_default_headers(headers)
+    log_manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
+    http_utils = HttpUtils.get_instance().set_default_headers(headers)
 
     # get request
     headers['Content-Type'] = 'text/plain; charset=utf-8'
@@ -159,5 +160,4 @@ if __name__ == '__main__':
     assert(resp is not None and resp.status_code == 200)
 
     log_manager.clear_log_handles()
-
     print('http utils test DONE.')

@@ -15,9 +15,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 sys.path.append('../../')
-from apitest.common import LoadConfigs
 from utils import Constants
 from utils import LogManager
+from apitest.common import LoadConfigs
 
 
 class EmailsHelper(object):
@@ -25,8 +25,10 @@ class EmailsHelper(object):
     __helper = None
 
     @classmethod
-    def get_intance(cls, logger, configs):
+    def get_intance(cls):
         if cls.__helper is None:
+            logger = LogManager.get_instance().get_logger()
+            configs = LoadConfigs.all_configs
             cls.__helper = EmailsHelper(logger, configs)
         return cls.__helper
 
@@ -72,17 +74,28 @@ class EmailsHelper(object):
         attach_file['Content-Disposition'] = 'attachment; filename="%s"' % zip_file_name
         self.__msg.attach(attach_file)
 
+    def __create_smtp(self):
+        smtp = smtplib.SMTP()
+
+        host = self.__configs.get('mail_host')
+        smtp.connect(host)
+
+        user = self.__configs.get('mail_user')
+        pwd = self.__configs.get('mail_pwd')
+        smtp.login(user, pwd)
+
+        return stmp
+
     def send_email(self):
         self.__config_header()
         self.__config_content()
         self.__config_attach_file()
 
-        smtp = smtplib.SMTP()
+        smtp = _create_smtp()
         try:
-            smtp.connect(self.__configs.get('mail_host'))
-            smtp.login(self.__configs.get('mail_user'), '*******')
-            smtp.sendmail(self.__configs.get('sender'), self.__configs.get('receivers'),
-                          self.__msg.as_string())
+            from_addr = self.__configs.get('sender')
+            to_addr = self.__configs.get('receivers').split(',')
+            smtp.sendmail(from_addr, to_addr, self.__msg.as_string())
         finally:
             if smtp is not None:
                 smtp.quit()
@@ -92,15 +105,16 @@ class EmailsHelper(object):
 
 if __name__ == '__main__':
 
-    log_manager = LogManager(Constants.LOG_FILE_PATH)
-    logger = log_manager.get_logger()
-    LoadConfigs.set_logger(logger).load_configs()
-    emails = EmailsHelper.get_intance(logger, LoadConfigs.all_configs)
+    # init
+    log_manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
+    cfg_file_path = os.path.join(os.path.dirname(os.getcwd()), 'configs.ini')
+    LoadConfigs.load_configs(cfg_file_path)
 
-    # emails.send_email()
+    emails = EmailsHelper.get_intance()
+    emails.send_email()
 
-    dir_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/test_results')
-    emails.set_attached_files_dir(dir_path).send_email()
+    # dir_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/test_results')
+    # emails.set_attached_files_dir(dir_path).send_email()
 
     log_manager.clear_log_handles()
     print('emails helper test DONE.')

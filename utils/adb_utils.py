@@ -11,6 +11,8 @@ import os
 import sys
 
 sys.path.append('../')
+from utils import Constants
+from utils import LogManager
 from utils import SysUtils
 
 
@@ -19,14 +21,15 @@ class AdbUtils(object):
     __utils = None
 
     @classmethod
-    def get_instance(cls, logger):
+    def get_instance(cls):
         if cls.__utils == None:
+            logger = LogManager.get_instance().get_logger()
             cls.__utils = AdbUtils(logger)
         return cls.__utils
 
     def __init__(self, logger):
         self.__logger = logger
-        self.__sys_utils = SysUtils.get_instance(self.__logger)
+        self.__sys_utils = SysUtils.get_instance()
 
     @classmethod
     def print_adb_info(cls):
@@ -130,19 +133,16 @@ class AdbUtils(object):
 
 
 if __name__ == '__main__':
-    
-    from utils import Constants
-    from utils import LogManager
 
-    manager = LogManager(Constants.LOG_FILE_PATH)
+    manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
 
-    utils = AdbUtils(logger)
+    utils = AdbUtils.get_instance()
     if utils.is_devices_connected():
         logger.info('Monkey pid:', utils.get_process_id_by_name('monkey'))
         logger.info('android version:', utils.get_android_version())
     else:
         logger.info('no adb device connect!')
-    
+
     manager.clear_log_handles()
     print('adb manager test DONE.')

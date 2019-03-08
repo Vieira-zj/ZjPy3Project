@@ -17,6 +17,18 @@ class LogManager(object):
     classdocs
     '''
 
+    __manager = None
+    __log_path = ''
+
+    @classmethod
+    def get_instance(cls, log_path=''):
+        if cls.__manager is None:
+            if len(log_path) == 0:
+                raise ValueError('log path is null!')
+            cls.__manager = LogManager(log_path)
+
+        return cls.__manager
+
     def __init__(self, log_path, basic_log_level=logging.DEBUG, file_log_level=logging.INFO):
         '''
         Constructor
@@ -28,7 +40,7 @@ class LogManager(object):
         
     def get_logger(self):
         if self.__logger is not None:
-            return
+            return self.__logger
         
         log_format_long = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'
         log_format_short = '%(filename)s: [%(levelname)s] >>> %(message)s'
@@ -68,7 +80,7 @@ if __name__ == '__main__':
     import multiprocessing
     import threading
 
-    manager = LogManager(Constants.LOG_FILE_PATH)
+    manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
     logger = manager.get_logger()
     logger.debug('debug message test')
     logger.info('info message test')
@@ -79,12 +91,11 @@ if __name__ == '__main__':
     p1.start()
     p1.join()
     logger.info('process %s done' % p1.name)
-    
+
     p2 = threading.Thread(name='test_thread', target=sub_process, args=(logger,))
     p2.start()
     p2.join()
     logger.info('process %s done' % p2.name)
-    
-    manager.clear_log_handles()
 
-    print('log utils test DONE.')
+    LogManager.get_instance().get_logger().info('log utils test DONE.')
+    manager.clear_log_handles()

@@ -20,23 +20,18 @@ class LoadConfigs(object):
     SECTION_PROPHET = 'prophet'
     SECTION_EMAIL = 'emails'
 
-    __logger = None
     all_configs = {}
+    __logger = None
 
     @classmethod
-    def set_logger(cls, logger):
-        cls.__logger = logger
-        return cls
-
-    @classmethod
-    def load_configs(cls, cfg_file_path=''):
-        if cls.__logger is None:
-            raise ValueError('logger is not set and null!')
-
+    def load_configs(cls, cfg_file_path):
         if len(cfg_file_path) == 0:
-            cfg_file_path = os.path.join(os.path.dirname(os.getcwd()), 'configs.ini')
+            raise ValueError('config file path is null!')
         if not os.path.exists(cfg_file_path):
             raise FileNotFoundError('configs file %s is not found!' % cfg_file_path)
+
+        if cls.__logger is None:
+            cls.__logger = LogManager.get_instance().get_logger()
 
         cls.__logger.info('load configs: ' + cfg_file_path)
         cfg_reader = configparser.ConfigParser()
@@ -60,10 +55,16 @@ class LoadConfigs(object):
 
 if __name__ == '__main__':
 
-    log_manager = LogManager(Constants.LOG_FILE_PATH)
-    LoadConfigs.set_logger(log_manager.get_logger()).load_configs()
-    print('test http server url: %s:%s' % (LoadConfigs.get_svc_test_ip(), LoadConfigs.get_svc_test_port()))
-    print('prophet user id:', LoadConfigs.all_configs.get(LoadConfigs.SECTION_PROPHET).get('id'))
+    log_manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
+
+    cfg_file_path = os.path.join(os.path.dirname(os.getcwd()), 'configs.ini')
+    LoadConfigs.load_configs(cfg_file_path)
+    print('test http server url: %s:%s'
+          % (LoadConfigs.get_svc_test_ip(), LoadConfigs.get_svc_test_port()))
+
+    mail_configs = LoadConfigs.all_configs.get(LoadConfigs.SECTION_EMAIL)
+    print('mail user pwd:', mail_configs.get('mail_pwd'))
+    print('mail content:', mail_configs.get('content'))
 
     log_manager.clear_log_handles()
     print('read ini configs DONE.')
