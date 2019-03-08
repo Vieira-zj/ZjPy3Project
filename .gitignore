@@ -8,3 +8,4 @@ pydemos/.pytest_cache/
 interfacetest/outputs/
 
 .DS_Store
+apitest/.DS_Store

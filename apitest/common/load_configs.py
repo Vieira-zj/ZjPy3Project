@@ -55,7 +55,7 @@ class LoadConfigs(object):
 
 if __name__ == '__main__':
 
-    log_manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
+    log_manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
 
     cfg_file_path = os.path.join(os.path.dirname(os.getcwd()), 'configs.ini')
     LoadConfigs.load_configs(cfg_file_path)

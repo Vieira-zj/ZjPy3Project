@@ -134,7 +134,7 @@ class AdbUtils(object):
 
 if __name__ == '__main__':
 
-    manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
+    manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
     logger = manager.get_logger()
 
     utils = AdbUtils.get_instance()

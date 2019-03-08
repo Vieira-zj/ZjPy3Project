@@ -6,6 +6,7 @@ Created on 2018-10-31
 '''
 
 import getopt
+import os
 import sys
 import numpy as np
 import matplotlib
@@ -157,12 +158,40 @@ def regexp_demo():
     print(ret_dict)
 
 
+def file_search():
+    '''
+    get file path by regexp pattern
+    '''
+    import glob
+
+    # "glob.glob" return list
+    tmp_dir = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/*.txt')
+    files = glob.glob(tmp_dir)
+    print('\ntext files in tmp dir:', files)
+
+    cur_dir = './*.py'
+    files = glob.glob(cur_dir)
+    print('\npy files in current dir:', files)
+
+    # "glob.iglob" return generator
+    print('\ntext files in tmp dir:')
+    for file in glob.iglob(tmp_dir):
+        print(file)
+
+    print('\npy files in current dir:')
+    for file in glob.iglob(cur_dir):
+        print(file)
+
+
 if __name__ == '__main__':
 
     # import_utils_lib_test()
     # cmd_args_parse()
+
     # chart_line_demo()
     # chart_spot_demo()
+
     # regexp_demo()
+    file_search()
 
     print('python demo DONE.')

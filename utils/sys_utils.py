@@ -47,6 +47,10 @@ class SysUtils(object):
     def get_current_date(cls):
         return time.strftime('%Y%m%d')
 
+    @classmethod
+    def get_current_date_with_sep(cls):
+        return time.strftime('%Y-%m-%d')
+
     # --------------------------------------------------------------
     # Run system commands
     # --------------------------------------------------------------    
@@ -158,7 +162,7 @@ class SysUtils(object):
 
 if __name__ == '__main__':
 
-    manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
+    manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
 
 #     SysUtils.delete_files_in_dir(r'D:\JDTestLogs\handTest')
 

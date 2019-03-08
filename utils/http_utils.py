@@ -140,7 +140,7 @@ if __name__ == '__main__':
 
     mock_url = 'http://127.0.0.1:17891/index'
     headers = {'X-Test-Method': 'X-Test-Get'}
-    log_manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
+    log_manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
     http_utils = HttpUtils.get_instance().set_default_headers(headers)
 
     # get request

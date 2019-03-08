@@ -21,45 +21,51 @@ class LogManager(object):
     __log_path = ''
 
     @classmethod
-    def get_instance(cls, log_path=''):
+    def get_instance(cls):
         if cls.__manager is None:
-            if len(log_path) == 0:
-                raise ValueError('log path is null!')
-            cls.__manager = LogManager(log_path)
-
+            raise RuntimeError('log manager is not init!')
         return cls.__manager
+
+    @classmethod
+    def biuld(cls, log_path):
+        if len(log_path) == 0:
+            raise ValueError('log path is null!')
+        cls.__manager = LogManager(log_path)
+        return cls
 
     def __init__(self, log_path, basic_log_level=logging.DEBUG, file_log_level=logging.INFO):
         '''
-        Constructor
+        兼容老的调用方式
         '''
-        self.basic_log_level = basic_log_level
-        self.file_log_level = file_log_level
-        self.log_path = log_path
+        self.__log_path = log_path
+        self.__basic_log_level = basic_log_level
+        self.__file_log_level = file_log_level
         self.__logger = None
-        
+
     def get_logger(self):
-        if self.__logger is not None:
-            return self.__logger
-        
+        if self.__logger is None:
+            self.__build_logger()
+        return self.__logger
+
+    def __build_logger(self):
         log_format_long = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'
         log_format_short = '%(filename)s: [%(levelname)s] >>> %(message)s'
         date_format_long = '%a, %d %b %Y %H:%M:%S'
         date_format_short = '%d %b %H:%M:%S'
-    
+
         # log main handler
-        logging.basicConfig(level=self.basic_log_level, format=log_format_short, datefmt=date_format_short)
-    
+        logging.basicConfig(level=self.__basic_log_level,
+                            format=log_format_short, datefmt=date_format_short)
+
         # set file handler
         # note: file_log_level > basic_log_level
-        fh = logging.FileHandler(filename=self.log_path, mode='w', encoding='utf-8')
+        fh = logging.FileHandler(
+            filename=self.__log_path, mode='w', encoding='utf-8')
         fh.setFormatter(logging.Formatter(fmt=log_format_long, datefmt=date_format_long))
-        fh.setLevel(self.file_log_level)
+        fh.setLevel(self.__file_log_level)
 
         self.__logger = logging.getLogger()
         self.__logger.addHandler(fh)
-        self.__logger.debug('init __logger config')
-        return self.__logger
 
     def clear_log_handles(self):
         if self.__logger.hasHandlers():
@@ -80,7 +86,7 @@ if __name__ == '__main__':
     import multiprocessing
     import threading
 
-    manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
+    manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
     logger = manager.get_logger()
     logger.debug('debug message test')
     logger.info('info message test')

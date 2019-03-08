@@ -76,7 +76,7 @@ class XlsxUtils(object):
 
 if __name__ == '__main__':
 
-    log_manager = LogManager.get_instance(Constants.LOG_FILE_PATH)
+    log_manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
 
     sheet_name = 'Module01'
     file_path = os.path.join(os.path.dirname(os.getcwd()), 'apitest', 'TestCases.xlsx')

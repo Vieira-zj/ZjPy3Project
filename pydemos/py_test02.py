@@ -12,10 +12,72 @@ $ py.test --version
 pytest plugins:
 pytest-html
 pytest-rerunfailures
+
+Refer: 
+http://pythontesting.net/framework/pytest/pytest-introduction/
 '''
 
-import logging
 import pytest
+
+
+def print_prefix(text):
+    print('\n======>', text)
+
+def setup_module(module):
+    print_prefix('[setup_module] module:%s' % module.__name__)
+
+def teardown_module(module):
+    print_prefix('[teardown_module] module:%s' % module.__name__)
+
+
+class TestPyBase(object):
+
+    def setup_class(cls):
+        print_prefix('[setup_class] class:%s' % cls.__name__)
+
+    def teardown_class(cls):
+        print_prefix('[teardown_class] class:%s' % cls.__name__)
+
+    def setup_method(self, method):
+        print_prefix('[setup_method] method:%s' % method.__name__)
+
+    def teardown_method(self, method):
+        print_prefix('[teardown_method] method:%s' % method.__name__)
+
+    def setup(self):
+        print_prefix('[setup] method: n/a')
+
+    def teardown(self):
+        print_prefix('[teardown] method: n/a')
+
+    def test_numbers_5_6(self):
+        print_prefix('[test_numbers_5_6]')
+        assert((5 * 6) == 30)
+
+    def test_strings_b_2(self):
+        print_prefix('[test_strings_b_2]')
+        assert((2 * 'x') == 'xx')
+
+    @pytest.mark.timeout(2)
+    def test_random_num_timeout(self):
+        import time
+        time.sleep(1)
+        import random
+        assert(random.randint(0, 5) > 2)
+
+    @pytest.mark.flaky(reruns=2, reruns_delay=1)
+    def test_random_choice_rerun(self):
+        import random
+        assert(random.choice([True, False]))
+
+    testdata = [(5, 6, 30), (2, 10, 20), ]
+
+    @pytest.mark.parametrize('a,b,expected', testdata)
+    def test_number_a_b(self, a, b, expected):
+        print_prefix('[test_numbers_a_b]')
+        assert((a * b) == expected)
+
+# TestPyBase end
 
 
 class TestPy02(object):
@@ -28,7 +90,7 @@ class TestPy02(object):
         deque_names = collections.deque(names)
         deque_names.popleft()
         deque_names.appendleft('mark')
-        logging.debug(deque_names)
+        print(deque_names)
 
     @pytest.mark.skip(reason='no run')
     def test_02_dict_get_default(self):
@@ -38,13 +100,14 @@ class TestPy02(object):
         for color in colors:
             tmp_dict01.setdefault(color, 0)
             tmp_dict01[color] += 1
-        logging.debug(tmp_dict01)
+        print(tmp_dict01)
 
         tmp_dict02 = {}
         for color in colors:
             tmp_dict02[color] = tmp_dict02.get(color, 0) + 1
-        logging.debug(tmp_dict02)
+        print(tmp_dict02)
 
+    @pytest.mark.skip(reason='no run')
     def test_03_default_dict(self):
         names = ['jack', 'leo', 'sam', 'peter', 'jeo']
 
@@ -53,9 +116,12 @@ class TestPy02(object):
         for name in names:
             key = len(name)
             tmp_dict[key].append(name)
-        logging.debug(tmp_dict)
+        print(tmp_dict)
 
 
 if __name__ == '__main__':
 
-    pytest.main(['-v', 'py_test02.py'])
+    pytest.main(['-v', '-s', 'py_test02.py'])
+
+    # if specify class, setup_module() and teardown_module() not trigger
+    # pytest.main(['-v', '-s', 'py_test02.py::TestPyBase'])
