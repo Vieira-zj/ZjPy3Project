@@ -17,7 +17,6 @@ from utils import LogManager
 class LoadConfigs(object):
 
     SECTION_TEST = 'test'
-    SECTION_PROPHET = 'prophet'
     SECTION_EMAIL = 'emails'
 
     all_configs = {}
