@@ -21,14 +21,14 @@ class HttpUtils(object):
     HTTP_METHOD_POST_DATA = 'post_data'
     HTTP_METHOD_POST_JSON = 'post_json'
 
-    __utils = None
+    __http = None
 
     @classmethod
     def get_instance(cls):
-        if cls.__utils is None:
-            logger = LogManager.get_instance().get_logger()
-            cls.__utils = HttpUtils(logger)
-        return cls.__utils
+        if cls.__http is None:
+            logger = LogManager.get_logger()
+            cls.__http = HttpUtils(logger)
+        return cls.__http
 
     def __init__(self, logger):
         self.__logger = logger
@@ -52,8 +52,7 @@ class HttpUtils(object):
     # Http Get Request
     # --------------------------------------------------------------
     def __send_get_request(self, url, query, headers, timeout):
-        if len(headers) > 0:
-            self.__append_headers(headers)
+        self.__append_headers(headers)
 
         data_dict = {}
         for entry in query.split('&'):
@@ -74,8 +73,7 @@ class HttpUtils(object):
     # Http Post Request
     # --------------------------------------------------------------
     def __send_post_request_data(self, url, data, headers, timeout):
-        if len(headers) > 0:
-            self.__append_headers(headers)
+        self.__append_headers(headers)
 
         resp = None
         try:
@@ -88,8 +86,7 @@ class HttpUtils(object):
         return resp
 
     def __send_post_request_json(self, url, json_obj, headers, timeout):
-        if len(headers) > 0:
-            self.__append_headers(headers)
+        self.__append_headers(headers)
 
         resp = None
         try:
@@ -152,12 +149,13 @@ class HttpUtils(object):
 
 if __name__ == '__main__':
 
-    mock_url = 'http://127.0.0.1:17891/index'
-    headers = {'X-Test-Method': 'X-Test-Get'}
-    log_manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
-    http_utils = HttpUtils.get_instance().set_default_headers(headers)
+    LogManager.build_logger(Constants.LOG_FILE_PATH)
 
     # get request
+    headers = {'X-Test-Method': 'X-Test-Get'}
+    http_utils = HttpUtils.get_instance().set_default_headers(headers)
+
+    mock_url = 'http://127.0.0.1:17891/index'
     headers['Content-Type'] = 'text/plain; charset=utf-8'
     query = 'k1=v1&k2=v2'
     resp = http_utils.send_http_request(
@@ -170,11 +168,11 @@ if __name__ == '__main__':
 
     headers['Content-Type'] = 'text/json; charset=utf-8'
     data_dict = {'email': '123456@163.com', 'password': '123456'}
-    resp = http_utils.send_http_request(
-        HttpUtils.HTTP_METHOD_POST_DATA, mock_url, json.dumps(data_dict), headers=headers)
+    # resp = http_utils.send_http_request(
+    #     HttpUtils.HTTP_METHOD_POST_DATA, mock_url, json.dumps(data_dict), headers=headers)
     resp = http_utils.send_http_request(
         HttpUtils.HTTP_METHOD_POST_JSON, mock_url, data_dict, headers=headers)
     assert(resp is not None and resp.status_code == 200)
 
-    log_manager.clear_log_handles()
+    LogManager.clear_log_handles()
     print('http utils test DONE.')

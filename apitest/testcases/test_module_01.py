@@ -21,7 +21,7 @@ class TestModule01(object):
     __http_utils = None
 
     def setup_class(cls):
-        cls.__logger = LogManager.get_instance().get_logger()
+        cls.__logger = LogManager.get_logger()
         cls.__http_utils = HttpUtils.get_instance()
 
     def teardown_class(cls):
@@ -43,11 +43,11 @@ class TestModule01(object):
 
 if __name__ == '__main__':
 
-    log_manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
+    LogManager.build_logger(Constants.LOG_FILE_PATH)
     file_path = os.path.join(os.path.dirname(os.getcwd()), 'TestCases.xlsx')
     LoadCases.build(file_path).get_instance().load_all_cases_by_sheet('Module01')
 
     pytest.main(['-v', '-s', 'test_module_01.py'])
 
-    log_manager.clear_log_handles()
+    LogManager.clear_log_handles()
     print('test module 01 DONE.')

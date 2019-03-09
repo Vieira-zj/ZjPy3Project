@@ -23,16 +23,16 @@ from apitest.common import LoadConfigs
 
 class EmailsHelper(object):
 
-    __helper = None
+    __emails = None
 
     @classmethod
     def get_intance(cls):
-        if cls.__helper is None:
-            cls.__helper = EmailsHelper()
-        return cls.__helper
+        if cls.__emails is None:
+            cls.__emails = EmailsHelper()
+        return cls.__emails
 
     def __init__(self):
-        self.__logger = LogManager.get_instance().get_logger()
+        self.__logger = LogManager.get_logger()
         self.__sysutils = SysUtils.get_instance()
         self.__configs = LoadConfigs.all_configs.get(LoadConfigs.SECTION_EMAIL)
 
@@ -106,7 +106,7 @@ class EmailsHelper(object):
 if __name__ == '__main__':
 
     # init logs and configs
-    log_manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
+    LogManager.build_logger(Constants.LOG_FILE_PATH)
     cfg_file_path = os.path.join(os.path.dirname(os.getcwd()), 'configs.ini')
     LoadConfigs.load_configs(cfg_file_path)
 
@@ -114,5 +114,5 @@ if __name__ == '__main__':
     mail = EmailsHelper.get_intance()
     mail.set_content_text(mail_content).send_email()
 
-    log_manager.clear_log_handles()
+    LogManager.clear_log_handles()
     print('emails helper test DONE.')

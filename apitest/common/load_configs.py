@@ -20,7 +20,6 @@ class LoadConfigs(object):
     SECTION_EMAIL = 'emails'
 
     all_configs = {}
-    __logger = None
 
     @classmethod
     def load_configs(cls, cfg_file_path):
@@ -29,10 +28,7 @@ class LoadConfigs(object):
         if not os.path.exists(cfg_file_path):
             raise FileNotFoundError('configs file %s is not found!' % cfg_file_path)
 
-        if cls.__logger is None:
-            cls.__logger = LogManager.get_instance().get_logger()
-
-        cls.__logger.info('load configs: ' + cfg_file_path)
+        LogManager.get_logger().info('load configs: ' + cfg_file_path)
         cfg_reader = configparser.ConfigParser()
         cfg_reader.read(cfg_file_path)
 
@@ -54,7 +50,7 @@ class LoadConfigs(object):
 
 if __name__ == '__main__':
 
-    log_manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
+    LogManager.build_logger(Constants.LOG_FILE_PATH)
 
     cfg_file_path = os.path.join(os.path.dirname(os.getcwd()), 'configs.ini')
     LoadConfigs.load_configs(cfg_file_path)
@@ -65,5 +61,5 @@ if __name__ == '__main__':
     print('mail user pwd:', mail_configs.get('mail_pwd'))
     print('mail content:', mail_configs.get('content'))
 
-    log_manager.clear_log_handles()
+    LogManager.clear_log_handles()
     print('read ini configs DONE.')

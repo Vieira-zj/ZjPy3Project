@@ -21,14 +21,14 @@ class SysUtils(object):
     classdocs
     '''
 
-    __utils = None
+    __sysutils = None
 
     @classmethod
     def get_instance(cls):
-        if cls.__utils is None:
-            logger = LogManager.get_instance().get_logger()
-            cls.__utils = SysUtils(logger)
-        return cls.__utils
+        if cls.__sysutils is None:
+            logger = LogManager.get_logger()
+            cls.__sysutils = SysUtils(logger)
+        return cls.__sysutils
 
     def __init__(self, logger):
         '''
@@ -162,7 +162,7 @@ class SysUtils(object):
 
 if __name__ == '__main__':
 
-    manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
+    LogManager.build_logger(Constants.LOG_FILE_PATH)
 
 #     SysUtils.delete_files_in_dir(r'D:\JDTestLogs\handTest')
 
@@ -170,5 +170,5 @@ if __name__ == '__main__':
     utils.run_sys_cmd('python --version')
     utils.write_content_to_file(Constants.TEST_FILE_PATH, 'test')
 
-    manager.clear_log_handles()
+    LogManager.clear_log_handles()
     print('system utils test DONE.')

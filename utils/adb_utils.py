@@ -18,14 +18,14 @@ from utils import SysUtils
 
 class AdbUtils(object):
 
-    __utils = None
+    __adb = None
 
     @classmethod
     def get_instance(cls):
-        if cls.__utils == None:
-            logger = LogManager.get_instance().get_logger()
-            cls.__utils = AdbUtils(logger)
-        return cls.__utils
+        if cls.__adb == None:
+            logger = LogManager.get_logger()
+            cls.__adb = AdbUtils(logger)
+        return cls.__adb
 
     def __init__(self, logger):
         self.__logger = logger
@@ -134,8 +134,7 @@ class AdbUtils(object):
 
 if __name__ == '__main__':
 
-    manager = LogManager.biuld(Constants.LOG_FILE_PATH).get_instance()
-    logger = manager.get_logger()
+    logger = LogManager.build_logger(Constants.LOG_FILE_PATH)
 
     utils = AdbUtils.get_instance()
     if utils.is_devices_connected():
@@ -144,5 +143,5 @@ if __name__ == '__main__':
     else:
         logger.info('no adb device connect!')
 
-    manager.clear_log_handles()
+    LogManager.clear_log_handles()
     print('adb manager test DONE.')

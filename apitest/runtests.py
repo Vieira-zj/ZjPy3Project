@@ -18,7 +18,7 @@ class RunTests(object):
 
     def __init__(self):
         log_path = os.path.join(os.getcwd(), 'outputs/logs')
-        self.__log_manager = LogManager.biuld(log_path).get_instance()
+        self.__log_manager = LogManager.build(log_path).get_instance()
         self.__logger =LogManager.get_logger()
 
     def setup_tests(self):
