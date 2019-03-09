@@ -45,7 +45,7 @@ class TestModule01(object):
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
         headers = LoadCases.format_headers_to_dict(case['Headers'])
         resp = self.__http_utils.send_http_request(
-            HttpUtils.HTTP_METHOD_POST_JSON, case['Url'], case['Body'], headers=headers)
+            HttpUtils.HTTP_METHOD_POST_DATA, case['Url'], case['Body'], headers=headers)
 
         assert(resp is not None and resp.status_code == int(case['RetCode']))
 

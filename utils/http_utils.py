@@ -84,13 +84,13 @@ class HttpUtils(object):
 
         return resp
 
-    def __send_post_request_json(self, url, json_obj, headers, timeout):
+    def __send_post_request_json(self, url, json_object, headers, timeout):
         self.__append_headers(headers)
 
         resp = None
         try:
-            self.__log_request_info(url, json.dumps(json_obj), self.__headers)
-            resp = requests.post(url, headers=self.__headers, json=json_obj, timeout=timeout)
+            self.__log_request_info(url, json.dumps(json_object), self.__headers)
+            resp = requests.post(url, headers=self.__headers, json=json_object, timeout=timeout)
             self.__log_response_info(resp)
         except TimeoutError:
             self.__logger.error('http post request time out(%ds)!' % timeout)
