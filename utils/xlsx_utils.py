@@ -47,7 +47,7 @@ class XlsxUtils(object):
     # --------------------------------------------------------------
     # Read excel data for one sheet
     # --------------------------------------------------------------
-    def load_sheet_data(self, file_path, sheet_name):
+    def pre_read_sheet(self, file_path, sheet_name):
         self.__verify_target_file(file_path)
 
         self.__logger.info('load data from excel / sheet: %s / %s' % (file_path, sheet_name))
@@ -106,7 +106,9 @@ if __name__ == '__main__':
     file_path = os.path.join(os.path.dirname(os.getcwd()), 'apitest', 'TestCases.xlsx')
     print(xlsx.get_all_sheets_names(file_path))
 
-    xlsx.load_sheet_data(file_path, sheet_name)
+    xlsx.pre_read_sheet(file_path, sheet_name)
+    print(xlsx.read_header_row())
+
     # excel cell index start with (0,0)
     # print('1st case name:', xlsx.read_cell_value(1, 1))
     # print('test cases:', xlsx.read_values_by_cloumn(1))

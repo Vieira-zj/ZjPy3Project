@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     LogManager.build_logger(Constants.LOG_FILE_PATH)
     file_path = os.path.join(os.path.dirname(os.getcwd()), 'TestCases.xlsx')
-    LoadCases.get_instance().pre_load(file_path, 'Module01').load_all_cases_by_sheet()
+    LoadCases.get_instance().pre_load_sheet(file_path, 'Module01').load_all_cases_by_sheet()
 
     pytest.main(['-v', '-s', 'test_module_01.py'])
 

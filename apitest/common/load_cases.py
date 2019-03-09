@@ -28,6 +28,7 @@ class LoadCases(object):
         self.__logger = LogManager.get_logger()
         self.__xlsx = XlsxUtils.get_instance()
         self.__test_cases = []
+        self.__header = []
 
     # --------------------------------------------------------------
     # Load test cases data
@@ -37,14 +38,18 @@ class LoadCases(object):
         
         ret_tc = []
         for sheet in sheets:
-            tmp_tcs = self.pre_load(file_path, sheet).load_all_cases_by_sheet()
+            tmp_tcs = self.pre_load_sheet(file_path, sheet).load_all_cases_by_sheet()
             ret_tc.extend(tmp_tcs)
 
         self.__test_cases = ret_tc
         return ret_tc
 
-    def pre_load(self, file_path, sheet_name):
-        self.__xlsx.load_sheet_data(file_path, sheet_name)
+    def pre_load_sheet(self, file_path, sheet_name):
+        self.__xlsx.pre_read_sheet(file_path, sheet_name)
+
+        self.__header = self.__xlsx.read_header_row()
+        if len(self.__header) == 0:
+            raise Exception('No header line defined for test case!')
         return self
 
     def load_all_cases_by_sheet(self):
@@ -70,7 +75,7 @@ class LoadCases(object):
         self.__test_cases = ret_tcs
         return ret_tcs
 
-    def load_cases_by_ids(self, ids):
+    def load_cases_by_sheet_and_ids(self, ids):
         tcs = self.__xlsx.read_all_rows_by_sheet()
 
         ret_tcs = []
@@ -80,6 +85,9 @@ class LoadCases(object):
 
         self.__test_cases = ret_tcs
         return ret_tcs
+
+    def get_case_header_by_sheet(self):
+        return self.__header
 
     def get_loaded_tcs(self):
         return self.__test_cases
@@ -91,17 +99,13 @@ class LoadCases(object):
         if len(self.__test_cases) == 0:
             raise Exception('No test cases found!')
 
-        headers = self.__xlsx.read_header_row()
-        if len(headers) == 0:
-            raise Exception('No header defined for test case!')
-
         case = []
         for tc in self.get_loaded_tcs():
             if tc[1] == case_name:
                 case = tc
 
         ret_dict = {}
-        for k, v in zip(headers, case):
+        for k, v in zip(self.get_case_header_by_sheet(), case):
             ret_dict[k] = v
         return ret_dict
 
@@ -128,15 +132,18 @@ if __name__ == '__main__':
     file_path = os.path.join(os.path.dirname(os.getcwd()), 'TestCases.xlsx')
     LoadCases.get_instance().load_all_cases(file_path)
     print(LoadCases.get_instance().get_loaded_tcs())
+    print('\n\n')
 
     sheet_name = 'Module01'
-    load_cases = LoadCases.get_instance().pre_load(file_path, sheet_name)
-    # load_cases.load_all_cases_by_sheet()
-    # load_cases.load_cases_by_ids(['test_index_get_01'])
-    load_cases.load_cases_by_sheet_and_tags(['p1','smoke'])
+    load_cases = LoadCases.get_instance().pre_load_sheet(file_path, sheet_name)
+    load_cases.load_all_cases_by_sheet()
+    # load_cases.load_cases_by_sheet_and_tags(['p1','smoke'])
+    # load_cases.load_cases_by_sheet_and_ids(['test_index_get_01'])
     print(load_cases.get_loaded_tcs())
-    
+    print('\n\n')
+
     print(load_cases.get_tc_data_dict('test_index_get_01'))
+    print(load_cases.get_tc_data_dict('test_index_post_02'))
 
     LogManager.clear_log_handles()
     print('load test cases DONE.')
