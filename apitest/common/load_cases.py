@@ -32,26 +32,26 @@ class LoadCases(object):
     # --------------------------------------------------------------
     # Load test cases data
     # --------------------------------------------------------------
-    def get_all_cases(self, file_path):
+    def load_all_cases(self, file_path):
         sheets = self.__xlsx.get_all_sheets_names(file_path)
         
         ret_tc = []
         for sheet in sheets:
-            tmp_tcs = self.load_sheet_data(file_path, sheet).get_all_cases_by_sheet()
+            tmp_tcs = self.pre_load(file_path, sheet).load_all_cases_by_sheet()
             ret_tc.extend(tmp_tcs)
 
         self.__test_cases = ret_tc
         return ret_tc
 
-    def load_sheet_data(self, file_path, sheet_name):
+    def pre_load(self, file_path, sheet_name):
         self.__xlsx.load_sheet_data(file_path, sheet_name)
         return self
 
-    def get_all_cases_by_sheet(self):
+    def load_all_cases_by_sheet(self):
         self.__test_cases = self.__xlsx.read_all_rows_by_sheet()
         return self.__test_cases
 
-    def get_cases_by_sheet_and_tags(self, tags):
+    def load_cases_by_sheet_and_tags(self, tags):
         '''
         tags: list of keywords, like ['p1', 'smoke']
         '''
@@ -70,7 +70,7 @@ class LoadCases(object):
         self.__test_cases = ret_tcs
         return ret_tcs
 
-    def get_cases_by_ids(self, ids):
+    def load_cases_by_ids(self, ids):
         tcs = self.__xlsx.read_all_rows_by_sheet()
 
         ret_tcs = []
@@ -126,13 +126,14 @@ if __name__ == '__main__':
     LogManager.build_logger(Constants.LOG_FILE_PATH)
 
     file_path = os.path.join(os.path.dirname(os.getcwd()), 'TestCases.xlsx')
+    LoadCases.get_instance().load_all_cases(file_path)
+    print(LoadCases.get_instance().get_loaded_tcs())
+
     sheet_name = 'Module01'
-    load_cases = LoadCases.get_instance().load_sheet_data(file_path, sheet_name)
-    
-    load_cases.get_all_cases_by_sheet()
-    # load_cases.get_cases_by_ids(['test_index_get_01'])
-    # load_cases.get_cases_by_sheet_and_tags(['p1','smoke'])
-    # load_cases.get_all_cases(file_path)
+    load_cases = LoadCases.get_instance().pre_load(file_path, sheet_name)
+    # load_cases.load_all_cases_by_sheet()
+    # load_cases.load_cases_by_ids(['test_index_get_01'])
+    load_cases.load_cases_by_sheet_and_tags(['p1','smoke'])
     print(load_cases.get_loaded_tcs())
     
     print(load_cases.get_tc_data_dict('test_index_get_01'))

@@ -38,14 +38,23 @@ class TestModule01(object):
         headers = LoadCases.format_headers_to_dict(case['Headers'])
         resp = self.__http_utils.send_http_request(
             HttpUtils.HTTP_METHOD_GET, case['Url'], case['Body'], headers=headers)
-        assert(resp is not None and resp.status_code == 200)
+
+        assert(resp is not None and resp.status_code == int(case['RetCode']))
+
+    def test_index_post_02(self):
+        case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
+        headers = LoadCases.format_headers_to_dict(case['Headers'])
+        resp = self.__http_utils.send_http_request(
+            HttpUtils.HTTP_METHOD_POST_JSON, case['Url'], case['Body'], headers=headers)
+
+        assert(resp is not None and resp.status_code == int(case['RetCode']))
 
 
 if __name__ == '__main__':
 
     LogManager.build_logger(Constants.LOG_FILE_PATH)
     file_path = os.path.join(os.path.dirname(os.getcwd()), 'TestCases.xlsx')
-    LoadCases.build(file_path).get_instance().load_all_cases_by_sheet('Module01')
+    LoadCases.get_instance().pre_load(file_path, 'Module01').load_all_cases_by_sheet()
 
     pytest.main(['-v', '-s', 'test_module_01.py'])
 
