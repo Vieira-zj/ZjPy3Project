@@ -56,15 +56,14 @@ class MonkeyTest(object):
         self.__logcat_anr_path_for_shell = '%s/%s' % (self.__log_dir_path_for_shell, self.__logcat_anr_file_name)
         
         SysUtils.create_dir(self.__log_dir_path_for_win)
-        self.__log_manager = LogManager(self.__exec_log_path)
-        self.__logger = self.__log_manager.get_logger()
-        self.__sysutils = SysUtils(self.__logger)
-        self.__adbutils = AdbUtils(self.__logger)
-        self.__monitor = MonkeyMonitor(self.__logger)
+        self.__logger = LogManager.build_logger(self.__exec_log_path)
+        self.__sysutils = SysUtils()
+        self.__adbutils = AdbUtils()
+        self.__monitor = MonkeyMonitor()
         
-        self.__profile_monitor = ProfileMonitor(self.__logger, Constants.ITEST_COLLECT_INTERVAL)
-        self.__chart_parser = ChartParser(self.__logger, self.__log_dir_path_for_win)
-        self.__report = MonkeyReport(self.__logger, self.__log_dir_path_for_win, self.__logcat_exception_file_name, self.__logcat_anr_file_name)
+        self.__profile_monitor = ProfileMonitor(Constants.ITEST_COLLECT_INTERVAL)
+        self.__chart_parser = ChartParser(self.__log_dir_path_for_win)
+        self.__report = MonkeyReport(self.__log_dir_path_for_win, self.__logcat_exception_file_name, self.__logcat_anr_file_name)
         
     # --------------------------------------------------------------
     # Monkey and logcat processes
@@ -244,7 +243,7 @@ class MonkeyTest(object):
                 self.__chart_parser.build_all_profile_charts()
         else:
             self.__logger.error('Device disconnect!')
-        self.__log_manager.clear_log_handles()
+        LogManager.clear_log_handles()
     
         if Constants.IS_CREATE_ARCHIVE:
             self.__create_archive_report_file()

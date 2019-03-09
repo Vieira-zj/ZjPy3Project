@@ -26,15 +26,14 @@ class SysUtils(object):
     @classmethod
     def get_instance(cls):
         if cls.__sysutils is None:
-            logger = LogManager.get_logger()
-            cls.__sysutils = SysUtils(logger)
+            cls.__sysutils = SysUtils()
         return cls.__sysutils
 
-    def __init__(self, logger):
+    def __init__(self):
         '''
         Constructor
         '''
-        self.__logger = logger
+        self.__logger = LogManager.get_logger()
 
     # --------------------------------------------------------------
     # Time functions

@@ -7,8 +7,10 @@ Created on 2018-11-26
 import re
 import os
 import sys
-sys.path.append('../')
 
+sys.path.append('../')
+from utils import Constants
+from utils import LogManager
 from utils import SysUtils
 
 
@@ -17,7 +19,7 @@ class MonkeyReport(object):
     classdocs
     '''
 
-    def __init__(self, logger, log_root_dir_path, log_exception_name, log_anr_name):
+    def __init__(self, log_root_dir_path, log_exception_name, log_anr_name):
         '''
         Constructor
         '''
@@ -25,8 +27,8 @@ class MonkeyReport(object):
         self.__log_anr_path = os.path.join(log_root_dir_path, log_anr_name)
         self.__monkey_test_report_path_for_win = os.path.join(log_root_dir_path, 'monkey_test_report.txt')
         
-        self.__logger = logger
-        self.__sysutils = SysUtils(self.__logger)
+        self.__logger = LogManager.get_logger()
+        self.__sysutils = SysUtils()
 
     # --------------------------------------------------------------
     # Create report
@@ -83,19 +85,15 @@ class MonkeyReport(object):
 
 if __name__ == '__main__':
 
-    from utils import Constants
-    from utils import LogManager
- 
-    manager = LogManager(Constants.LOG_FILE_PATH)
-    logger = manager.get_logger()
+    LogManager.build_logger(Constants.LOG_FILE_PATH)
  
     log_dir_path = r'D:\ZJWorkspaces\ZjPy3Project\monkeyreports\18-11-27_150443'
-    report = MonkeyReport(logger, log_dir_path, 'logcat_exception.log', 'logcat_anr.log')
+    report = MonkeyReport(log_dir_path, 'logcat_exception.log', 'logcat_anr.log')
      
     title_dict = {}
     title_dict['TEST PACKAGE'] = 'com.jd.b2b'
     title_dict['RUN TIME'] = '60'
     report.create_monkey_test_report(title_dict)
      
-    manager.clear_log_handles()
+    LogManager.clear_log_handles()
     print('Monkey report DONE.')

@@ -7,10 +7,11 @@ Created on 2018-10-30
 
 import time
 import sys
-sys.path.append('../')
 
-from utils import AdbUtils
+sys.path.append('../')
 from utils import Constants
+from utils import LogManager
+from utils import AdbUtils
 
 
 class MonkeyMonitor(object):
@@ -18,12 +19,12 @@ class MonkeyMonitor(object):
     classdocs
     '''
 
-    def __init__(self, logger):
+    def __init__(self):
         '''
         Constructor
         '''
-        self.__logger = logger
-        self.__adbutils = AdbUtils(logger)
+        self.__logger = LogManager.get_logger()
+        self.__adbutils = AdbUtils()
     
     def __get_monkey_process_id(self):
         return self.__adbutils.get_process_id_by_name('monkey')

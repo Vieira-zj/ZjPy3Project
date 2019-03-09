@@ -23,12 +23,11 @@ class AdbUtils(object):
     @classmethod
     def get_instance(cls):
         if cls.__adb == None:
-            logger = LogManager.get_logger()
-            cls.__adb = AdbUtils(logger)
+            cls.__adb = AdbUtils()
         return cls.__adb
 
-    def __init__(self, logger):
-        self.__logger = logger
+    def __init__(self):
+        self.__logger = LogManager.get_logger()
         self.__sys_utils = SysUtils.get_instance()
 
     @classmethod

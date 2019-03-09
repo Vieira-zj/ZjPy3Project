@@ -26,12 +26,11 @@ class HttpUtils(object):
     @classmethod
     def get_instance(cls):
         if cls.__http is None:
-            logger = LogManager.get_logger()
-            cls.__http = HttpUtils(logger)
+            cls.__http = HttpUtils()
         return cls.__http
 
-    def __init__(self, logger):
-        self.__logger = logger
+    def __init__(self):
+        self.__logger = LogManager.get_logger()
         self.__headers = {}
 
     def set_default_headers(self, headers):

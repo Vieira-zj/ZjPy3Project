@@ -22,12 +22,11 @@ class XlsxUtils(object):
     @classmethod
     def get_instance(cls):
         if cls.__xlsx is None:
-            logger = LogManager.get_logger()
-            cls.__xlsx = XlsxUtils(logger)
+            cls.__xlsx = XlsxUtils()
         return cls.__xlsx
 
-    def __init__(self, logger):
-        self.__logger = logger
+    def __init__(self):
+        self.__logger = LogManager.get_logger()
         self.__sheet = None
 
     def get_all_sheets_names(self, file_path):

@@ -5,13 +5,14 @@ Created on 2018-11-20
 @author: zhengjin
 '''
 
+import os
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-import os
-import sys
 sys.path.append('../')
-
+from utils import Constants
+from utils import LogManager
 from utils import SysUtils
 
 
@@ -27,14 +28,14 @@ class ChartParser(object):
 
     __profile_types_list = ('cpu_com_jd_b2b.txt,cpuSystem.txt', 'pss_com_jd_b2b.txt,pssSystemLeft.txt', 'upflow_com_jd_b2b.txt', 'downflow_com_jd_b2b.txt')
 
-    def __init__(self, logger, report_root_path):
+    def __init__(self, report_root_path):
         '''
         Constructor
         '''
-        self.__logger = logger
+        self.__logger = LogManager.get_logger()
         self.__report_root_path = report_root_path
         self.__handtest_dir_path = os.path.join(self.__report_root_path, 'handTest')
-        self.sysutils = SysUtils(logger)
+        self.sysutils = SysUtils()
         
     # --------------------------------------------------------------
     # Read Profile Source Data
@@ -149,19 +150,15 @@ class ChartParser(object):
 
 if __name__ == '__main__':
     
-    from utils import Constants
-    from utils import LogManager
-
-    manager = LogManager(Constants.LOG_FILE_PATH)
-    logger = manager.get_logger()
+    LogManager.build_logger(Constants.LOG_FILE_PATH)
 
     root_path = '/Users/zhengjin/Downloads/tmp_files'
-    parser = ChartParser(logger, root_path)
+    parser = ChartParser(root_path)
 #     parser.build_all_profile_charts()
     parser.build_profile_chart(ChartParser.CATEGORY_CPU, True)
 #     parser.build_profile_chart(ChartParser.CATEGORY_MEM, True)
 #     parser.build_profile_chart(ChartParser.CATEGORY_UPFLOW)
 #     parser.build_profile_chart(ChartParser.CATEGORY_DOWNFLOW, True)
 
-    manager.clear_log_handles()
+    LogManager.clear_log_handles()
     print('chart parser test DONE.')

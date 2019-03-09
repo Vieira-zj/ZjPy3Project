@@ -8,8 +8,10 @@ Created on 2018-11-19
 import time
 import os
 import sys
-sys.path.append('../')
 
+sys.path.append('../')
+from utils import Constants
+from utils import LogManager
 from utils import AdbUtils
 from utils import SysUtils
 
@@ -26,14 +28,14 @@ class ProfileMonitor(object):
     __hand_log_dir = 'handTest'
     __hand_log_dir_path = __log_root_dir_path + '/' + __hand_log_dir
 
-    def __init__(self, logger, itest_collect_interval):
+    def __init__(self, itest_collect_interval):
         '''
         Constructor
         '''
         self.__is_stopped = True
-        self.__logger = logger
-        self.__sys_utils = SysUtils(logger)
-        self.__adb_utils = AdbUtils(logger)
+        self.__logger = LogManager.get_logger()
+        self.__sys_utils = SysUtils()
+        self.__adb_utils = AdbUtils()
         # note: this value should be greater than interval config in iTest
         self.__wait_time_between_check = itest_collect_interval + 1
 
@@ -149,19 +151,14 @@ class ProfileMonitor(object):
 
 if __name__ == '__main__':
 
-    from utils import Constants
-    from utils import LogManager
-
-    manager = LogManager(Constants.LOG_FILE_PATH)
-    logger = manager.get_logger()
+    LogManager.build_logger(Constants.LOG_FILE_PATH)
     
-    monitor = ProfileMonitor(logger, 3)
+    monitor = ProfileMonitor(3)
     monitor.start_monitor()
     monitor.running_monitor(0.5)  # minutes
     monitor.stop_monitor()
     time.sleep(1)
     monitor.pull_itest_logfiles(r'D:\JDTestLogs')
 
-    manager.clear_log_handles()
-    
+    LogManager.clear_log_handles()
     print('profile monitor test DONE.')
