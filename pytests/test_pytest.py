@@ -30,7 +30,7 @@ def teardown_module(module):
     print_prefix('[teardown_module] module:%s' % module.__name__)
 
 
-class TestPyBase(object):
+class TestPyDemo01(object):
 
     def setup_class(cls):
         print_prefix('[setup_class] class:%s' % cls.__name__)
@@ -50,10 +50,12 @@ class TestPyBase(object):
     def teardown(self):
         print_prefix('[teardown] method: n/a')
 
+    @pytest.mark.skip(reason='no run')
     def test_numbers_5_6(self):
         print_prefix('[test_numbers_5_6]')
         assert((5 * 6) == 30)
 
+    @pytest.mark.skip(reason='no run')
     def test_strings_b_2(self):
         print_prefix('[test_strings_b_2]')
         assert((2 * 'x') == 'xx')
@@ -76,13 +78,12 @@ class TestPyBase(object):
     def test_number_a_b(self, a, b, expected):
         print_prefix('[test_numbers_a_b]')
         assert((a * b) == expected)
+# TestPyDemo01 end
 
-# TestPyBase end
 
+@pytest.mark.skip(reason='no run')
+class TestPyDemo02(object):
 
-class TestPy02(object):
-
-    @pytest.mark.skip(reason='no run')
     def test_01_collections_deque(self):
         names = ['jack', 'leo', 'sam', 'peter', 'jeo']
 
@@ -92,7 +93,6 @@ class TestPy02(object):
         deque_names.appendleft('mark')
         print(deque_names)
 
-    @pytest.mark.skip(reason='no run')
     def test_02_dict_get_default(self):
         colors = ['red', 'green', 'red', 'blue', 'green', 'red']
 
@@ -107,7 +107,6 @@ class TestPy02(object):
             tmp_dict02[color] = tmp_dict02.get(color, 0) + 1
         print(tmp_dict02)
 
-    @pytest.mark.skip(reason='no run')
     def test_03_default_dict(self):
         names = ['jack', 'leo', 'sam', 'peter', 'jeo']
 
@@ -117,11 +116,12 @@ class TestPy02(object):
             key = len(name)
             tmp_dict[key].append(name)
         print(tmp_dict)
+# TestPyDemo02 end
 
 
 if __name__ == '__main__':
 
-    pytest.main(['-v', '-s', 'py_test02.py'])
+    pytest.main(['-v', '-s', 'test_pytest.py'])
 
     # if specify class, setup_module() and teardown_module() not trigger
     # pytest.main(['-v', '-s', 'py_test02.py::TestPyBase'])
