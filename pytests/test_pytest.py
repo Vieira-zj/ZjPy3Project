@@ -60,6 +60,7 @@ class TestPyDemo01(object):
         print_prefix('[test_strings_b_2]')
         assert((2 * 'x') == 'xx')
 
+    @pytest.mark.skip(reason='no run')
     @pytest.mark.timeout(2)
     def test_random_num_timeout(self):
         import time
@@ -117,6 +118,15 @@ class TestPyDemo02(object):
             tmp_dict[key].append(name)
         print(tmp_dict)
 # TestPyDemo02 end
+
+
+@pytest.mark.usefixtures('ft_hook_module')
+@pytest.mark.usefixtures('ft_hook_session')
+class TestPyFixtures05(object):
+
+    def test_fixture_051(self):
+        print('\n[test_fixture_051] is running ...')
+        assert(True)
 
 
 if __name__ == '__main__':
