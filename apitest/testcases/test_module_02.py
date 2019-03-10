@@ -14,9 +14,10 @@ from utils import Constants
 from utils import LogManager
 from utils import HttpUtils
 from apitest.common import LoadCases
+from apitest.testcases import BaseTest
 
 
-class TestModule02(object):
+class TestModule02(BaseTest):
 
     __logger = None
     __http_utils = None
@@ -36,32 +37,34 @@ class TestModule02(object):
 
     def test_error_get_01(self):
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
-        headers = LoadCases.format_headers_to_dict(case['Headers'])
+        headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
         resp = self.__http_utils.send_http_request(
-            case['Method'], case['Url'], case['Query'], headers=headers)
-        assert(resp is not None and resp.status_code == int(case['RetCode']))
+            case[self.CASE_SCHEMA_METHOD], case[self.CASE_SCHEMA_URL], 
+            case[self.CASE_SCHEMA_QUERY], headers=headers)
+        self.base_http_assert(resp)
 
     def test_error_get_02(self):
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
-        headers = LoadCases.format_headers_to_dict(case['Headers'])
+        headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
         resp = self.__http_utils.send_http_request(
-            case['Method'], case['Url'], case['Query'], headers=headers)
-        assert(resp is not None and resp.status_code == int(case['RetCode']))
+            case[self.CASE_SCHEMA_METHOD], case[self.CASE_SCHEMA_URL], 
+            case[self.CASE_SCHEMA_QUERY], headers=headers)
+        self.base_http_assert(resp, 206)
 
     def test_error_get_03(self):
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
-        headers = LoadCases.format_headers_to_dict(case['Headers'])
+        headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
         resp = self.__http_utils.send_http_request(
-            case['Method'], case['Url'], case['Query'], headers=headers)
-        assert(resp is not None and resp.status_code == int(case['RetCode']))
+            case[self.CASE_SCHEMA_METHOD], case[self.CASE_SCHEMA_URL], 
+            case[self.CASE_SCHEMA_QUERY], headers=headers)
+        self.base_http_assert(resp, 400)
 
 
 if __name__ == '__main__':
 
     LogManager.build_logger(Constants.LOG_FILE_PATH)
     file_path = os.path.join(os.path.dirname(os.getcwd()), 'TestCases.xlsx')
-    LoadCases.get_instance().pre_load_sheet(
-        file_path, 'Module02').load_all_cases_by_sheet()
+    LoadCases.get_instance().pre_load_sheet(file_path, 'Module02').load_all_cases_by_sheet()
 
     pytest.main(['-v', '-s', 'test_module_02.py'])
 

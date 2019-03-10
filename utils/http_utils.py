@@ -134,7 +134,7 @@ class HttpUtils(object):
             self.__print_with_prefix(item)
 
         self.__print_div_line()
-        self.__print_with_prefix('Body: \n' + str(resp.content))
+        self.__print_with_prefix('Body: \n' + resp.content.decode(encoding='utf-8'))
 
         self.__print_div_line()
         self.__print_with_prefix('END')

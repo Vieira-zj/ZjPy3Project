@@ -15,8 +15,10 @@ from utils import Constants
 from utils import LogManager
 from utils import HttpUtils
 from apitest.common import LoadCases
+from apitest.testcases import BaseTest
 
-class TestModule01(object):
+
+class TestModule01(BaseTest):
 
     __logger = None
     __http_utils = None
@@ -36,28 +38,35 @@ class TestModule01(object):
 
     def test_index_get_01(self):
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
-        headers = LoadCases.format_headers_to_dict(case['Headers'])
+        headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
         resp = self.__http_utils.send_http_request(
-            case['Method'], case['Url'], case['Query'], headers=headers)
-        assert(resp is not None and resp.status_code == int(case['RetCode']))
+            case[self.CASE_SCHEMA_METHOD], case[self.CASE_SCHEMA_URL],
+            case[self.CASE_SCHEMA_QUERY], headers=headers)
+        # assert(resp is not None and resp.status_code == int(case['RetCode']))
+        self.base_http_assert(resp)
 
+    @pytest.mark.flaky(reruns=2, reruns_delay=1)
     def test_index_get_02(self):
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
-        headers = LoadCases.format_headers_to_dict(case['Headers'])
+        headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
         resp = self.__http_utils.send_http_request(
-            case['Method'], case['Url'], case['Query'], headers=headers)
-        assert(resp is not None and resp.status_code == int(case['RetCode']))
+            case[self.CASE_SCHEMA_METHOD], case[self.CASE_SCHEMA_URL],
+            case[self.CASE_SCHEMA_QUERY], headers=headers)
+        # assert(resp is not None and resp.status_code == int(case['RetCode']))
+        self.base_http_assert(resp)
 
         ret_ok = resp.json()['results']
-        expected_ok = json.loads(case['ExpectedMsg'])['results']
+        expected_ok = json.loads(case[self.CASE_SCHEMA_EXP_MSG])['results']
         assert(ret_ok == expected_ok)
 
     def test_index_post_01(self):
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
-        headers = LoadCases.format_headers_to_dict(case['Headers'])
+        headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
         resp = self.__http_utils.send_http_request(
-            case['Method'], case['Url'], case['Body'], headers=headers)
-        assert(resp is not None and resp.status_code == int(case['RetCode']))
+            case[self.CASE_SCHEMA_METHOD], case[self.CASE_SCHEMA_URL],
+            case[self.CASE_SCHEMA_BODY], headers=headers)
+        # assert(resp is not None and resp.status_code == int(case['RetCode']))
+        self.base_http_assert(resp)
 
 
 if __name__ == '__main__':
