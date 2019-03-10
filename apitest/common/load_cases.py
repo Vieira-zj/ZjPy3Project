@@ -143,7 +143,7 @@ if __name__ == '__main__':
     print('\n\n')
 
     print(load_cases.get_tc_data_dict('test_index_get_01'))
-    print(load_cases.get_tc_data_dict('test_index_post_02'))
+    print(load_cases.get_tc_data_dict('test_index_post_01'))
 
     LogManager.clear_log_handles()
     print('load test cases DONE.')
