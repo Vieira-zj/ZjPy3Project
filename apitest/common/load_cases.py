@@ -8,7 +8,7 @@ Created on 2019-03-06
 import sys
 import os
 
-sys.path.append('../../')
+sys.path.append(os.getenv('PYPATH'))
 from utils import Constants
 from utils import LogManager 
 from utils import XlsxUtils

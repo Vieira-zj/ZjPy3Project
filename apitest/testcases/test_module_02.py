@@ -14,10 +14,10 @@ from utils import Constants
 from utils import LogManager
 from utils import HttpUtils
 from apitest.common import LoadCases
-from apitest.testcases import BaseTest
+from apitest.testcases import TestBase
 
 
-class TestModule02(BaseTest):
+class TestModule02(TestBase):
 
     __logger = None
     __http_utils = None

@@ -5,8 +5,10 @@ Created on 2019-03-10
 @author: zhengjin
 '''
 
+import pytest
 
-class BaseTest(object):
+
+class TestBase(object):
 
     CASE_SCHEMA_METHOD = 'Method'
     CASE_SCHEMA_HEADER = 'Headers'
@@ -18,5 +20,12 @@ class BaseTest(object):
 
     def base_http_assert(self, resp, retCode=200):
         assert(resp is not None and resp.status_code == retCode)
+# TestBase end
 
-# class end
+
+@pytest.mark.usefixtures('setup_test_session')
+class TestFixturesInit(object):
+
+    def test_fixtures_init(self):
+        pass
+# TestFixturesInit end
