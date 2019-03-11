@@ -5,6 +5,7 @@ Created on 2019-03-10
 @author: zhengjin
 '''
 
+import allure
 import pytest
 
 
@@ -80,6 +81,12 @@ def ft_mails_data(request):
         printWithPrefix('[fixture_mails_data] finalizing %s' % mail_addr)
     request.addfinalizer(clear)
     return mail_addr
+
+
+@pytest.fixture(scope='session')
+def init_allure_env():
+    printWithPrefix('[init_allure_env] invoked.')
+    allure.environment(report='Allure report', hostname='my.host.local')
 
 
 def printWithPrefix(text):

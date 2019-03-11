@@ -5,6 +5,7 @@ monkeyreports/
 pydemos/__pycache__/
 pydemos/.pytest_cache/
 
+pytests/output/
 apitest/outputs/
 
 .DS_Store

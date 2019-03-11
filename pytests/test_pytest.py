@@ -17,6 +17,7 @@ Refer:
 http://pythontesting.net/framework/pytest/pytest-introduction/
 '''
 
+import allure
 import pytest
 
 
@@ -30,6 +31,8 @@ def teardown_module(module):
     print_prefix('[teardown_module] module:%s' % module.__name__)
 
 
+@allure.feature('FeaturePyTest')
+@allure.story('PyTestStory1')
 class TestPyDemo01(object):
 
     def setup_class(cls):
@@ -50,17 +53,18 @@ class TestPyDemo01(object):
     def teardown(self):
         print_prefix('[teardown] method: n/a')
 
-    @pytest.mark.skip(reason='no run')
+    @pytest.allure.severity(pytest.allure.severity_level.MINOR)
     def test_numbers_5_6(self):
+        allure.attach('my attach', 'pytest allure attach test.')
         print_prefix('[test_numbers_5_6]')
         assert((5 * 6) == 30)
 
-    @pytest.mark.skip(reason='no run')
+    @pytest.allure.severity(pytest.allure.severity_level.MINOR)
     def test_strings_b_2(self):
         print_prefix('[test_strings_b_2]')
         assert((2 * 'x') == 'xx')
 
-    @pytest.mark.skip(reason='no run')
+    # @pytest.mark.skip(reason='no run')
     @pytest.mark.timeout(2)
     def test_random_num_timeout(self):
         import time
@@ -82,7 +86,9 @@ class TestPyDemo01(object):
 # TestPyDemo01 end
 
 
-@pytest.mark.skip(reason='no run')
+# @pytest.mark.skip(reason='no run')
+@allure.feature('FeatureMyTest')
+@allure.story('PyTestStory2')
 class TestPyDemo02(object):
 
     def test_01_collections_deque(self):
@@ -97,16 +103,18 @@ class TestPyDemo02(object):
     def test_02_dict_get_default(self):
         colors = ['red', 'green', 'red', 'blue', 'green', 'red']
 
-        tmp_dict01 = {}
-        for color in colors:
-            tmp_dict01.setdefault(color, 0)
-            tmp_dict01[color] += 1
-        print(tmp_dict01)
+        with pytest.allure.step('dict get default step1'):
+            tmp_dict01 = {}
+            for color in colors:
+                tmp_dict01.setdefault(color, 0)
+                tmp_dict01[color] += 1
+            print(tmp_dict01)
 
-        tmp_dict02 = {}
-        for color in colors:
-            tmp_dict02[color] = tmp_dict02.get(color, 0) + 1
-        print(tmp_dict02)
+        with pytest.allure.step('dict get default step2'):
+            tmp_dict02 = {}
+            for color in colors:
+                tmp_dict02[color] = tmp_dict02.get(color, 0) + 1
+            print(tmp_dict02)
 
     def test_03_default_dict(self):
         names = ['jack', 'leo', 'sam', 'peter', 'jeo']
@@ -120,8 +128,8 @@ class TestPyDemo02(object):
 # TestPyDemo02 end
 
 
-@pytest.mark.usefixtures('ft_hook_module')
-@pytest.mark.usefixtures('ft_hook_session')
+@pytest.mark.usefixtures('ft_hook_module', 'ft_hook_session')
+@pytest.mark.usefixtures('init_allure_env')
 class TestPyFixtures05(object):
 
     def test_fixture_051(self):

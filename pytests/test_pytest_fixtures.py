@@ -8,10 +8,8 @@ Created on 2019-03-30
 import pytest
 
 
-@pytest.mark.usefixtures('ft_hook_case')
-@pytest.mark.usefixtures('ft_hook_class')
-@pytest.mark.usefixtures('ft_hook_module')
-@pytest.mark.usefixtures('ft_hook_session')
+@pytest.mark.usefixtures('ft_hook_case', 'ft_hook_class')
+@pytest.mark.usefixtures('ft_hook_module', 'ft_hook_session')
 class TestPyFixtures01(object):
 
     def test_fixture_011(self):
@@ -24,10 +22,8 @@ class TestPyFixtures01(object):
 # TestPyFixtures01 end
 
 
-@pytest.mark.usefixtures('ft_hook_case')
-@pytest.mark.usefixtures('ft_hook_class')
-@pytest.mark.usefixtures('ft_hook_module')
-@pytest.mark.usefixtures('ft_hook_session')
+@pytest.mark.usefixtures('ft_hook_case', 'ft_hook_class')
+@pytest.mark.usefixtures('ft_hook_module', 'ft_hook_session')
 class TestPyFixtures02(object):
 
     def test_fixture_021(self):
