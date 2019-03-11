@@ -10,7 +10,7 @@ import json
 import sys
 import xlrd
 
-sys.path.append('../')
+sys.path.append(os.getenv('PYPATH'))
 from utils import Constants
 from utils import LogManager
 
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     xlsx = XlsxUtils.get_instance()
 
     sheet_name = 'Module01'
-    file_path = os.path.join(os.path.dirname(os.getcwd()), 'apitest', 'TestCases.xlsx')
+    file_path = os.path.join(os.getenv('PYPATH'), 'apitest/TestCases.xlsx')
     print(xlsx.get_all_sheets_names(file_path))
 
     xlsx.pre_read_sheet(file_path, sheet_name)

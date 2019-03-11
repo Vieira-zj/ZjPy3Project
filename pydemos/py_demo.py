@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 
 def import_utils_lib_test():
-    sys.path.append('../')
+    sys.path.append(os.getenv('PYPATH'))
 
     from utils import Constants
     from utils import LogManager
@@ -192,6 +192,10 @@ if __name__ == '__main__':
     # chart_spot_demo()
 
     # regexp_demo()
-    file_search()
+    # file_search()
+
+    # NOTE: context cur_path is the path where run "python" cmd
+    f_path = os.path.abspath('../README.md')
+    print('file check (%s):' % f_path, os.path.exists(f_path))
 
     print('python demo DONE.')

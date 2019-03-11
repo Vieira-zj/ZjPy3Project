@@ -10,7 +10,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-sys.path.append('../')
+sys.path.append(os.getenv('PYPATH'))
 from utils import Constants
 from utils import LogManager
 from utils import SysUtils

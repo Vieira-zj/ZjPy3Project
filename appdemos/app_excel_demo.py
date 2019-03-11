@@ -12,7 +12,7 @@ import os
 import sys
 import xlrd
 
-sys.path.append('../')
+sys.path.append(os.getenv('PYPATH'))
 from utils import LogManager
 from utils import Constants
 from urllib import parse, request

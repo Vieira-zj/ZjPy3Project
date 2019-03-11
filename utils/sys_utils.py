@@ -5,13 +5,13 @@ Created on 2018-10-26
 @author: zhengjin
 '''
 
-import codecs
 import os
 import sys
-import subprocess
+import codecs
 import time
+import subprocess
 
-sys.path.append('../')
+sys.path.append(os.getenv('PYPATH'))
 from utils import Constants
 from utils import LogManager
 

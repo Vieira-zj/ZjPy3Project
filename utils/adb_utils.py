@@ -6,11 +6,11 @@ Created on 2018-10-26
 @author: zhengjin
 '''
 
-import re
-import os
 import sys
+import os
+import re
 
-sys.path.append('../')
+sys.path.append(os.getenv('PYPATH'))
 from utils import Constants
 from utils import LogManager
 from utils import SysUtils

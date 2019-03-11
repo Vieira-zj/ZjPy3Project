@@ -9,7 +9,7 @@ import time
 import os
 import sys
 
-sys.path.append('../')
+sys.path.append(os.getenv('PYPATH'))
 from utils import Constants
 from utils import LogManager
 from utils import AdbUtils

@@ -10,7 +10,7 @@ import sys
 import json
 import requests
 
-sys.path.append('../')
+sys.path.append(os.getenv('PYPATH'))
 from utils import LogManager
 from utils import Constants
 

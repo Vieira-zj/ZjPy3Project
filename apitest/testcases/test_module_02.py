@@ -9,12 +9,12 @@ import sys
 import os
 import pytest
 
-sys.path.append('../../')
+sys.path.append(os.getenv('PYPATH'))
 from utils import Constants
 from utils import LogManager
 from utils import HttpUtils
 from apitest.common import LoadCases
-from apitest.testcases import TestBase
+from apitest.testcases.test_base import TestBase
 
 
 class TestModule02(TestBase):

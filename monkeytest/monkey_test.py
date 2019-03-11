@@ -10,8 +10,8 @@ import subprocess
 import time
 import threading
 import sys
-sys.path.append('../')
 
+sys.path.append(os.getenv('PYPATH'))
 from utils import Constants
 from utils import LogManager
 from utils import AdbUtils

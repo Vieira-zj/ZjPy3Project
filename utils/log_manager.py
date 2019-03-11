@@ -5,10 +5,11 @@ Created on 2018-10-26
 @author: zhengjin
 '''
 
-import logging
+import os
 import sys
-sys.path.append('../')
+import logging
 
+sys.path.append(os.getenv('PYPATH'))
 from utils import Constants
 
 
