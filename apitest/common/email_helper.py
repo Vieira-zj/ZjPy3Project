@@ -20,15 +20,15 @@ from utils import SysUtils
 from apitest.common import LoadConfigs
 
 
-class EmailsHelper(object):
+class EmailHelper(object):
 
-    __emails = None
+    __email = None
 
     @classmethod
     def get_intance(cls):
-        if cls.__emails is None:
-            cls.__emails = EmailsHelper()
-        return cls.__emails
+        if cls.__email is None:
+            cls.__email = EmailHelper()
+        return cls.__email
 
     def __init__(self):
         self.__logger = LogManager.get_logger()
@@ -38,10 +38,9 @@ class EmailsHelper(object):
         self.__msg = MIMEMultipart('mixed')
         self.__content_text = 'Default mail template from API test.'
 
-    def set_content_text(self, text):
-        self.__content_text = text
-        return self
-
+    # --------------------------------------------------------------
+    # Build mail
+    # --------------------------------------------------------------
     def __build_mail_header(self):
         receivers = self.__configs.get('receivers').split(',')
 
@@ -61,11 +60,18 @@ class EmailsHelper(object):
         archive['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(attach_path)
         self.__msg.attach(archive)
 
+    def set_content_text(self, text):
+        self.__content_text = text
+        return self
+
+    # --------------------------------------------------------------
+    # Send mail
+    # --------------------------------------------------------------
     def send_email(self):
         self.__build_mail_header()
         self.__build_mail_content()
 
-        dir_path = self.__get_output_dir() # test output data
+        dir_path = self.__get_output_dir()
         attach_path = self.__zip_files(dir_path)
         self.__attach_archive_file(attach_path)
 
@@ -92,6 +98,7 @@ class EmailsHelper(object):
             return
 
         zip_file_name = 'test_results_%s.zip' % self.__sysutils.get_current_date_and_time()
+        # use a tmp dir for .zip file
         output_zip_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files', zip_file_name)
         zip_stream = zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED)
         try:
@@ -107,6 +114,9 @@ class EmailsHelper(object):
         return output_zip_path
 
     def __get_output_dir(self):
+        '''
+        Get output dir path for test results.
+        '''
         project_path = os.path.join(os.getenv('PYPATH'), 'apitest')
         output_dir_path = LoadConfigs.get_testenv_configs().get('output_dir')
         output_dir_path = output_dir_path.replace('{project}', project_path)
@@ -122,14 +132,14 @@ class EmailsHelper(object):
 
 if __name__ == '__main__':
 
-    # init logs and configs
+    # init logger and configs
     LogManager.build_logger(Constants.LOG_FILE_PATH)
     cfg_file_path = os.path.join(os.getenv('PYPATH'), 'apitest', 'configs.ini')
     LoadConfigs.load_configs(cfg_file_path)
 
     mail_content = 'API test done.\nPlease read details of results in attachment.'
-    mail = EmailsHelper.get_intance()
+    mail = EmailHelper.get_intance()
     mail.set_content_text(mail_content).send_email()
 
     LogManager.clear_log_handles()
-    print('emails helper test DONE.')
+    print('email helper test DONE.')

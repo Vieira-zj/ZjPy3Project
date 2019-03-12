@@ -38,11 +38,6 @@ class LoadConfigs(object):
             cls.configs[section] = tmp_dict
 
     @classmethod
-    def __verify_configs(cls):
-        if len(cls.configs) == 0:
-            raise Exception('Pls load configs first!')
-
-    @classmethod
     def get_testenv_configs(cls):
         cls.__verify_configs()
         return cls.configs.get(cls.SECTION_TEST_ENV)
@@ -56,6 +51,11 @@ class LoadConfigs(object):
     def get_email_configs(cls):
         cls.__verify_configs()
         return cls.configs.get(cls.SECTION_EMAIL)
+
+    @classmethod
+    def __verify_configs(cls):
+        if len(cls.configs) == 0:
+            raise Exception('Pls load configs first!')
 
 
 if __name__ == '__main__':

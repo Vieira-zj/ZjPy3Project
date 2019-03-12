@@ -38,6 +38,7 @@ class TestModule01(TestBase):
     def teardown_method(self, method):
         pass
 
+    @pytest.allure.severity(pytest.allure.severity_level.CRITICAL)
     def test_index_get_01(self):
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
         headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
@@ -49,18 +50,21 @@ class TestModule01(TestBase):
 
     @pytest.mark.flaky(reruns=2, reruns_delay=1)
     def test_index_get_02(self):
-        case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
-        headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
-        resp = self.__http_utils.send_http_request(
-            case[self.CASE_SCHEMA_METHOD], case[self.CASE_SCHEMA_URL],
-            case[self.CASE_SCHEMA_QUERY], headers=headers)
-        # assert(resp is not None and resp.status_code == int(case['RetCode']))
-        self.base_http_assert(resp)
+        with pytest.allure.step('step1: verify index get api returned code.'):
+            case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
+            headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
+            resp = self.__http_utils.send_http_request(
+                case[self.CASE_SCHEMA_METHOD], case[self.CASE_SCHEMA_URL],
+                case[self.CASE_SCHEMA_QUERY], headers=headers)
+            # assert(resp is not None and resp.status_code == int(case['RetCode']))
+            self.base_http_assert(resp)
 
-        ret_ok = resp.json()['results']
-        expected_ok = json.loads(case[self.CASE_SCHEMA_EXP_MSG])['results']
-        assert(ret_ok == expected_ok)
+        with pytest.allure.step('step2: verify index get api returned json message.'):
+            ret_ok = resp.json()['results']
+            expected_ok = json.loads(case[self.CASE_SCHEMA_EXP_MSG])['results']
+            assert(ret_ok == expected_ok)
 
+    @pytest.allure.severity(pytest.allure.severity_level.CRITICAL)
     def test_index_post_01(self):
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
         headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])

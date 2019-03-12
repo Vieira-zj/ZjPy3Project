@@ -5,8 +5,13 @@ monkeyreports/
 pydemos/__pycache__/
 pydemos/.pytest_cache/
 
-pytests/outputs/
-apitest/outputs/
-
 .DS_Store
 apitest/.DS_Store
+
+pytests/outputs/
+
+apitest/outputs/*.html
+apitest/outputs/assets
+apitest/outputs/logs
+apitest/outputs/reports
+apitest/outputs/results

@@ -45,8 +45,9 @@ class TestModule02(TestBase):
             case[self.CASE_SCHEMA_QUERY], headers=headers)
         self.base_http_assert(resp)
 
+    @pytest.allure.severity(pytest.allure.severity_level.MINOR)
     def test_error_get_02(self):
-        allure.attach('api test', 'test return code 206.')
+        allure.attach('error code desc', 'verify api returned code 206.')
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
         headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
         resp = self.__http_utils.send_http_request(
@@ -54,8 +55,9 @@ class TestModule02(TestBase):
             case[self.CASE_SCHEMA_QUERY], headers=headers)
         self.base_http_assert(resp, 206)
 
+    @pytest.allure.severity(pytest.allure.severity_level.MINOR)
     def test_error_get_03(self):
-        allure.attach('api test', 'test return error code 400.')
+        allure.attach('error code desc', 'verify api returned code 400.')
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
         headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
         resp = self.__http_utils.send_http_request(

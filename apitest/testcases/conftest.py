@@ -47,7 +47,8 @@ def init_allure_env():
 @pytest.fixture(scope='session')
 def setup_test_session(request):
     '''
-    session setup: init logger, load configs and testcases.
+    Setup for test session: 
+    1) init logger and allure; 2) load configs and testcases.
     '''
     load_configs()
     init_logger()
@@ -55,7 +56,7 @@ def setup_test_session(request):
     init_allure_env()
 
     logger = LogManager.get_logger()
-    logger.info('[session setup]: 1) init logger and allure, 2) load configs and testcases.')
+    logger.info('[session setup]: 1) init logger and allure; 2) load configs and testcases.')
 
     def clear():
         logger.info('[session clearup] done.')

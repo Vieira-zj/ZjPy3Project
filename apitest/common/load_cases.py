@@ -92,7 +92,7 @@ class LoadCases(object):
         return self.__test_cases
 
     # --------------------------------------------------------------
-    # Get test case data
+    # Get one test case info
     # --------------------------------------------------------------
     def get_tc_data_dict(self, case_name):
         if len(self.__test_cases) == 0:
