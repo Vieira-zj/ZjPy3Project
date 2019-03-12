@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
 Created on 2019-03-30
-
 @author: zhengjin
 '''
 
@@ -76,5 +75,4 @@ class TestPyFixtures04(object):
 
 if __name__ == '__main__':
 
-    # pytest.main(['-v', '-s', './'])
     pytest.main(['-v', '-s', 'test_pytest_fixtures.py'])

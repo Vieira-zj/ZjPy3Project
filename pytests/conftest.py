@@ -86,7 +86,7 @@ def ft_mails_data(request):
 @pytest.fixture(scope='session')
 def init_allure_env():
     printWithPrefix('[init_allure_env] invoked.')
-    allure.environment(report='Allure report', hostname='my.host.local')
+    allure.environment(report='Allure report', hostname='zhengjin.host.local')
 
 
 def printWithPrefix(text):

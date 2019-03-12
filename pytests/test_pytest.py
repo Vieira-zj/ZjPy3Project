@@ -32,7 +32,7 @@ def teardown_module(module):
 
 
 @allure.feature('FeaturePyTest')
-@allure.story('PyTestStory1')
+@allure.story('PyTestStory01')
 class TestPyDemo01(object):
 
     def setup_class(cls):
@@ -88,7 +88,7 @@ class TestPyDemo01(object):
 
 # @pytest.mark.skip(reason='no run')
 @allure.feature('FeatureMyTest')
-@allure.story('PyTestStory2')
+@allure.story('PyTestStory02')
 class TestPyDemo02(object):
 
     def test_01_collections_deque(self):
@@ -126,15 +126,6 @@ class TestPyDemo02(object):
             tmp_dict[key].append(name)
         print(tmp_dict)
 # TestPyDemo02 end
-
-
-@pytest.mark.usefixtures('ft_hook_module', 'ft_hook_session')
-@pytest.mark.usefixtures('init_allure_env')
-class TestPyFixtures05(object):
-
-    def test_fixture_051(self):
-        print('\n[test_fixture_051] is running ...')
-        assert(True)
 
 
 if __name__ == '__main__':

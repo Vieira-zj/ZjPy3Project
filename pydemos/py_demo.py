@@ -13,7 +13,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-def import_utils_lib_test():
+def test_import_utils_lib():
     sys.path.append(os.getenv('PYPATH'))
 
     from utils import Constants
@@ -28,6 +28,24 @@ def import_utils_lib_test():
     finally:
         if manager is not None:
             manager.clear_log_handles()
+
+
+def test_print_multiple_line():
+    lines = ' \n'.join([
+        'step1, this is the line one for test;',
+        'step2, this is the line two for test;',
+        'step3, this is the line three for test.',
+    ])
+    print(lines)
+
+
+def test_py_abs_path():
+    # NOTE: context cur_path is the path where run cmd "python [script.py]"
+    cur_path = os.getcwd()
+    print('current path:', cur_path)
+
+    f_path = os.path.abspath('../README.md')
+    print('file exist check (%s):' % f_path, os.path.exists(f_path))
 
 
 def cmd_args_parse():
@@ -158,7 +176,7 @@ def regexp_demo():
     print(ret_dict)
 
 
-def file_search():
+def file_search_demo():
     '''
     get file path by regexp pattern
     '''
@@ -185,17 +203,16 @@ def file_search():
 
 if __name__ == '__main__':
 
-    # import_utils_lib_test()
+    test_print_multiple_line()
+    # test_import_utils_lib()
+    # test_py_abs_path()
+
     # cmd_args_parse()
 
     # chart_line_demo()
     # chart_spot_demo()
 
     # regexp_demo()
-    # file_search()
-
-    # NOTE: context cur_path is the path where run "python" cmd
-    f_path = os.path.abspath('../README.md')
-    print('file check (%s):' % f_path, os.path.exists(f_path))
+    # file_search_demo()
 
     print('python demo DONE.')
