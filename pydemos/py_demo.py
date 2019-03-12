@@ -6,6 +6,7 @@ Created on 2018-10-31
 '''
 
 import getopt
+import glob
 import os
 import sys
 import numpy as np
@@ -176,11 +177,10 @@ def regexp_demo():
     print(ret_dict)
 
 
-def file_search_demo():
+def list_files_by_regexp():
     '''
     get file path by regexp pattern
     '''
-    import glob
 
     # "glob.glob" return list
     tmp_dir = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/*.txt')
@@ -201,9 +201,33 @@ def file_search_demo():
         print(file)
 
 
+def list_files_demo():
+    output_dir = '/Users/zhengjin/Workspaces/zj_py3_project/apitest/outputs'
+    
+    # list files in sub dirs for 2 levels
+    files = glob.glob(output_dir + '/*')
+    files.extend(glob.glob(output_dir + '/*/*'))
+    print('\nresult files in outputs by glob regexp: ')
+    for file in files:
+        if os.path.isfile(file):
+            print('/' + file[file.find('outputs'):])
+    print('total files:', len(files))
+
+    # list files in sub dirs for all levels
+    print('\nresult files in outputs by walk:')
+    total = 0
+    for dir_path, subpaths, files in os.walk(output_dir):
+        if len(files) == 0:
+            continue
+        total += len(files)
+        for file in files:
+            print(os.path.join(dir_path, file))
+    print('total files:', total)
+
+
 if __name__ == '__main__':
 
-    test_print_multiple_line()
+    # test_print_multiple_line()
     # test_import_utils_lib()
     # test_py_abs_path()
 
@@ -213,6 +237,7 @@ if __name__ == '__main__':
     # chart_spot_demo()
 
     # regexp_demo()
-    # file_search_demo()
+    # list_files_by_regexp()
+    list_files_demo()
 
     print('python demo DONE.')

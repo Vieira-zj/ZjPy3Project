@@ -1,5 +1,5 @@
 #!/bin/bash
-set -u
+set -eu
 
 echo "[PYTEST] start run pytest."
 cd ${HOME}/Workspaces/zj_py3_project/pytests 
@@ -14,4 +14,4 @@ allure generate outputs/results/ -o outputs/reports/ --clean
 
 echo "[PYTEST] pytest done."
 
-set +u
+set +eu

@@ -33,7 +33,7 @@ class EmailsHelper(object):
     def __init__(self):
         self.__logger = LogManager.get_logger()
         self.__sysutils = SysUtils.get_instance()
-        self.__configs = LoadConfigs.all_configs.get(LoadConfigs.SECTION_EMAIL)
+        self.__configs = LoadConfigs.get_email_configs()
 
         self.__msg = MIMEMultipart('mixed')
         self.__content_text = 'Default mail template from API test.'
@@ -54,41 +54,20 @@ class EmailsHelper(object):
         content_plain = MIMEText(self.__content_text, 'plain', 'utf-8')
         self.__msg.attach(content_plain)
 
-    def __attach_archive_file(self):
-        dir_path = self.__configs.get('attachment')
-        if len(dir_path) == 0:
-            self.__logger.info('attachment dir is null, and skipped.')
-            return
-        if not os.path.exists(dir_path):
-            self.__logger.error('attachment dir is not exist: ' + dir_path)
-            return
-
-        zip_file_name = 'test_results_%s.zip' % self.__sysutils.get_current_date_and_time()
-        zip_path = os.path.join(dir_path, zip_file_name)
-        zip_file = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
-        try:
-            files = glob.glob(dir_path + '/*')
-            for file in files:
-                zip_file.write(file)
-        finally:
-            if zip_file is not None:
-                zip_file.close()
-
-        archive = MIMEText(open(zip_path, 'rb').read(), 'base64', 'utf-8')
+    def __attach_archive_file(self, attach_path):
+        self.__logger.info('mail attach file: ' + attach_path)
+        archive = MIMEText(open(attach_path, 'rb').read(), 'base64', 'utf-8')
         archive['Content-Type'] = 'application/octet-stream'
-        archive['Content-Disposition'] = 'attachment; filename="%s"' % zip_file_name
+        archive['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(attach_path)
         self.__msg.attach(archive)
-
-    def __create_smtp(self):
-        smtp = smtplib.SMTP()
-        smtp.connect(self.__configs.get('mail_host'))
-        smtp.login(self.__configs.get('mail_user'), self.__configs.get('mail_pwd'))
-        return smtp
 
     def send_email(self):
         self.__build_mail_header()
         self.__build_mail_content()
-        self.__attach_archive_file()
+
+        dir_path = self.__get_output_dir() # test output data
+        attach_path = self.__zip_files(dir_path)
+        self.__attach_archive_file(attach_path)
 
         smtp = self.__create_smtp()
         from_addr = self.__configs.get('sender')
@@ -99,14 +78,53 @@ class EmailsHelper(object):
             if smtp is not None:
                 smtp.quit()
 
-        self.__logger.info('Test reports email has been send.')
+        self.__logger.info('Test results email has been send.')
+
+    def __create_smtp(self):
+        smtp = smtplib.SMTP()
+        smtp.connect(self.__configs.get('mail_host'))
+        smtp.login(self.__configs.get('mail_user'), self.__configs.get('mail_pwd'))
+        return smtp
+
+    def __zip_files(self, dir_path):
+        if len(dir_path) == 0:
+            self.__logger.error("skip zip files step!")
+            return
+
+        zip_file_name = 'test_results_%s.zip' % self.__sysutils.get_current_date_and_time()
+        output_zip_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files', zip_file_name)
+        zip_stream = zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED)
+        try:
+            for dir_path, subpaths, files in os.walk(dir_path):
+                for file in files:
+                    tmp_file = os.path.join(dir_path, file)
+                    arc_name = tmp_file[tmp_file.index('output'):]
+                    zip_stream.write(tmp_file, arcname=arc_name)
+        finally:
+            if zip_stream is not None:
+                zip_stream.close()
+
+        return output_zip_path
+
+    def __get_output_dir(self):
+        project_path = os.path.join(os.getenv('PYPATH'), 'apitest')
+        output_dir_path = LoadConfigs.get_testenv_configs().get('output_dir')
+        output_dir_path = output_dir_path.replace('{project}', project_path)
+
+        if not os.path.exists(output_dir_path):
+            self.__logger.error('test output dir is not exist: ' + output_dir_path)
+            return ''
+        if not os.path.isdir(output_dir_path):
+            self.__logger.error('invalid test out dir: ' + output_dir_path)
+            return ''
+        return output_dir_path
 
 
 if __name__ == '__main__':
 
     # init logs and configs
     LogManager.build_logger(Constants.LOG_FILE_PATH)
-    cfg_file_path = os.path.join(os.path.dirname(os.getcwd()), 'configs.ini')
+    cfg_file_path = os.path.join(os.getenv('PYPATH'), 'apitest', 'configs.ini')
     LoadConfigs.load_configs(cfg_file_path)
 
     mail_content = 'API test done.\nPlease read details of results in attachment.'
