@@ -8,6 +8,7 @@ Created on 2019-03-08
 import json
 import sys
 import os
+import allure
 import pytest
 
 sys.path.append(os.getenv('PYPATH'))
@@ -18,6 +19,8 @@ from apitest.common import LoadCases
 from apitest.testcases.test_base import TestBase
 
 
+@allure.feature('MockTest')
+@allure.story('Story_IndexPage')
 class TestModule01(TestBase):
 
     __logger = None

@@ -1,10 +1,14 @@
 #!/bin/bash
 set -eu
 
-echo "start run pytest."
+echo "start run api test."
+cd ${HOME}/Workspaces/zj_py3_project/apitest 
+# run test_base.py first to init env and load data
+pytest -v -s testcases/test_base.py testcases/ --alluredir outputs/results/
 
-pytest -v -s testcases/
+echo "generate allure report."
+allure generate outputs/results/ -o outputs/reports/ --clean
 
-echo "pytest done."
+echo "api test done."
 
 set +eu

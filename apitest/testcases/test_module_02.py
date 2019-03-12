@@ -7,6 +7,7 @@ Created on 2019-03-10
 
 import sys
 import os
+import allure
 import pytest
 
 sys.path.append(os.getenv('PYPATH'))
@@ -17,6 +18,8 @@ from apitest.common import LoadCases
 from apitest.testcases.test_base import TestBase
 
 
+@allure.feature('MockTest')
+@allure.story('Story_RetCodePage')
 class TestModule02(TestBase):
 
     __logger = None
@@ -44,6 +47,7 @@ class TestModule02(TestBase):
         self.base_http_assert(resp)
 
     def test_error_get_02(self):
+        allure.attach('api test', 'test return code 206.')
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
         headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
         resp = self.__http_utils.send_http_request(
@@ -52,6 +56,7 @@ class TestModule02(TestBase):
         self.base_http_assert(resp, 206)
 
     def test_error_get_03(self):
+        allure.attach('api test', 'test return error code 400.')
         case = LoadCases.get_instance().get_tc_data_dict(self.__cur_case)
         headers = LoadCases.format_headers_to_dict(case[self.CASE_SCHEMA_HEADER])
         resp = self.__http_utils.send_http_request(

@@ -7,6 +7,7 @@ Created on 2019-03-11
 
 import os
 import sys
+import allure
 import pytest
 
 sys.path.append(os.getenv('PYPATH'))
@@ -39,6 +40,10 @@ def load_testcases():
     LoadCases.get_instance().load_all_cases(tc_file_path)
 
 
+def init_allure_env():
+    allure.environment(report='Allure report', browser='Firefox', hostname='zhengjin.host.local')
+
+
 @pytest.fixture(scope='session')
 def setup_test_session(request):
     '''
@@ -47,9 +52,10 @@ def setup_test_session(request):
     load_configs()
     init_logger()
     load_testcases()
+    init_allure_env()
 
     logger = LogManager.get_logger()
-    logger.info('[session setup]: init logger, load configs and testcases done.')
+    logger.info('[session setup]: 1) init logger and allure, 2) load configs and testcases.')
 
     def clear():
         logger.info('[session clearup] done.')
