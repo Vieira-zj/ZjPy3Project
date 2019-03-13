@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 '''
 Created on 2019-03-11
-
 @author: zhengjin
+
+Define test setup and tearup functions bind with pytest fixtures ("session" and "module" scope).
 '''
 
 import os

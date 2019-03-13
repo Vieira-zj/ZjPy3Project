@@ -204,7 +204,7 @@ def list_files_by_regexp():
 def list_files_demo():
     output_dir = '/Users/zhengjin/Workspaces/zj_py3_project/apitest/outputs'
     
-    # list files in sub dirs for 2 levels
+    # list files in sub dirs by glob, depth=2 
     files = glob.glob(output_dir + '/*')
     files.extend(glob.glob(output_dir + '/*/*'))
     print('\nresult files in outputs by glob regexp: ')
@@ -213,7 +213,7 @@ def list_files_demo():
             print('/' + file[file.find('outputs'):])
     print('total files:', len(files))
 
-    # list files in sub dirs for all levels
+    # list files in sub dirs by walk, depth=max
     print('\nresult files in outputs by walk:')
     total = 0
     for dir_path, subpaths, files in os.walk(output_dir):

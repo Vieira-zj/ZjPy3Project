@@ -98,7 +98,7 @@ class EmailHelper(object):
             return
 
         zip_file_name = 'test_results_%s.zip' % self.__sysutils.get_current_date_and_time()
-        # use a tmp dir for .zip file
+        # NOTE: use a tmp dir for .zip file
         output_zip_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files', zip_file_name)
         zip_stream = zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED)
         try:
