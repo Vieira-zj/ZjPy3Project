@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
 Created on 2018-10-31
-
 @author: zhengjin
 '''
 
@@ -14,34 +13,51 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-def test_import_utils_lib():
+# examle 01, test for None
+def py_base_ex01():
+    flagObject = None
+    if flagObject:
+        print('object is not none.')
+    else:
+        print('object is none.')
+
+
+# example 02, print multiple lines
+def py_base_ex02():
+    lines = '\n'.join([
+        'step1, this is the line one for test;',
+        'step2, this is the line two for test;',
+        'step3, this is the line three for test.',
+    ])
+    print(lines)
+    print()
+
+    line = ('stepA, this is the line one for test;'
+            'stepB, this is the line two for test;'
+            'stepC, this is the line three for test.'
+            )
+    print(lines)
+
+
+# example 03, import external modules
+def py_base_ex03():
     sys.path.append(os.getenv('PYPATH'))
 
     from utils import Constants
     from utils import LogManager
     from utils import SysUtils
 
-    manager = LogManager(Constants.LOG_FILE_PATH)
     try:
-        logger = manager.get_logger()
-        utils = SysUtils(logger)
+        logger = LogManager.build_logger(Constants.LOG_FILE_PATH)
+        utils = SysUtils().get_instance()
         utils.run_sys_cmd('python --version')
     finally:
-        if manager is not None:
-            manager.clear_log_handles()
+        LogManager.clear_log_handles()
 
 
-def test_print_multiple_line():
-    lines = ' \n'.join([
-        'step1, this is the line one for test;',
-        'step2, this is the line two for test;',
-        'step3, this is the line three for test.',
-    ])
-    print(lines)
-
-
-def test_py_abs_path():
-    # NOTE: context cur_path is the path where run cmd "python [script.py]"
+# example 04, context current path 
+# NOTE: context cur_path is the path where run cmd "python [script.py]"
+def py_base_ex04():
     cur_path = os.getcwd()
     print('current path:', cur_path)
 
@@ -49,7 +65,8 @@ def test_py_abs_path():
     print('file exist check (%s):' % f_path, os.path.exists(f_path))
 
 
-def cmd_args_parse():
+# example 05, parse command line args
+def py_base_ex05():
     # "hi:o:": h => -h, i: => -i input_file, o: => -o output_file
     opts, _ = getopt.getopt(sys.argv[1:], 'hi:o:')
 
@@ -79,7 +96,8 @@ def usage():
     print('\n'.join(lines))
 
 
-def chart_line_demo():
+# example 06, chart line
+def py_base_ex06():
     '''
     pre-conditions: 
     $ pip install numpy
@@ -115,7 +133,8 @@ def chart_line_demo():
     plt.close()
 
 
-def chart_spot_demo():
+# example 07, chart spot 
+def py_base_ex07():
     # data
     # y_arr = [float(y) for y in range(0, 100) if y % 2 == 0]
     # x_arr = [x for x in range(0, len(y_arr))]
@@ -141,7 +160,8 @@ def chart_spot_demo():
     plt.show()
 
 
-def regexp_demo():
+# example 08, reg expression 
+def py_base_ex08():
     '''
     Get Java exceptions sum info from input content.
     '''
@@ -177,34 +197,41 @@ def regexp_demo():
     print(ret_dict)
 
 
-def list_files_by_regexp():
+# example 09, list files by glob
+def py_base_ex09():
     '''
-    get file path by regexp pattern
+    get file path by glob (regexp pattern)
     '''
 
     # "glob.glob" return list
-    tmp_dir = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/*.txt')
-    files = glob.glob(tmp_dir)
+    tmp_dir = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files')
+    files = glob.glob(tmp_dir + '/*.txt')
     print('\ntext files in tmp dir:', files)
 
-    cur_dir = './*.py'
-    files = glob.glob(cur_dir)
+    files = glob.glob(os.getcwd() + '/*.py')
     print('\npy files in current dir:', files)
+    print()
 
     # "glob.iglob" return generator
     print('\ntext files in tmp dir:')
-    for file in glob.iglob(tmp_dir):
+    for file in glob.iglob(tmp_dir  + '/*.txt'):
         print(file)
 
     print('\npy files in current dir:')
-    for file in glob.iglob(cur_dir):
+    for file in glob.iglob(os.getcwd() + '/*.py'):
         print(file)
 
 
-def list_files_demo():
-    output_dir = '/Users/zhengjin/Workspaces/zj_py3_project/apitest/outputs'
+# example 10, list files in sub dir
+def py_base_ex10():
+    output_dir = os.path.join(os.getenv('PYPATH'), 'apitest/outputs')
     
-    # list files in sub dirs by glob, depth=2 
+    # list subdirs and files in dir, depth=1, ret name
+    print('\nresult files in outputs: ')
+    for file in os.listdir(output_dir):
+        print(file)
+
+    # list files by glob, depth=2, ret abs path
     files = glob.glob(output_dir + '/*')
     files.extend(glob.glob(output_dir + '/*/*'))
     print('\nresult files in outputs by glob regexp: ')
@@ -213,31 +240,57 @@ def list_files_demo():
             print('/' + file[file.find('outputs'):])
     print('total files:', len(files))
 
-    # list files in sub dirs by walk, depth=max
+    # list files by walk, depth=max
     print('\nresult files in outputs by walk:')
     total = 0
     for dir_path, subpaths, files in os.walk(output_dir):
-        if len(files) == 0:
-            continue
-        total += len(files)
         for file in files:
             print(os.path.join(dir_path, file))
+        total = total + len(files)
     print('total files:', total)
+
+
+# example 11, collections deque
+def py_base_ex11():
+    names = ['jack', 'leo', 'sam', 'peter', 'jeo']
+
+    import collections
+    deque_names = collections.deque(names)
+    deque_names.popleft()
+    deque_names.appendleft('mark')
+    print(deque_names)
+
+
+# example 12, get sum of each color
+def py_base_ex12():
+    colors = ['red', 'green', 'red', 'blue', 'green', 'red']
+
+    tmp_dict01 = {}
+    for color in colors:
+        tmp_dict01.setdefault(color, 0)
+        tmp_dict01[color] += 1
+    print(tmp_dict01)
+
+    tmp_dict02 = {}
+    for color in colors:
+        tmp_dict02[color] = tmp_dict02.get(color, 0) + 1
+    print(tmp_dict02)
+
+
+# example 13, default dict
+def py_base_ex13():
+    names = ['jack', 'leo', 'sam', 'peter', 'jeo']
+
+    from collections import defaultdict
+    # set dict value default as list
+    tmp_dict = defaultdict(list)
+    for name in names:
+        key = len(name)
+        tmp_dict[key].append(name)
+    print(tmp_dict)
 
 
 if __name__ == '__main__':
 
-    # test_print_multiple_line()
-    # test_import_utils_lib()
-    # test_py_abs_path()
-
-    # cmd_args_parse()
-
-    # chart_line_demo()
-    # chart_spot_demo()
-
-    # regexp_demo()
-    # list_files_by_regexp()
-    list_files_demo()
-
-    print('python demo DONE.')
+    py_base_ex13()
+    print('python base demo DONE.')
