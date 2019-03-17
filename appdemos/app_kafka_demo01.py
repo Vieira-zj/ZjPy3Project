@@ -87,4 +87,4 @@ if __name__ == '__main__':
     p2.start()
     p2.join()
 
-    print('kafka test demo done.')
+    print('kafka test demo DONE.')

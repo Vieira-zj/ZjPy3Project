@@ -290,7 +290,23 @@ def py_base_ex13():
     print(tmp_dict)
 
 
+# example 14, create dict from lists
+def py_base_ex14():
+    tmp_lst_ks = ['k1', 'k2', 'k3']
+    tmp_lst_vs = ['v1', 'v2', 'v3']
+
+    for k, v in zip(tmp_lst_ks, tmp_lst_vs):
+        print('%s=%s' % (k, v))
+
+    tmp_dict = dict([(k.upper(), v.upper()) for k, v in zip(tmp_lst_ks, tmp_lst_vs)])
+    print('%s: %s' % (type(tmp_dict), tmp_dict))
+    print()
+
+    tmp_dict = {k.upper(): v.upper() for k, v in zip(tmp_lst_ks, tmp_lst_vs)}
+    print('%s: %s' % (type(tmp_dict), tmp_dict))
+
+
 if __name__ == '__main__':
 
-    py_base_ex13()
+    py_base_ex14()
     print('python base demo DONE.')

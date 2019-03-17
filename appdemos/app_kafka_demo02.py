@@ -185,12 +185,9 @@ if __name__ == '__main__':
     client_id = 'zjtest_client'
     topic = 'zjtest_topic'
 
-    p1 = threading.Thread(
-        target=process_producer, args=(kafka_server, client_id, topic))
-    p2 = threading.Thread(
-        target=process_producer, args=(kafka_server, client_id, topic))
-    c = threading.Thread(
-        target=process_consumer, args=(kafka_server, group_id, client_id, topic))
+    p1 = threading.Thread(target=process_producer, args=(kafka_server, client_id, topic))
+    p2 = threading.Thread(target=process_producer, args=(kafka_server, client_id, topic))
+    c = threading.Thread(target=process_consumer, args=(kafka_server, group_id, client_id, topic))
 
     # producer1
     p1.start()
@@ -203,4 +200,4 @@ if __name__ == '__main__':
     p2.start()
     p2.join()
 
-    print('kafka test demo done.')
+    print('kafka test demo DONE.')
