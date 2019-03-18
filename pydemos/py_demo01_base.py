@@ -306,7 +306,25 @@ def py_base_ex14():
     print('%s: %s' % (type(tmp_dict), tmp_dict))
 
 
+# example 15, iterator by diff step
+def py_base_ex15():
+    alist = []
+    for i in range(10):
+        alist.append(i)
+    print(alist)
+
+    alist.clear()
+    for i in range(10)[::-1]:
+        alist.append(i)
+    print(alist)
+
+    alist.clear()
+    for i in range(10)[::2]:
+        alist.append(i)
+    print(alist)
+
+
 if __name__ == '__main__':
 
-    py_base_ex14()
+    py_base_ex15()
     print('python base demo DONE.')

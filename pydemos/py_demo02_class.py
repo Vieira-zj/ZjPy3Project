@@ -24,6 +24,7 @@ def py_class_ex01():
         # __metaclass__ = upper_attr
         bar = 'bip'
 
+    # main
     print('attr bar:', hasattr(Foo, 'bar'))
     print('attr BAR:', hasattr(Foo, 'BAR'))
     print('BAR:', Foo.BAR)
@@ -49,6 +50,7 @@ def py_class_ex02():
         # __metaclass__ = UpperAttrMetaclass
         bar = 'bip'
 
+    # main
     print('attr bar:', hasattr(Foo, 'bar'))
     print('attr BAR:', hasattr(Foo, 'BAR'))
     print('BAR:', Foo.BAR)
@@ -77,6 +79,7 @@ def py_class_ex03():
             # super has no attr __call__
             # return super(Foo, cls).__call__(*args, **kwargs)
 
+    # main
     f1 = Foo(1)
     print('f1 value:', f1.value)
     f1('instance1')
@@ -116,6 +119,7 @@ def py_class_ex04():
             print('Foo __init__ is invoked, args:', args)
             self.name = args[0]
 
+    # main
     f1 = Foo('1')
     print()
 
@@ -146,6 +150,7 @@ def py_class_ex05():
             print('self attr _instance:', hasattr(self, '_instance'))
             self.name = args[0]
 
+    # main
     s1 = Singleton('s1')
     print('s1 name:', s1.name)
     print()
@@ -174,6 +179,7 @@ def py_class_ex06():
             print('Foo __init__ is invoked: args=%s, kwargs=%s' % (args, kwargs))
             self.name = args[0]
 
+    # main
     foo1 = Foo('1')
     print('f1 name:', foo1.name)
     print()
@@ -219,6 +225,7 @@ def py_class_ex07():
             self._inst_private = 'bar_instance_private'
             self.__inst_final = 'bar_instance_final'
 
+    # main
     f = Foo()
     print('f class private attr:', f._cls_private)
     print('f instance private attr:', f._inst_private)
@@ -233,7 +240,31 @@ def py_class_ex07():
     print('final attrs:', b.get_final_attrs())
 
 
+# example 08, access global var in class
+number = 10
+
+def py_class_ex08():
+
+    # not global access
+    # number = 10
+
+    class Foo(object):
+        def add_number(self, n):
+            global number
+            number += n
+
+        def print_number(self):
+            global number
+            print('number: %d' % number)
+
+    # main
+    f = Foo()
+    f.print_number()
+    f.add_number(1)
+    f.print_number()
+
+
 if __name__ == '__main__':
 
-    py_class_ex07()
+    py_class_ex08()
     print('python meta class demo DONE.')
