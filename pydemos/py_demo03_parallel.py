@@ -524,86 +524,83 @@ def py_parallel_demo17():
     res_list = []
     pool = Pool(3)
     try:
-        for i in range(10):
-            res = pool.apply_async(func=Foo_17, args=(i,), callback=Bar_17)
-            res_list.append(res)
+        # ballback exec in main process
+        res_list = [pool.apply_async(func=Foo_17, args=(i,), callback=Bar_17) for i in range(10)]
     finally:
         if pool:
             pool.close()
             pool.join()
-
     print('[%s] main, results:' % os.getpid())
-    for res in res_list:
-        print(res.get())
+    print(','.join([str(res.get()) for res in res_list]))
 
 
 # example 18, 多线程/多进程池 multiprocessing pool map
 def multiple(x):
     import threading
     res = x * 2
-    print('[%s:%s] %d * 2 = %d' % (os.getpid(), threading.current_thread().getName(), x, res))
+    time.sleep(1)
+    t_name = threading.current_thread().getName()
+    print('[%s:%s] %d * 2 = %d' % (os.getpid(), t_name, x, res))
     return res
 
 def py_parallel_demo18(is_thread=False):
+    import threading
     from multiprocessing import Pool as ProcessPool
     from multiprocessing.dummy import Pool as ThreadPool
 
-    num_list = []
-    for num in range(100):
-        num_list.append(num)
-
-    pool = None
-    if is_thread:
-        pool = ThreadPool(3)
-    else:
-        pool = ProcessPool(3)
-
+    pool = ThreadPool(3) if is_thread else ProcessPool(3)
     try:
-        ret = pool.map(multiple, num_list)
+        res = pool.map(multiple, [num for num in range(11)])
     finally:
         if pool:
             pool.close()
             pool.join()
-    print('results:', ret)
+    print('[%s:%s] main results:' % (os.getpid(), threading.current_thread().getName()))
+    print(','.join([str(num) for num in res]))
 
 
 # --------------------------------------------------------------
 # Pool Executor (多线程/多进程池)
 # --------------------------------------------------------------
 # example 21, 多线程/多进程池 concurrent.futures
-def get_executor(is_thread=False):
-    from concurrent.futures import ThreadPoolExecutor
-    from concurrent.futures import ProcessPoolExecutor
-
-    return ThreadPoolExecutor() if is_thread else ProcessPoolExecutor(max_workers=3)
-
 def load_url(url):
     import threading
     import urllib.request as request
 
     print('[%s:%s] running ...' % (os.getpid(), threading.current_thread().getName()))
     with request.urlopen(url, timeout=5) as conn:
-        print('%r page is %d bytes' % (url, len(conn.read())))
+        return '%r page is %d bytes' % (url, len(conn.read()))
 
-def py_parallel_demo21():
-    from concurrent.futures import wait, as_completed
+def py_parallel_demo21(is_thread=False):
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+    from concurrent.futures import ProcessPoolExecutor
+    from concurrent.futures import wait
 
-    executor = get_executor()
+    executor = ThreadPoolExecutor() if is_thread else ProcessPoolExecutor(max_workers=3)
     urls = ['http://www.163.com', 'https://www.baidu.com/', 'https://github.com/']
-    f_list = []
-    for url in urls:
-        future = executor.submit(load_url, url)
-        f_list.append(future)
-    print(wait(f_list, return_when='ALL_COMPLETED'))
+    f_list = [executor.submit(load_url, url) for url in urls]
+    res = wait(f_list, return_when='ALL_COMPLETED')
+    assert(len(res.not_done) == 0)
+
+    print('[%s:%s] main, results:' % (os.getpid(), threading.current_thread().getName()))
+    for f in res.done:
+        print(f.result())
 
 
 # example 22, 多线程/多进程池 concurrent.futures map
-def py_parallel_demo22():
-    from concurrent.futures import wait, as_completed
+def py_parallel_demo22(is_thread=False):
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+    from concurrent.futures import ProcessPoolExecutor
+    from concurrent.futures import wait
 
     urls = ['http://www.163.com', 'https://www.baidu.com/', 'https://github.com/']
-    executor = get_executor()
-    executor.map(load_url, urls)
+    executor = ThreadPoolExecutor() if is_thread else ProcessPoolExecutor(max_workers=3)
+    results = executor.map(load_url, urls)
+    for res in results:
+        print(res)
+    print('[%s:%s] main' % (os.getpid(), threading.current_thread().getName()))
 
 
 # example 23, 多进程池 concurrent.futures callback
@@ -611,35 +608,39 @@ def get_page(url):
     import requests
     import threading
 
-    print('<%s:%s> get page [%s]' % (os.getpid(), threading.current_thread().getName(), url))
+    t_name = threading.current_thread().getName()
+    print('[%s:%s] get page <%s>' % (os.getpid(), t_name, url))
     response = requests.get(url)
     if response.status_code != 200:
         raise ConnectionError('error get %s, and return code %d' %(url, response.status_code))
     return {'url': url, 'text': response.text}
 
-def py_parallel_demo23():
+def py_parallel_demo23(is_thread=False):
     import threading
+    from concurrent.futures import ThreadPoolExecutor
+    from concurrent.futures import ProcessPoolExecutor
 
     def parse_page(res):
         res = res.result()
-        print('<%s:%s> parse page [%s]' % (os.getpid(), threading.current_thread().getName(), res['url']))
-        parse_line = 'url [%s], size: %s\n' % (res['url'], len(res['text']))
+        t_name = threading.current_thread().getName()
+        print('[%s:%s] parse page <%s>' % (os.getpid(), t_name, res['url']))
+        parse_line = 'url %r, size: %s' % (res['url'], len(res['text']))
         print(parse_line)
+
         with open(os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/test.out'), 'a') as f:
-            f.write(parse_line)
+            f.write(parse_line + '\n')
 
     # main
-    executor = get_executor()
+    executor = ThreadPoolExecutor() if is_thread else ProcessPoolExecutor(max_workers=3)
     urls = ['http://www.163.com', 'https://www.baidu.com/', 'https://github.com/']
     for url in urls:
         # for process, func "get_page()" must be defined global
         executor.submit(get_page, url).add_done_callback(parse_page)
-
     executor.shutdown()
-    print('main', os.getpid())
+    print('[%s:%s] main' % (os.getpid(), threading.current_thread().getName()))
 
 
 if __name__ == '__main__':
 
-    py_parallel_demo17()
+    py_parallel_demo22()
     print('python parallel demo DONE.')

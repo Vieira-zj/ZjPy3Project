@@ -349,7 +349,15 @@ def py_base_ex16():
     print('list:', alist)
 
 
+# example 17, decorator
+def py_base_ex17():
+    # TODO:
+    pass
+
+
 if __name__ == '__main__':
 
     py_base_ex16()
+
+    print('Yes' if len(os.getenv('PYPATH')) > 0 else 'No')
     print('python base demo DONE.')

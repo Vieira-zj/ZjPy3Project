@@ -57,7 +57,7 @@ class LoadCases(object):
 
     def load_cases_by_sheet_and_tags(self, tags):
         '''
-        tags: list of keywords, like ['p1', 'smoke']
+        Tags: list of keywords, like ['p1', 'smoke']
         '''
         tcs = self.__xlsx.read_all_rows_by_sheet()
         ret_tcs = []
@@ -76,12 +76,7 @@ class LoadCases(object):
 
     def load_cases_by_sheet_and_ids(self, ids):
         tcs = self.__xlsx.read_all_rows_by_sheet()
-
-        ret_tcs = []
-        for tc in tcs:
-            if tc[1] in ids:
-                ret_tcs.append(tc)
-
+        ret_tcs = [tc for tc in tcs if tc[1] in ids]
         self.__test_cases = ret_tcs
         return ret_tcs
 
@@ -98,18 +93,12 @@ class LoadCases(object):
         if len(self.__test_cases) == 0:
             raise Exception('No test cases found!')
 
-        case = []
         for tc in self.get_loaded_tcs():
             if tc[1] == case_name:
-                case = tc
-
-        ret_dict = {}
-        for k, v in zip(self.get_case_header_by_sheet(), case):
-            ret_dict[k] = v
-        return ret_dict
+                return {k: v for k, v in zip(self.get_case_header_by_sheet(), tc)}
 
     # --------------------------------------------------------------
-    # Format case fields
+    # Case Utils
     # --------------------------------------------------------------
     @classmethod
     def format_headers_to_dict(cls, headers_str):
@@ -135,9 +124,9 @@ if __name__ == '__main__':
 
     sheet_name = 'Module01'
     load_cases = LoadCases.get_instance().pre_load_sheet(file_path, sheet_name)
-    load_cases.load_all_cases_by_sheet()
+    # load_cases.load_all_cases_by_sheet()
     # load_cases.load_cases_by_sheet_and_tags(['p1','smoke'])
-    # load_cases.load_cases_by_sheet_and_ids(['test_index_get_01'])
+    load_cases.load_cases_by_sheet_and_ids(['test_index_get_01'])
     print(load_cases.get_loaded_tcs())
     print('\n\n')
 
