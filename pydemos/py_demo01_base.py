@@ -332,6 +332,10 @@ def py_base_ex16():
     def update_num_dict(number_dict):  # pass reference
         number_dict['value'] += 5
 
+    def update_list(alist):  # pass reference
+        alist.append(1)
+        alist = [1, 2]
+
     number = 10
     update_num(number)
     print('number:', number)
@@ -339,6 +343,10 @@ def py_base_ex16():
     number_dict = {'value': 10}
     update_num_dict(number_dict)
     print('number value:', number_dict['value'])
+
+    alist = []
+    update_list(alist)
+    print('list:', alist)
 
 
 if __name__ == '__main__':

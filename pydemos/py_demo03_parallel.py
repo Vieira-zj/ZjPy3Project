@@ -15,16 +15,19 @@ import time
 # --------------------------------------------------------------
 # example 01, generator
 def py_parallel_demo01():
+    import threading
 
     def generate_numbers(n):
-        print('start to generate numbers.')
+        t_name = threading.current_thread().getName()
+        print('[%s:%s] start to generate numbers' % (os.getpid(), t_name))
         for i in range(n):
-            print('generate number:', i)
+            time.sleep(1)
             yield i
 
     numbers = generate_numbers(5)
-    print(dir(numbers))
+    print('[%s:%s] main' % (os.getpid(), threading.current_thread().getName()))
 
+    print('numbers:')
     print(next(numbers))
     print(next(numbers))
     for number in numbers:
@@ -36,32 +39,38 @@ def py_parallel_demo02():
     import threading
 
     def consumer():
-        tag = '[CONSUMER-%s-%s]' % (os.getpid(), threading.currentThread().getName())
+        tag = '[consumer-%s:%s]' % (os.getpid(), threading.currentThread().getName())
         print(tag + ' Start ...')
-        ret = ''
+        yield 0
+
         while 1:
-            good = yield ret
-            if not good:
+            ret_msg = '[%s] 200 OK' % time.strftime(r'%y-%m-%d:%H%M%S')
+            item = yield ret_msg
+            if not item:
                 return
-            print(tag + ' Consuming %s ...' % good)
-            time.sleep(1)
-            ret = '[%s] 200 OK' % time.strftime(r'%y-%m-%d:%H%M%S')
+            print(tag + ' Consuming %s ...' % item)
+            time.sleep(2)
 
-    def produce(c):
-        tag = '[PRODUCER-%s-%s]' % (os.getpid(), threading.currentThread().getName())
-        next(c)
+    def producer(c):
+        tag = '[producer-%s:%s]' % (os.getpid(), threading.currentThread().getName())
+        if next(c) != 0:
+            raise Exception('generator start failed!')
 
-        n = 0
-        while n < 5:
-            n = n + 1
+        for n in range(5):
             print(tag + ' Producing %s ...' % n)
+            time.sleep(2)
             r = c.send(n)
             print(tag + ' Consumer return: %s' % r)
-        c.close()
 
     # main
     c = consumer()
-    produce(c)
+    try:
+        producer(c)
+    finally:
+        if c:
+            t_name = threading.currentThread().getName()
+            print('[main-%s:%s] close generator' % (os.getpid(), t_name))
+            c.close()
 
 
 # --------------------------------------------------------------
@@ -144,78 +153,64 @@ def py_parallel_demo03():
         c.start()
 
 
-# example 04, 多线程 生产消费模型 condition
+# example 04, 多线程 线程间同步 condition
 alist = None
 
 def py_parallel_demo04():
     import threading
 
-    condition = threading.Condition()
+    def doSet(lock, condition):
+        tag = 'Set [%s:%s]' % (os.getpid(), threading.currentThread().getName())
+        with lock:
+            print(tag, 'get lock')
+            while alist is None:
+                print(tag, 'list is not init, and wait')
+                condition.wait()
+            print(tag, 'resume from wait')
+            time.sleep(1)
+            for i in range(len(alist))[::-1]:
+                alist[i] = 1
+            print(tag, 'list modified')
+            condition.notify()
 
-    def doSet():
-        global alist
-        tag = '[Set (%s:%s)]' % (os.getpid(), threading.currentThread().getName())
-
-        if condition.acquire():
-            try:
-                print(tag, 'get lock')
-                while alist is None:
-                    print(tag, 'list is not init, and wait')
-                    condition.wait()
-                print(tag, 'resume')
-                time.sleep(1)
-                for i in range(len(alist))[::-1]:
-                    alist[i] = 1
-                print(tag, 'list updated')
-                condition.notify()
-            finally:
-                if condition:
-                    condition.release()
-
-    def doPrint():
-        global alist
+    def doPrint(lock, condition):
         tag = '[Print (%s:%s)]' % (os.getpid(), threading.currentThread().getName())
+        with lock:
+            print(tag, 'get lock')
+            while alist is None or sum(alist) == 0:
+                print(tag, 'list is not ready, and wait')
+                condition.wait()
+            print(tag, 'resume from wait')
+            time.sleep(1)
+            for i in alist:
+                print(tag, i)
 
-        if condition.acquire():
-            try:
-                print(tag, 'get lock')
-                while alist is None or sum(alist) == 0:
-                    print(tag, 'list is not ready, and wait')
-                    condition.wait()
-                print(tag, 'resume')
-                time.sleep(1)
-                for i in alist:
-                    print(tag, i)
-            finally:
-                if condition:
-                    condition.release()
-
-    def doCreate():
-        global alist
+    def doCreate(lock, condition):
         tag = '[Create (%s:%s)]' % (os.getpid(), threading.currentThread().getName())
-
-        if condition.acquire():
-            try:
-                print(tag, 'get lock')
-                if alist is None:
-                    time.sleep(1)
-                    alist = [0 for _ in range(5)]
-                    print(tag, 'list init')
-                    condition.notifyAll()
-            finally:
-                if condition:
-                    condition.release()
+        global alist
+        with lock:
+            print(tag, 'get lock')
+            if alist is None:
+                alist = [0 for _ in range(5)]
+                time.sleep(1)
+                print(tag, 'list init')
+                condition.notifyAll()
 
     # main
-    threads = []
-    threads.append(threading.Thread(target=doPrint, name='t_print'))
-    threads.append(threading.Thread(target=doSet, name='t_set'))
-    threads.append(threading.Thread(target=doCreate, name='t_create'))
+    lock = threading.Lock()
+    cond = threading.Condition(lock)
 
+    threads = []
+    threads.append(threading.Thread(target=doPrint, args=(lock, cond), name='t_print'))
+    threads.append(threading.Thread(target=doSet, args=(lock, cond), name='t_set'))
+    threads.append(threading.Thread(target=doCreate, args=(lock, cond), name='t_create'))
+    # run workflow => doCreate, doSet, doPrint
     for t in threads:
         t.start()
     for t in threads:
         t.join()
+
+    print('[%s:%s] main' % (os.getpid(), threading.currentThread().getName()))
 
 
 # example 05, 多线程 生产消费模型 同步阻塞队列
@@ -224,33 +219,43 @@ def py_parallel_demo05():
     import threading
     from queue import Queue
 
-    q = Queue(maxsize=11)
-    for i in range(10):
-        q.put(i)
-    print('queue init size: %d' % q.qsize())
-
     class Producer(threading.Thread):
+        def __init__(self, q):
+            self.queue = q
+            super().__init__()
+
         def run(self):
             tag = 'Producer [%s:%s]' % (os.getpid(), threading.current_thread().getName())
             while 1:
+                print(tag, 'is running ...')
                 input_int = random.randint(0, 10)
-                print(tag, 'queue size: %d, enqueue value: %d' % (q.qsize(), input_int))
-                q.put(input_int, block=True, timeout=10)
-                time.sleep(3)
+                self.queue.put(input_int, block=True, timeout=10)
+                print(tag, 'enqueue a number: %d, queue size: %d' % (input_int, self.queue.qsize()))
+                time.sleep(2)
 
     class Consumer(threading.Thread):
+        def __init__(self, q):
+            self.queue = q
+            super().__init__()
+
         def run(self):
-            tag = 'Consumer [%s:%s]' %(os.getpid(), threading.current_thread().getName())
+            tag = 'Consumer [%s:%s]' % (os.getpid(), threading.current_thread().getName())
             while 1:
-                output_init = q.get(block=True, timeout=10)
+                print(tag, 'is running ...')
+                output_init = self.queue.get(block=True, timeout=10)
+                print(tag, 'dequeue a number: %d, queue size: %d' % (output_init, self.queue.qsize()))
                 time.sleep(1)
-                print(tag, 'queue size: %d, dequeue value: %d' % (q.qsize(), output_init))
 
     # main
+    q = Queue(maxsize=10)
+    for i in range(5):
+        q.put(i)
+    print('queue init size: %d' % q.qsize())
+
     for _ in range(1):
-        Producer().start()
+        Producer(q).start()
     for _ in range(2):
-        Consumer().start()
+        Consumer(q).start()
 
 
 # --------------------------------------------------------------
@@ -265,10 +270,11 @@ def py_parallel_demo11():
         num.value = 14.1
         for i in range(len(arr)):
             arr[i] = -arr[i]
+        time.sleep(1)
 
     num = multiprocessing.Value('d', 1.0)  # decimal
     arr = multiprocessing.Array('i', range(10))  # int
-    p = multiprocessing.Process(target=my_update, args=(num, arr))
+    p = multiprocessing.Process(target=my_update, args=(num, arr,))
     p.start()
     p.join()
 
@@ -277,7 +283,7 @@ def py_parallel_demo11():
     print('array:', arr[:])
 
 
-# example 12, 进程间共享数据 manager
+# example 12, 进程间共享数据 multiprocessing.manager
 def py_parallel_demo12():
     from multiprocessing import Process, Manager
 
@@ -293,7 +299,7 @@ def py_parallel_demo12():
 
     manager = Manager()
     shareValue = manager.Value('i', 1)
-    shareList = manager.list([1, 2, 3, 4, 5])
+    shareList = manager.list(range(5))
     shareDict = manager.dict({'key1': 1, 'key2': 2})
 
     lock = manager.Lock()
@@ -304,23 +310,22 @@ def py_parallel_demo12():
         p.join()
 
     print('[%s] main is running ...' % os.getpid())
-    print('share value:', shareValue)
+    print('share value:', shareValue.value)
     print('share list:', shareList)
     print('share dict:', shareDict)
 
 
-# example 13, 进程间共享数据 manager
+# example 13, 进程间共享数据 multiprocessing.manager
 def py_parallel_demo13():
     from multiprocessing import Process, Manager
 
     class MyProcess(Process):
-        def __init__(self, *args, **kwargs):
-            locals = kwargs['args']
-            self.lock = locals[0]
-            self.shareValue = locals[1]
-            self.shareList = locals[2]
-            self.shareDict = locals[3]
-            super().__init__(*args, **kwargs)
+        def __init__(self, lock, shareValue, shareList, shareDict):
+            self.lock = lock
+            self.shareValue = shareValue
+            self.shareList = shareList
+            self.shareDict = shareDict
+            super().__init__()
 
         def run(self):
             with self.lock:
@@ -330,7 +335,6 @@ def py_parallel_demo13():
                     self.shareList[i] += 1
                 self.shareDict['key1'] += 1
                 self.shareDict['key2'] += 2
-
                 time.sleep(1)
     # end class
 
@@ -339,21 +343,21 @@ def py_parallel_demo13():
     shareValue = manager.Value('i', 1)
     shareList = manager.list([1, 2, 3, 4, 5])
     shareDict = manager.dict({'key1': 1, 'key2': 2})
-
     lock = manager.Lock()
-    procs = [MyProcess(args=(lock, shareValue, shareList, shareDict)) for _ in range(5)]
+
+    procs = [MyProcess(lock, shareValue, shareList, shareDict) for _ in range(5)]
     for p in procs:
         p.start()
     for p in procs:
         p.join()
 
     print('[%s] main is running ...' % os.getpid())
-    print('share value:', shareValue)
+    print('share value:', shareValue.value)
     print('share list:', shareList)
     print('share dict:', shareDict)
 
 
-# example 14, 进程间共享数据 manager
+# example 14, 进程间共享数据 multiprocessing.manager
 def py_parallel_demo14():
     from multiprocessing import Process, Value, Lock
     from multiprocessing.managers import BaseManager
@@ -373,10 +377,10 @@ def py_parallel_demo14():
     class MyManager(BaseManager):
         pass
 
-    def increaseSalary(em, lock):
+    def incrSalary(lock, employee):
         with lock:
-            print('[%s] increaseSalary is running ...' % os.getpid())
-            em.increase()
+            print('[%s] incrSalary is running ...' % os.getpid())
+            employee.increase()
 
     # main
     MyManager.register('Employee', Employee)
@@ -385,13 +389,13 @@ def py_parallel_demo14():
     em = manager.Employee('Henry', 1000)
 
     lock = Lock()
-    procs = [Process(target=increaseSalary, args=(em, lock)) for _ in range(5)]
+    procs = [Process(target=incrSalary, args=(lock, em)) for _ in range(5)]
     for p in procs:
         p.start()
     for p in procs:
         p.join()
 
-    print('[%s] main, Employee pay: %s' % (os.getpid(), em.getPay()))
+    print('[%s] main, Employee pay (%s)' % (os.getpid(), em.getPay()))
 
 
 # example 15, 多进程 生产消费模型
@@ -452,7 +456,7 @@ def py_parallel_demo15():
     full_cond = Condition(lock)
     empty_cond = Condition(lock)
 
-    for _ in range(2):
+    for _ in range(3):
         p = Producer(products, lock, full_cond, empty_cond)
         p.start()
     for _ in range(1):
@@ -471,12 +475,12 @@ def py_parallel_demo16():
             super().__init__()
 
         def run(self):
-            tag = '[%s:%s]' % (self.pid, self.name)
+            tag = '[Producer (%s:%s)]' % (self.pid, self.name)
             while 1:
                 print(tag, 'is running ...')
                 input_num = random.randint(0, 10)
                 self.queue.put(input_num, block=True, timeout=10)
-                print(tag, 'put one number into queue:', input_num)
+                print(tag, 'enqueue a number into queue:', input_num)
                 time.sleep(1)
 
     class Consumer(Process):
@@ -485,11 +489,11 @@ def py_parallel_demo16():
             super().__init__()
 
         def run(self):
-            tag = '[%s:%s]' % (self.pid, self.name)
+            tag = '[Consumer (%s:%s)]' % (self.pid, self.name)
             while 1:
                 print(tag, 'is running ...')
                 output_num = self.queue.get(block=True, timeout=10)
-                print(tag, 'get one number from queue:', output_num)
+                print(tag, 'deque a number from queue:', output_num)
                 time.sleep(2)
 
     # main
@@ -497,7 +501,7 @@ def py_parallel_demo16():
     for i in range(5):
         queue.put(i)
 
-    for _ in range(2):
+    for _ in range(3):
         Producer(queue).start()
     for _ in range(1):
         Consumer(queue).start()
@@ -637,5 +641,5 @@ def py_parallel_demo23():
 
 if __name__ == '__main__':
 
-    py_parallel_demo16()
+    py_parallel_demo17()
     print('python parallel demo DONE.')
