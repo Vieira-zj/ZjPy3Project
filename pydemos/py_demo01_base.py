@@ -324,7 +324,24 @@ def py_base_ex15():
     print(alist)
 
 
+# example 16, pass var by value / reference
+def py_base_ex16():
+    def update_num(number):  # pass value
+        number += 5
+
+    def update_num_dict(number_dict):  # pass reference
+        number_dict['value'] += 5
+
+    number = 10
+    update_num(number)
+    print('number:', number)
+
+    number_dict = {'value': 10}
+    update_num_dict(number_dict)
+    print('number value:', number_dict['value'])
+
+
 if __name__ == '__main__':
 
-    py_base_ex15()
+    py_base_ex16()
     print('python base demo DONE.')
