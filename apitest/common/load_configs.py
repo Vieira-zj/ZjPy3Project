@@ -12,6 +12,14 @@ sys.path.append(os.getenv('PYPATH'))
 from utils import Constants
 
 
+def verify_configs(func):
+    def _deco(*args, **kwargs):
+        cls = args[0]
+        if len(cls.configs) == 0:
+            raise Exception('Pls load configs first!')
+        return func(*args, **kwargs)
+    return _deco
+
 class LoadConfigs(object):
 
     SECTION_TEST_ENV = 'testenv'
@@ -38,29 +46,25 @@ class LoadConfigs(object):
             cls.configs[section] = tmp_dict
 
     @classmethod
+    @verify_configs
     def get_testenv_configs(cls):
-        cls.__verify_configs()
         return cls.configs.get(cls.SECTION_TEST_ENV)
 
     @classmethod
+    @verify_configs
     def get_mock_configs(cls):
-        cls.__verify_configs()
         return cls.configs.get(cls.SECTION_MOCK)
 
     @classmethod
+    @verify_configs
     def get_email_configs(cls):
-        cls.__verify_configs()
         return cls.configs.get(cls.SECTION_EMAIL)
-
-    @classmethod
-    def __verify_configs(cls):
-        if len(cls.configs) == 0:
-            raise Exception('Pls load configs first!')
+# end class
 
 
 if __name__ == '__main__':
 
-    cfg_file_path = os.path.join(os.path.dirname(os.getcwd()), 'configs.ini')
+    cfg_file_path = os.path.join(os.getenv('PYPATH'), 'apitest/configs.ini')
     LoadConfigs.load_configs(cfg_file_path)
     print('test http server url: %s:%s'
           % (LoadConfigs.get_mock_configs().get('ip'), LoadConfigs.get_mock_configs().get('port')))

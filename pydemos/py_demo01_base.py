@@ -349,15 +349,42 @@ def py_base_ex16():
     print('list:', alist)
 
 
-# example 17, decorator
+# example 17, decorator for class function
 def py_base_ex17():
-    # TODO:
-    pass
+    def verify_dir_path(func):
+        def _deco(*args, **kwargs):
+            print('verify_dir_path args:', args)
+            this = args[0]
+            if not os.path.exists(this._dir_path):
+                raise FileNotFoundError('dir path is not exist!')
+            if not os.path.isdir(this._dir_path):
+                raise IOError('dir path is not invalid!')
+            return func(*args, **kwargs)
+
+        return _deco
+
+    class ListFile(object):
+        def __init__(self, dir_path):
+            self._dir_path = dir_path
+
+        @verify_dir_path
+        def listTextFiles(self):
+            files = glob.glob(self._dir_path + '/*.txt')
+            print('text files:', files)
+
+        @verify_dir_path
+        def listYmlFiles(self):
+            files = glob.glob(self._dir_path + '/*.yml')
+            print('yml files:', files)
+
+    list_file = ListFile(os.path.join(os.getenv('HOME'), 'Downloads/tmp_files'))
+    list_file.listTextFiles()
+    list_file.listYmlFiles()
 
 
 if __name__ == '__main__':
 
-    py_base_ex16()
+    py_base_ex17()
 
     print('Yes' if len(os.getenv('PYPATH')) > 0 else 'No')
     print('python base demo DONE.')
