@@ -55,7 +55,7 @@ def py_base_ex03():
         LogManager.clear_log_handles()
 
 
-# example 04, context current path 
+# example 04, context current path
 # NOTE: context cur_path is the path where run cmd "python [script.py]"
 def py_base_ex04():
     cur_path = os.getcwd()
@@ -160,7 +160,7 @@ def py_base_ex07():
     plt.show()
 
 
-# example 08, reg expression 
+# example 08, reg expression
 def py_base_ex08():
     '''
     Get Java exceptions sum info from input content.
@@ -382,9 +382,24 @@ def py_base_ex17():
     list_file.listYmlFiles()
 
 
+# example 18, *args
+def py_base_ex18():
+    test_lst = ['a', 'b', 'c']
+
+    def print_abc(a, b, c):
+        print(f'a={a}, b={b}, c={c}')
+    print_abc(*test_lst)
+
+    def print_vals(*args):
+        print('type:', type(args))
+        print(f'input arguments: {args}')
+    print_vals(test_lst)
+    print_vals(*test_lst)
+
+
 if __name__ == '__main__':
 
-    py_base_ex17()
+    py_base_ex18()
 
     print('Yes' if len(os.getenv('PYPATH')) > 0 else 'No')
     print('python base demo DONE.')
