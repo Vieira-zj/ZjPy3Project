@@ -13,13 +13,32 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-# examle 01, test for None
+# examle 01, base
 def py_base_ex01():
+    # test for None
     flagObject = None
     if flagObject:
         print('object is not none.')
     else:
         print('object is none.')
+
+    # test for search str
+    def search_by_index(input_str):
+        try:
+            print(input_str[:input_str.index('g')])
+        except ValueError as e:
+            print(e)
+    search_by_index('16g')
+    search_by_index('32')
+
+    def search_by_find(input_str):
+        if input_str.find('g') == -1:
+            print('search not found')
+        else:
+            print(input_str[:input_str.find('g')])
+    print('')
+    search_by_find('16g')
+    search_by_find('32')
 
 
 # example 02, print multiple lines
@@ -397,9 +416,27 @@ def py_base_ex18():
     print_vals(*test_lst)
 
 
+# example 19, json parse
+def py_base_ex19():
+    import json
+
+    input_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/test.json')
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(input_path)
+
+    json_text = ''
+    with open(input_path) as f:
+        json_text = f.read()
+
+    if len(json_text) > 0:
+        json_object = json.loads(json_text)
+        print('request id:', json_object['requestId'])
+        print('instance job:', json_object['rawInstances'][0]['rawFeatures']['job'])
+
+
 if __name__ == '__main__':
 
-    py_base_ex18()
+    py_base_ex19()
 
     print('Yes' if len(os.getenv('PYPATH')) > 0 else 'No')
     print('python base demo DONE.')
