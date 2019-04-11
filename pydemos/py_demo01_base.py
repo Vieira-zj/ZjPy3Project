@@ -271,9 +271,9 @@ def py_base_ex10():
 
 # example 11, collections deque
 def py_base_ex11():
-    names = ['jack', 'leo', 'sam', 'peter', 'jeo']
-
     import collections
+
+    names = ['jack', 'leo', 'sam', 'peter', 'jeo']
     deque_names = collections.deque(names)
     deque_names.popleft()
     deque_names.appendleft('mark')
@@ -434,9 +434,24 @@ def py_base_ex19():
         print('instance job:', json_object['rawInstances'][0]['rawFeatures']['job'])
 
 
+# example 20, 写入中文到文件
+def py_base_ex20():
+    file_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/test.file')
+
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(file_path)
+
+    with open(file_path, 'a', encoding='utf-8') as f:
+        lines = ['\npython test write chinese words.\n']
+        lines.append('写入中文到文件测试1\n')
+        f.writelines(lines)
+        f.write('写入中文到文件测试2\n')
+
+
 if __name__ == '__main__':
 
-    py_base_ex19()
+    py_base_ex18()
 
-    print('Yes' if len(os.getenv('PYPATH')) > 0 else 'No')
+    print('PYPATH='+os.getenv('PYPATH') if len(os.getenv('PYPATH')) > 0 else 'PYPATH=null')
+    print('\npython version:\n', sys.version)
     print('python base demo DONE.')
