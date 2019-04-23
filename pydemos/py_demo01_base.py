@@ -448,9 +448,34 @@ def py_base_ex20():
         f.write('写入中文到文件测试2\n')
 
 
+# example 21, multi process
+def py_base_ex21():
+    import time
+    from multiprocessing import Process
+
+    class MyProcess(Process):
+        def __init__(self, tag):
+            self._tag = tag
+            super().__init__()  # super.init() should be invoked
+
+        def run(self):
+            print('%s => pid=%d, name=%s is running ...' % (self._tag, os.getpid(), self.name))
+            time.sleep(3)
+
+    p = MyProcess('test')
+    print('process start')
+    p.start()
+
+    print('main=%d, wait for process done' % os.getpid())
+    p.join(timeout=3)
+    time.sleep(1)
+    if p.is_alive():
+        p.kill()
+
+
 if __name__ == '__main__':
 
-    py_base_ex18()
+    py_base_ex21()
 
     print('PYPATH='+os.getenv('PYPATH') if len(os.getenv('PYPATH')) > 0 else 'PYPATH=null')
     print('\npython version:\n', sys.version)

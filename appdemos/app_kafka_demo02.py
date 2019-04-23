@@ -113,7 +113,7 @@ class Producer(object):
         print('message send failed:', excp)
 
 
-class Consumer:
+class Consumer(object):
 
     def __init__(self, server_list, group_id, client_id, topic):
         self._server_list = server_list
