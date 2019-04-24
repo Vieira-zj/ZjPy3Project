@@ -25,7 +25,7 @@ from kazoo.client import DataWatch
 
 
 # --------------------------------------------------------------
-# zk demo 01
+# demo 01, zk watch api test
 # --------------------------------------------------------------
 def zk_test_01(url, test_node):
     # if run in multi process, should init a new zk client.
@@ -58,7 +58,7 @@ def zk_main_01():
         print('event type %s, path "%s"' % (event.type, event.path))
 
     url = '127.0.0.1:2181'
-    test_node = '/zk_test'
+    test_node = '/zk_test_01'
     zkc = KazooClient(hosts=url, timeout=3)
     zkc.start()
 
@@ -83,7 +83,7 @@ def zk_main_01():
 
 
 # --------------------------------------------------------------
-# zk demo 02
+# zk demo 02, kazoo watch api test
 # --------------------------------------------------------------
 def zk_test_02(zkc, test_node):
     zkc.ensure_path(test_node)
@@ -165,11 +165,8 @@ class zkWatcher(object):
 
 
 def zk_main_02():
-    '''
-    main process create and update zk nodes, and another process watch zk nodes.
-    '''
     url = '127.0.0.1:2181'
-    zk_test_node = '/zk_test'
+    zk_test_node = '/zk_test_02'
     zkc = KazooClient(hosts=url, timeout=3)
     zkc.start()
     print('\npid=%d, zookeeper version: %s' % (os.getpid(), zkc.server_version()))
@@ -186,6 +183,7 @@ def zk_main_02():
         time.sleep(1)
 
         zk_test_02(zkc, zk_test_node)
+
         if p is not None:
             p.join(timeout=8)
             if p.is_alive():
@@ -194,13 +192,13 @@ def zk_main_02():
     finally:
         if zkc.exists(zk_test_node, watch=None):
             zkc.delete(zk_test_node, recursive=True)
-        # close zk session, all ephemeral nodes will be removed
+        # close zk session, and all ephemeral nodes will be removed
         zkc.stop()
 
 
 if __name__ == '__main__':
 
-    zk_main_01()
-    # zk_main_02()
+    # zk_main_01()
+    zk_main_02()
 
-    print('pid=%d, zookeeper test demo done.' % os.getpid())
+    print('pid=%d, zookeeper test demo DONE.' % os.getpid())

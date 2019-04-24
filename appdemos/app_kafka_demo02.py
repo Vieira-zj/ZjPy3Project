@@ -3,15 +3,15 @@
 Created on 2019-01-08
 @author: zhengjin
 
-Condition: 
-1) kafka libs: pip3 install kafka-python 
-2) add /etc/hosts: 127.0.0.1 zjmbp
+Pre condition: 
+1. pip3 install kafka-python 
+2. in /etc/hosts, add: 127.0.0.1 zjmbp
 '''
 
 import json
 import random
 import sys
-import threading
+import multiprocessing
 import time
 
 from kafka import KafkaConsumer
@@ -25,7 +25,7 @@ class Producer(object):
     def __init__(self, server_list, client_id, topic):
         '''
         KafkaProducer构造函数参数解释:
-        - acks 0表示发送不理睬发送是否成功; 1表示需要等待leader成功写入日志才返回; all表示所有副本都写入日志才返回
+        - acks 0表示发送不理睬发送是否成功; 1表示需要等待leader成功写入日志才返回; all表示所有副本都写入日志才返回.
         - buffer_memory 默认33554432也就是32M, 该参数用于设置producer用于缓存消息的缓冲区大小. 如果采用异步发送消息, 
             那么生产者启动后会创建一个内存缓冲区用于存放待发送的消息, 然后由专属线程来把放在缓冲区的消息进行真正发送. 
             如果要给生产者要给很多分区发消息那么就需要考虑这个参数的大小, 防止过小降低吞吐量.
@@ -63,18 +63,16 @@ class Producer(object):
         self._topic = topic
 
     def close_connection(self, timeout=3):
-        # 关闭生产者, 可以指定超时时间, 也就是等待关闭成功最多等待多久.
         if self._producer is not None:
+            # 关闭生产者, 可以指定超时时间, 也就是等待关闭成功最多等待多久
             self._producer.close(timeout=timeout)
 
     def send_msg(self, value):
-        # 发送的消息必须是序列化后的，或者是字节.
-        # message = json.dumps(msg, encoding='utf-8', ensure_ascii=False)
         '''
         - value 必须必须为字节或者被序列化为字节, 由于之前我们初始化时已经通过value_serializer来做了, 所以我上面的语句就注释了
         - key 与value对应的键, 可选, 也就是把一个键关联到这个消息上. 
-            key相同就会把消息发送到同一分区上, 所以如果有这个要求就可以设置key, 也需要序列化
-        - partition 发送到哪个分区, 整型. 如果不指定将会自动分配
+            key相同就会把消息发送到同一分区上, 所以如果有这个要求就可以设置key, 也需要序列化.
+        - partition 发送到哪个分区, 整型. 如果不指定将会自动分配.
         '''
         kwargs = {
             'value': value,
@@ -82,18 +80,21 @@ class Producer(object):
             'partition': None
         }
 
+        # 发送的消息必须是序列化后的，或者是字节.
+        # message = json.dumps(msg, encoding='utf-8', ensure_ascii=False)
         try:
-            # 异步发送, 发送到缓冲区, 同时注册两个回调函数, 一个是发送成功的回调, 一个是发送失败的回调.
+            # 异步发送, 发送到缓冲区, 同时注册两个回调函数, 一个是发送成功的回调, 一个是发送失败的回调
             future = self._producer.send(self._topic, **kwargs)
-            future.add_callback(self._on_send_sucess).add_errback(
-                self._on_send_failed)
+            future.add_callback(self._on_send_sucess).add_errback(self._on_send_failed)
         except KafkaTimeoutError as e:
             print(e)
 
     def send_msg_now(self, timeout=3):
-        # 调用flush()函数可以放所有在缓冲区的消息记录立即发送, 即使ligner_ms值大于0.
-        # 这时候后台发送消息线程就会立即发送消息并且阻塞, 等待消息发送成功, 当然阻塞还取决于acks的值.
-        # 如果不调用flush函数, 那么什么时候发送消息取决于ligner_ms或者batch任意一个条件满足就会发送.
+        '''
+        调用flush()函数可以放所有在缓冲区的消息记录立即发送, 即使ligner_ms值大于0.
+        这时候后台发送消息线程就会立即发送消息并且阻塞, 等待消息发送成功, 当然阻塞还取决于acks的值.
+        如果不调用flush函数, 那么什么时候发送消息取决于ligner_ms或者batch任意一个条件满足就会发送.
+        '''
         try:
             self._producer.flush(timeout=timeout)
         except KafkaTimeoutError as e:
@@ -103,14 +104,14 @@ class Producer(object):
         '''
         异步发送成功回调函数, 也就是真正发送到kafka集群且成功才会执行. 发送到缓冲区不会执行回调方法.
         '''
-        print('message send success.')
-        print('send topic:', record_metadata.topic)
-        print('send partition:', record_metadata.partition)
-        # 这个偏移量是相对偏移量, 也就是相对起止位置, 也就是队列偏移量.
-        print('offset:', record_metadata.offset)
+        print('message send success [event]:')
+        print('\tsend topic:', record_metadata.topic)
+        print('\tsend partition:', record_metadata.partition)
+        # 这个偏移量是相对偏移量, 也就是相对起止位置, 也就是队列偏移量
+        print('\toffset:', record_metadata.offset)
 
     def _on_send_failed(self, excp):
-        print('message send failed:', excp)
+        print('message send failed [event]:', excp)
 
 
 class Consumer(object):
@@ -124,10 +125,10 @@ class Consumer(object):
     def consume_msg(self):
         '''
         初始化一个消费者实例. 消费者不是线程安全的, 所以建议一个线程实现一个消费者, 而不是一个消费者让多个线程共享.
-        下面这些是可选参数, 可以在初始化KafkaConsumer实例的时候传递进去
-        - enable_auto_commit 是否自动提交, 默认是true
-        - auto_commit_interval_ms 自动提交间隔毫秒数
-        - auto_offset_reset='earliest' 重置偏移量, earliest移到最早的可用消息, latest最新的消息, 默认为latest
+        下面这些是可选参数, 可以在初始化KafkaConsumer实例的时候传递进去.
+        - enable_auto_commit 是否自动提交, 默认是true.
+        - auto_commit_interval_ms 自动提交间隔毫秒数.
+        - auto_offset_reset='earliest' 重置偏移量, earliest移到最早的可用消息, latest最新的消息, 默认为latest.
         '''
         consumer = KafkaConsumer(
             self._topic, bootstrap_servers=self._server_list,
@@ -142,13 +143,13 @@ class Consumer(object):
         '''
         # consumer.subscribe(self._topic_list)
         # consumer.assign([TopicPartition(topic='Test', partition=0), TopicPartition(topic='Test', partition=1)])
-        print('consume partition:', consumer.partitions_for_topic(self._topic))
         print('subscribe topic:', consumer.subscription())
+        print('consume partition:', consumer.partitions_for_topic(self._topic))
 
         try:
             for msg in consumer:
                 if msg:
-                    print('Topic: %s Partition: %d Offset: %s Key: %s Message: %s'
+                    print('received msg => Topic: %s Partition: %d Offset: %s Key: %s Message: %s'
                           % (msg.topic, msg.partition, msg.offset, msg.key, msg.value))
         finally:
             if consumer is not None:
@@ -159,13 +160,15 @@ def process_producer(server_list, client_id, topic):
     print('send message ...')
     producer = Producer(server_list, client_id, topic)
     try:
+        begin = random.randint(0, 100)
         for i in range(10):
             msg = {
                 'publisher': 'procucer_test',
-                'ticket_code': 60000 + i,
+                'ticket_code': 60000 + begin + i,
                 'cur_price': random.randint(1, 500),
             }
             producer.send_msg(value=msg)
+            time.sleep(0.2)
     finally:
         if producer is not None:
             producer.send_msg_now()
@@ -181,23 +184,34 @@ def process_consumer(server_list, group_id, client_id, topic):
 if __name__ == '__main__':
 
     kafka_server = ['zjmbp:9094']
-    group_id = 'zjtest_consumer_group'
-    client_id = 'zjtest_client'
+    group_id = 'kafka_test_consumer_group'
+    client_id = 'kafka_test_client'
     topic = 'zjtest_topic'
 
-    p1 = threading.Thread(target=process_producer, args=(kafka_server, client_id, topic))
-    p2 = threading.Thread(target=process_producer, args=(kafka_server, client_id, topic))
-    c = threading.Thread(target=process_consumer, args=(kafka_server, group_id, client_id, topic))
-
     # producer1
+    p1 = multiprocessing.Process(target=process_producer, args=(kafka_server, client_id, topic))
     p1.start()
-    p1.join()
-    time.sleep(5)
+    p1.join(timeout=5)
+    if p1.is_alive():
+        p1.kill()
+    time.sleep(1)
+
     # consumer
+    c = multiprocessing.Process(target=process_consumer, args=(kafka_server, group_id, client_id, topic))
     c.start()
     time.sleep(2)
+
     # producer2
+    p2 = multiprocessing.Process(target=process_producer, args=(kafka_server, client_id, topic))
     p2.start()
-    p2.join()
+    p2.join(timeout=5)
+    if p2.is_alive():
+        p2.kill()
+    time.sleep(1)
+
+    c.join(timeout=5)
+    if c.is_alive():
+        print('kill consumer process(pid=%d)!' % c.pid)
+        c.kill()
 
     print('kafka test demo DONE.')
