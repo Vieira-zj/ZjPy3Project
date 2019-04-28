@@ -10,14 +10,14 @@ bin/spark-submit \
 --driver-memory 1g \
 --executor-memory 1g \
 --executor-cores 1 \
-/mnt/spark_dir/pyspark_demo_base.py
+/mnt/spark_dir/pyspark_rdd_base.py
 '''
 
 from pyspark import SparkConf, SparkContext
 
 
 # init a rdd
-def pyspark_demo01(sc):
+def pyspark_rdd_demo01(sc):
     ls_rdd = sc.parallelize([i for i in range(60)]).cache()
     print('rdd partitions size: %d' % ls_rdd.getNumPartitions())
 
@@ -28,7 +28,7 @@ def pyspark_demo01(sc):
 
 
 # distinct
-def pyspark_demo02(sc):
+def pyspark_rdd_demo02(sc):
     def _doubleIfOdd(x):
         return x if x % 2 == 0 else x * 2
 
@@ -40,7 +40,7 @@ def pyspark_demo02(sc):
 
 
 # read hdfs text file
-def pyspark_demo03(sc):
+def pyspark_rdd_demo03(sc):
     # pre-condition: mkdir and put file on hdfs
     hdfs_path = '/user/root/wordcount/helloworld.txt'
     rdd = sc.textFile(hdfs_path).cache()
@@ -49,23 +49,23 @@ def pyspark_demo03(sc):
 
 
 # wordcount example
-def pyspark_demo04(sc):
+def pyspark_rdd_demo04(sc):
     from operator import add
 
     hdfs_path = '/user/root/wordcount/helloworld.txt'
     rdd = sc.textFile(hdfs_path)
-    counts = rdd.flatMap(lambda x: x.split(" ")) \
+    counts = rdd.flatMap(lambda x: x.split(' ')) \
         .map(lambda x: (x, 1)).reduceByKey(add)
 
     for (word, count) in counts.collect():
         print('%s: %d' % (word, count))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 
-    conf = SparkConf().setAppName('pyspark_base_test').setMaster('yarn-client')
+    conf = SparkConf().setAppName('pyspark_rdd_base_test').setMaster('yarn-client')
     sc = SparkContext(conf=conf)
     print('pyspark version: ' + str(sc.version))
 
-    pyspark_demo04(sc)
-    print('pyspark base demo DONE.')
+    pyspark_rdd_demo04(sc)
+    print('pyspark rdd base demo DONE.')
