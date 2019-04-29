@@ -17,16 +17,31 @@ from pyspark import SparkConf, SparkContext
 from pyspark.sql import SQLContext
 
 
-# read hdfs json file
+# read hdfs file
 def pyspark_df_demo01(sqlContext):
-    df = sqlContext.read.format('json').load('/user/root/test/people.json')
+    print('read hdfs json file =>')
     # {"name":"Michael"}
     # {"name":"Andy", "age":30}
     # {"name":"Justin", "age":19}
-    print('data schema: ' + str(df.dtypes))
-    print('people count: ' + str(df.count()))
+    df_01 = sqlContext.read.format('json').load('/user/root/test/people.json')
+    print('data schema: ' + str(df_01.dtypes))
+    print('people count: ' + str(df_01.count()))
     print('people info:')
-    df.show()
+    df_01.show()
+
+    # java.lang.ClassNotFoundException: Failed to find data source: com.databricks.spark.csv.
+    print('read hdfs csv file =>')
+    # name,age
+    # Michael,37
+    # Andy,30
+    # Justin,19
+    df_02 = sqlContext.read.format('com.databricks.spark.csv').options(
+        header='true', inferschema='true').load('/user/root/test/people.csv')
+    print('data schema:')
+    df_02.printSchema()
+    print('people count: ' + str(df_02.count()))
+    print('people info:')
+    df_02.show()
 
 
 # init a dataframe and query
@@ -52,8 +67,8 @@ def pyspark_df_demo02(sqlContext):
     print('users info:')
     df.show(5)
 
-    # print('[distinct output] user ids:')
-    # df.select('user_id').distinct().show()
+    print('[distinct output] user ids:')
+    df.select('user_id').distinct().show()
 
     print('[select output] user info with income=50:')
     df.select('user_id', 'attr_value', 'income').where('income=50').show()
@@ -61,7 +76,7 @@ def pyspark_df_demo02(sqlContext):
     print('[orderby output] user info with income desc seq:')
     df.orderBy(df.income.desc()).show()
 
-    print('[col update output] user info with new income:')
+    print('[col add output] user info with new income:')
     df.withColumn('income_new', df.income+10).show(5)
 
 
@@ -106,15 +121,61 @@ def pyspark_df_demo03(sqlContext):
 
 # dataframe join
 def pyspark_df_demo04(sqlContext):
-    # same data schema
-    sentence_df_01 = sqlContext.createDataFrame((
+    # same data schema for 2 dataframe
+    df_01 = sqlContext.createDataFrame((
         (1, 'asf'),
         (2, '2143'),
         (3, 'rfds')
     )).toDF('label', 'sentence')
-    sentence_df_01.show()
+    print('df_01 data:')
+    df_01.show()
 
-    # TODO:
+    df_02 = sqlContext.createDataFrame((
+        (1, 'asf'),
+        (2, '2143'),
+        (4, 'f8934y')
+    )).toDF('label', 'sentence')
+    print('df_02 data:')
+    df_02.show()
+
+    # 差集
+    print('subtract output:')
+    df = df_02.select('sentence').subtract(df_01.select('sentence'))
+    df.show()
+
+    # 交集
+    print('intersect output:')
+    df = df_02.select('sentence').intersect(df_01.select('sentence'))
+    df.show()
+
+    # 并集
+    print('union output:')
+    df = df_02.select('sentence').unionAll(df_01.select('sentence'))
+    df.show()
+
+
+# dataframe join
+def pyspark_df_demo05(sc):
+    from pyspark.sql import Row
+
+    rdd = sc.parallelize(
+        [Row(name='Alice', age=5, height=80), Row(name='Tom', age=10, height=70)])
+    df_01 = rdd.toDF()
+    print('df_01 data:')
+    df_01.show()
+
+    rdd = sc.parallelize(
+        [Row(name='Alice', weight=45), Row(name='Jim', weight=37)])
+    df_02 = rdd.toDF()
+    print('df_02 data:')
+    df_02.show()
+
+    # in docker engine, update limit memory to 3G
+    print('left join output:')
+    df_01.join(df_02, df_01.name == df_02.name, 'left').show()
+
+    # print('inner join output:')
+    # df_01.join(df_02, df_01.name == df_02.name, 'inner').show()
 
 
 if __name__ == '__main__':
@@ -125,4 +186,5 @@ if __name__ == '__main__':
     sqlContext = SQLContext(sc)
 
     pyspark_df_demo02(sqlContext)
+    # pyspark_df_demo05(sc)
     print('pyspark dataframe base demo DONE.')
