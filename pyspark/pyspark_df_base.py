@@ -5,12 +5,14 @@ Created on 2019-04-25
 
 cmd for submit spark job:
 bin/spark-submit \
---class org.apache.spark.examples.SparkPi \
 --master yarn-client \
 --driver-memory 1g \
 --executor-memory 1g \
 --executor-cores 1 \
 /mnt/spark_dir/pyspark_df_base.py
+
+NOTE: 
+spark shuffle asks for more memory, and in docker engine, update limited memory to 3G (2G is default)!
 '''
 
 from pyspark import SparkConf, SparkContext
@@ -67,6 +69,7 @@ def pyspark_df_demo02(sqlContext):
     print('users info:')
     df.show(5)
 
+    # do shuffle for 'distinct'
     print('[distinct output] user ids:')
     df.select('user_id').distinct().show()
 
@@ -170,7 +173,7 @@ def pyspark_df_demo05(sc):
     print('df_02 data:')
     df_02.show()
 
-    # in docker engine, update limit memory to 3G
+    # do shuffle for 'join'
     print('left join output:')
     df_01.join(df_02, df_01.name == df_02.name, 'left').show()
 
@@ -185,6 +188,6 @@ if __name__ == '__main__':
     print('pyspark version: ' + str(sc.version))
     sqlContext = SQLContext(sc)
 
-    pyspark_df_demo02(sqlContext)
+    pyspark_df_demo04(sqlContext)
     # pyspark_df_demo05(sc)
     print('pyspark dataframe base demo DONE.')
