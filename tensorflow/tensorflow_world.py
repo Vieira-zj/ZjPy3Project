@@ -33,6 +33,7 @@ def tensorflow_math_operations():
 
     with tf.Session() as sess:
         writer = tf.summary.FileWriter(os.path.expanduser(FLAGS.log_dir), sess.graph)
+
         print("a =", sess.run(a))
         print("b =", sess.run(b))
         print("a + b =", sess.run(x))
@@ -42,6 +43,23 @@ def tensorflow_math_operations():
 
     if writer is not None:
         writer.close()
+
+
+def tensorflow_placeholder():
+    a = tf.placeholder(tf.float16)
+    b = tf.placeholder(tf.float16)
+    c = tf.placeholder(tf.float16)
+
+    d = tf.add(a, b)
+    e = tf.multiply(d, c)
+    f = tf.pow(e, 2, name='pow')
+    g = tf.divide(f, a, name='divide')
+    h = tf.sqrt(g, name='sqrt')
+
+    with tf.Session() as sess:
+        feed_dict = {a: 1, b: 2, c: 3}
+        results = sess.run(h, feed_dict=feed_dict)
+        print('output:', results)
 
 
 if __name__ == '__main__':
