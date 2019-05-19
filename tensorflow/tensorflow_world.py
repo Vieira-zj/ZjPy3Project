@@ -4,39 +4,55 @@ Created on 2019-05-18
 @author: zhengjin
 
 tensorflow board web:
-$ tensorboard --logdir /home/tensorflow/logs
+$ tensorboard --logdir /tf/notebooks/logs
 '''
 
-from __future__ import print_function
 import tensorflow as tf
 import os
 
 
-def tensorflow_prepare():
-    logs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
-    desc = 'Directory where event logs are written to.'
-    tf.app.flags.DEFINE_string('log_dir', logs_path, desc)
-
-
 def tensorflow_world():
+    welcome = tf.constant('Welcome to TensorFlow world!')
+    # run the session
+    with tf.Session() as sess:
+        print('output:', sess.run(welcome))
+
+
+def tensorflow_math_operations():
     FLAGS = tf.app.flags.FLAGS
     if not os.path.isabs(os.path.expanduser(FLAGS.log_dir)):
         raise ValueError('You must assign absolute path for log_dir')
 
-    # defining some sentence
-    welcome = tf.constant('Welcome to TensorFlow world!')
+    # define some constant values
+    a = tf.constant(5.0, name='a')
+    b = tf.constant(10.0, name='b')
 
-    # run the session
+    # some basic operations
+    x = tf.add(a, b, name='add')
+    y = tf.div(a, b, name='divide')
+
     with tf.Session() as sess:
         writer = tf.summary.FileWriter(os.path.expanduser(FLAGS.log_dir), sess.graph)
-        print('output:', sess.run(welcome))
+        print("a =", sess.run(a))
+        print("b =", sess.run(b))
+        print("a + b =", sess.run(x))
+        print("a/b =", sess.run(y))
+        # print('output:', sess.run([a, b, x, y]))
+        # output: [5.0, 10.0, 15.0, 0.5]
 
-    writer.close()
-    sess.close()
+    if writer is not None:
+        writer.close()
 
 
 if __name__ == '__main__':
 
-    tensorflow_prepare()
-    tensorflow_world()
+    # logs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+    logs_path = os.path.join(os.getcwd(), 'logs')
+    print('events log path:', logs_path)
+    desc = 'Directory where event logs are written to.'
+    tf.app.flags.DEFINE_string('log_dir', logs_path, desc)
+
+    # tensorflow_world()
+    tensorflow_math_operations()
+
     print('tensorflow world DONE!')
