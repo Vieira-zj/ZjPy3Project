@@ -4,7 +4,7 @@ Created on 2019-05-18
 @author: zhengjin
 
 tensorflow board web:
-$ tensorboard --logdir /tf/notebooks/logs
+$ tensorboard --logdir /tf/tf_scripts/logs
 '''
 
 import tensorflow as tf
