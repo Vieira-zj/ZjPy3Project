@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
+print('python base demo INIT.')
 
 # examle 01, base
 def py_base_ex01():
@@ -475,8 +476,11 @@ def py_base_ex21():
 
 if __name__ == '__main__':
 
-    py_base_ex21()
-
+    print('python base demo START.')
     print('PYPATH='+os.getenv('PYPATH') if len(os.getenv('PYPATH')) > 0 else 'PYPATH=null')
     print('\npython version:\n', sys.version)
+    print()
+
+    py_base_ex02()
+
     print('python base demo DONE.')

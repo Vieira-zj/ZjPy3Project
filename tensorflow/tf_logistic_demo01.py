@@ -82,6 +82,7 @@ def logistic_regression_02():
     with tf.Session() as sess:
         if os.path.exists(os.path.join(model_dir, 'checkpoint')):
             print('session restore from model checkpoint.')
+            # 从模型中恢复变量
             saver.restore(sess, os.path.join(model_dir, 'model.ckpt'))
         else:
             print('run session from init.')
@@ -95,6 +96,7 @@ def logistic_regression_02():
 
             if(i % 50 == 0):
                 print('loss:', loss_val)
+                # 每50次epoch保存一次模型
                 save_path = saver.save(sess, os.path.join(model_dir, 'model.ckpt'))
 # logistic_regression
 
