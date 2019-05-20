@@ -8,6 +8,7 @@ $ tensorboard --logdir /tf/tf_scripts/logs
 '''
 
 import tensorflow as tf
+import numpy as np
 import os
 
 
@@ -18,7 +19,7 @@ def tensorflow_world():
         print('output:', sess.run(welcome))
 
 
-def tensorflow_math_operations():
+def tensorflow_math_op():
     FLAGS = tf.app.flags.FLAGS
     if not os.path.isabs(os.path.expanduser(FLAGS.log_dir)):
         raise ValueError('You must assign absolute path for log_dir')
@@ -31,21 +32,30 @@ def tensorflow_math_operations():
     x = tf.add(a, b, name='add')
     y = tf.div(a, b, name='divide')
 
+    # shape=[2,1]
+    a1 = tf.constant([0.7, 0.9], name='a')
+    b1 = tf.constant([1.0, 0.2], name='b')
+    c = tf.add(a, b, name='add')
+    print(c)
+
     with tf.Session() as sess:
         writer = tf.summary.FileWriter(os.path.expanduser(FLAGS.log_dir), sess.graph)
 
-        print("a =", sess.run(a))
-        print("b =", sess.run(b))
-        print("a + b =", sess.run(x))
-        print("a/b =", sess.run(y))
+        print('a =', sess.run(a))
+        print('b =', sess.run(b))
+        print('a + b =', sess.run(x))
+        print('a/b =', sess.run(y))
         # print('output:', sess.run([a, b, x, y]))
         # output: [5.0, 10.0, 15.0, 0.5]
+
+        print('c = ', sess.run(c))
 
     if writer is not None:
         writer.close()
 
 
 def tensorflow_placeholder():
+    # 1
     a = tf.placeholder(tf.float16)
     b = tf.placeholder(tf.float16)
     c = tf.placeholder(tf.float16)
@@ -58,8 +68,20 @@ def tensorflow_placeholder():
 
     with tf.Session() as sess:
         feed_dict = {a: 1, b: 2, c: 3}
-        results = sess.run(h, feed_dict=feed_dict)
-        print('output:', results)
+        print('output:', sess.run(h, feed_dict=feed_dict))
+
+    # 2
+    # x = tf.constant([1, 2, 3, 4, 5, 6], shape=[2, 3])
+    # y = tf.constant([7, 8, 9, 10, 11, 12], shape=[3, 2])
+    x = tf.placeholder(tf.float32, shape=(2, 3))
+    y = tf.placeholder(tf.float32, shape=(3, 2))
+    z = tf.matmul(x, y)  # 矩阵x乘以矩阵y
+    print('z:', z)
+
+    with tf.Session() as sess:
+        rand_x = np.array([1, 2, 3, 4, 5, 6]).reshape(2, 3)
+        rand_y = np.array([7, 8, 9, 10, 11, 12]).reshape(3, 2)
+        print('output:', sess.run(z, feed_dict={x: rand_x, y: rand_y}))
 
 
 if __name__ == '__main__':
@@ -71,6 +93,7 @@ if __name__ == '__main__':
     tf.app.flags.DEFINE_string('log_dir', logs_path, desc)
 
     # tensorflow_world()
-    tensorflow_math_operations()
+    # tensorflow_math_op()
+    tensorflow_placeholder()
 
     print('tensorflow world DONE!')

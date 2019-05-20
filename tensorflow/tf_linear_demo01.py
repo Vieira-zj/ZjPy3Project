@@ -21,10 +21,10 @@ def linear_regression_01():
     b = tf.Variable(tf.zeros([1]))
     y = W * x + b
 
-    # train
-    lost = tf.reduce_mean(tf.square(y_-y))
+    # loss and train
+    loss = tf.reduce_mean(tf.square(y_-y))
     optimizer = tf.train.GradientDescentOptimizer(0.0000001)
-    train_step = optimizer.minimize(lost)
+    train_step = optimizer.minimize(loss)
 
     # run session
     init = tf.global_variables_initializer()
@@ -39,7 +39,7 @@ def linear_regression_01():
                 print('iteration at %d:' % i)
                 print('weight: %f' % sess.run(W))
                 print('bias: %f' % sess.run(b))
-                print('lost: %f' % sess.run(lost, feed_dict=feed))
+                print('lost: %f' % sess.run(loss, feed_dict=feed))
 # end linear_regression_01()
 
 
