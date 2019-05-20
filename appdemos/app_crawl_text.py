@@ -2,6 +2,9 @@
 '''
 Created on 2019-05-20
 @author: zhengjin
+
+condition:
+$ pip3 install pyquery
 '''
 
 import os
@@ -16,7 +19,7 @@ from utils import LogManager
 
 class CrawlHtml(object):
 
-    def __init__(self, url, query, method=HttpUtils.HTTP_METHOD_GET):
+    def __init__(self, url, query='', method=HttpUtils.HTTP_METHOD_GET):
         self.url = url
         self.query = query
         self.method = method
@@ -38,8 +41,11 @@ class CrawlHtml(object):
 
     def _get_html_content(self):
         http_utils = HttpUtils.get_instance()
-        resp = http_utils.send_http_request(self.method, self.url, self.query, timeout=0.5)
-        return resp.content.decode(encoding='utf-8')
+        resp = http_utils.send_http_request(self.method, self.url, self.query, timeout=5)
+        try:
+            return resp.content.decode(encoding='utf-8')
+        except UnicodeDecodeError as e:
+            return resp.content.decode(encoding='gbk')
 
 
 def crawl_article_titles_of_page(url, query):

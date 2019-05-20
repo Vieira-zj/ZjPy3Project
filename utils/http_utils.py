@@ -54,9 +54,10 @@ class HttpUtils(object):
         self.__append_headers(headers)
 
         data_dict = {}
-        for entry in query.split('&'):
-            k, v = entry.split('=')
-            data_dict[k] = v
+        if len(query) > 0:
+            for entry in query.split('&'):
+                k, v = entry.split('=')
+                data_dict[k] = v
 
         resp = None
         try:
@@ -134,9 +135,13 @@ class HttpUtils(object):
             self.__print_with_prefix(item)
 
         self.__print_div_line()
-        content = resp.content.decode(encoding='utf-8')
+        content = ''
+        try:
+            content = resp.content.decode(encoding='utf-8')
+        except UnicodeDecodeError as e:
+            content = resp.content.decode(encoding='gbk')
         self.__print_with_prefix('Body: \n' + content[:1024])
-        
+
         self.__print_div_line()
         self.__print_with_prefix('END')
 
