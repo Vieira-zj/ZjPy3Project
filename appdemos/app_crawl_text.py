@@ -19,75 +19,87 @@ from utils import LogManager
 
 class CrawlHtml(object):
 
-    def __init__(self, url, query='', method=HttpUtils.HTTP_METHOD_GET):
-        self.url = url
-        self.query = query
-        self.method = method
-        self.html_dom = None
+    _crawl = None
 
-    def get_html_dom(self):
-        if self.html_dom is None:
-            self._parse_html_dom()
-        return self.html_dom
+    @classmethod
+    def get_instance(cls):
+        if cls._crawl is None:
+            cls._crawl = CrawlHtml()
+        return cls._crawl
 
-    def get_html_obj_by_css(self, selector):
+    def __init__(self):
+        self.html_dom = None  # pq object for page html dom
+
+    def fetch_html_content(self, url, query='', method=HttpUtils.HTTP_METHOD_GET):
+        http_utils = HttpUtils.get_instance()
+        resp = http_utils.send_http_request(method, url, query, timeout=5)
+        try:
+            self.html_dom = pq(resp.content.decode(encoding='utf-8'))
+        except UnicodeDecodeError as e:
+            self.html_dom = pq(resp.content.decode(encoding='gbk'))
+        return self
+
+    def get_ui_element_by_css(self, selector):
         if self.html_dom is None:
-            self._parse_html_dom()
+            raise Exception('Pls invoke fetch_html_content() before get ui elements.')
         return self.html_dom(selector)
 
-    def _parse_html_dom(self):
-        content = self._get_html_content()
-        self.html_dom = pq(content)
-
-    def _get_html_content(self):
+    def get_and_save_files(self, url, save_path, query='', method=HttpUtils.HTTP_METHOD_GET):
         http_utils = HttpUtils.get_instance()
-        resp = http_utils.send_http_request(self.method, self.url, self.query, timeout=5)
-        try:
-            return resp.content.decode(encoding='utf-8')
-        except UnicodeDecodeError as e:
-            return resp.content.decode(encoding='gbk')
+        resp = http_utils.send_http_request(method, url, query, timeout=5, is_log_body=False)
+
+        with open(save_path, 'wb') as f:
+            f.write(resp.content)
+# end CrawlHtml
 
 
-def crawl_article_titles_of_page(url, query):
-    crawl = CrawlHtml(url, query)
-    selector = '.panel-body.item-list>div .title.media-heading>a'
-    title_elements = crawl.get_html_obj_by_css(selector).items()
-    return [ele.attr('title') for ele in title_elements]
+class CrawlText(object):
 
+    def __init__(self):
+        self._logger = LogManager.get_logger()
 
-def crawl_pages_count(url):
-    query = 'page=1'
-    crawl = CrawlHtml(url, query)
+    def crawl_pages_count(self, url):
+        pages_eles = CrawlHtml.get_instance().fetch_html_content(url, 'page=1') \
+            .get_ui_element_by_css('.pagination>li>a').items()
+        pages_list = [ele for ele in pages_eles]
+        return pages_list[len(pages_list) - 2].text()
 
-    pages_elemnts = crawl.get_html_obj_by_css('.pagination>li>a').items()
-    pages_list = [ele for ele in pages_elemnts]
-    return pages_list[len(pages_list) - 2].text()
+    def crawl_article_titles_of_page(self, url, query):
+        selector = '.panel-body.item-list>div .title.media-heading>a'
+        html_dom = CrawlHtml.get_instance().fetch_html_content(url, query)
+        title_eles = html_dom.get_ui_element_by_css(selector).items()
+        category_eles = html_dom.get_ui_element_by_css(selector + '>span').items()
 
+        titles = []
+        for item in zip(category_eles, title_eles):
+            titles.append('Category: %s, Title: %s' % (item[0].text(), item[1].attr('title')))
+        return titles
 
-def crawl_text_main():
-    from concurrent.futures import ProcessPoolExecutor
-    from concurrent.futures import wait
-    
-    url = 'https://testerhome.com/topics'
-    count = crawl_pages_count(url)
+    def crawl_text_main(self):
+        from concurrent.futures import ProcessPoolExecutor
+        from concurrent.futures import wait
 
-    executor = ProcessPoolExecutor(max_workers=3)
-    page_numbers = [i for i in range(0, int(count)) if i % 5 == 0]
-    furtures = [executor.submit(crawl_article_titles_of_page, url, 'page=%d' % num)
-                for num in page_numbers]
-    furtures_done = wait(furtures, return_when='ALL_COMPLETED')
+        url = 'https://testerhome.com/topics'
+        count = self.crawl_pages_count(url)
 
-    all_titles = []
-    for f in furtures_done.done:
-        all_titles.extend(f.result())
+        executor = ProcessPoolExecutor(max_workers=3)
+        page_numbers = [i for i in range(0, int(count)) if i % 10 == 0]
+        furtures = [executor.submit(self.crawl_article_titles_of_page, url, 'page=%d' % num)
+                    for num in page_numbers]
+        furtures_done = wait(furtures, return_when='ALL_COMPLETED')
 
-    print('TESTING ARTICLE TITLES:')
-    for titles in all_titles:
-        print(titles)
+        all_titles = []
+        for f in furtures_done.done:
+            all_titles.extend(f.result())
+
+        self._logger.info('TESTING ARTICLE TITLES:')
+        for titles in all_titles:
+            self._logger.info(titles)
 
 
 if __name__ == '__main__':
 
     LogManager.build_logger(Constants.LOG_FILE_PATH)
-    crawl_text_main()
+    CrawlText().crawl_text_main()
+    LogManager.clear_log_handles()
     print('crawl text (article titles) demo DONE!')

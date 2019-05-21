@@ -5,6 +5,7 @@ Created on 2019-03-06
 @author: zhengjin
 '''
 
+import base64
 import os
 import sys
 import json
@@ -37,20 +38,20 @@ class HttpUtils(object):
         self.__headers = headers
         return self
 
-    def send_http_request(self, method, url, data, headers={}, timeout=1):
+    def send_http_request(self, method, url, data, headers={}, timeout=1, is_log_body=True):
         if method == self.HTTP_METHOD_GET:
-            return self.__send_get_request(url, data, headers, timeout)
+            return self.__send_get_request(url, data, headers, timeout, is_log_body)
         elif method == self.HTTP_METHOD_POST_DATA:
-            return self.__send_post_request_data(url, data, headers, timeout)
+            return self.__send_post_request_data(url, data, headers, timeout, is_log_body)
         elif method == self.HTTP_METHOD_POST_JSON:
-            return self.__send_post_request_json(url, data, headers, timeout)
+            return self.__send_post_request_json(url, data, headers, timeout, is_log_body)
         else:
             raise ValueError('invalid http request method!')
 
     # --------------------------------------------------------------
     # Http Get Request
     # --------------------------------------------------------------
-    def __send_get_request(self, url, query, headers, timeout):
+    def __send_get_request(self, url, query, headers, timeout, is_log_body):
         self.__append_headers(headers)
 
         data_dict = {}
@@ -63,7 +64,7 @@ class HttpUtils(object):
         try:
             self.__log_request_info(url, query, self.__headers)
             resp = requests.get(url, params=data_dict, headers=self.__headers, timeout=timeout)
-            self.__log_response_info(resp)
+            self.__log_response_info(resp, is_log_body)
         except TimeoutError:
             self.__logger.error('http get request time out(%ds)!' % timeout)
 
@@ -72,27 +73,27 @@ class HttpUtils(object):
     # --------------------------------------------------------------
     # Http Post Request
     # --------------------------------------------------------------
-    def __send_post_request_data(self, url, data, headers, timeout):
+    def __send_post_request_data(self, url, data, headers, timeout, is_log_body):
         self.__append_headers(headers)
 
         resp = None
         try:
             self.__log_request_info(url, data, self.__headers)
             resp = requests.post(url, headers=self.__headers, data=data, timeout=timeout)
-            self.__log_response_info(resp)
+            self.__log_response_info(resp, is_log_body)
         except TimeoutError:
             self.__logger.error('http post request time out(%ds)!' % timeout)
 
         return resp
 
-    def __send_post_request_json(self, url, json_object, headers, timeout):
+    def __send_post_request_json(self, url, json_object, headers, timeout, is_log_body):
         self.__append_headers(headers)
 
         resp = None
         try:
             self.__log_request_info(url, json.dumps(json_object), self.__headers)
             resp = requests.post(url, headers=self.__headers, json=json_object, timeout=timeout)
-            self.__log_response_info(resp)
+            self.__log_response_info(resp, is_log_body)
         except TimeoutError:
             self.__logger.error('http post request time out(%ds)!' % timeout)
 
@@ -124,7 +125,7 @@ class HttpUtils(object):
         self.__print_div_line()
         self.__print_with_prefix('END')
 
-    def __log_response_info(self, resp):
+    def __log_response_info(self, resp, is_log_body=True):
         self.__print_div_line()
         self.__print_with_prefix('Url: ' + resp.url)
         self.__print_with_prefix('Status Code: %d' % resp.status_code)
@@ -135,11 +136,15 @@ class HttpUtils(object):
             self.__print_with_prefix(item)
 
         self.__print_div_line()
-        content = ''
-        try:
-            content = resp.content.decode(encoding='utf-8')
-        except UnicodeDecodeError as e:
-            content = resp.content.decode(encoding='gbk')
+        content = 'null'
+        if is_log_body:
+            try:
+                content = resp.content.decode(encoding='utf-8')
+            except UnicodeDecodeError as e:
+                try:
+                    content = resp.content.decode(encoding='gbk')
+                except UnicodeDecodeError as e:
+                    content = str(base64.b64encode(resp.content))
         self.__print_with_prefix('Body: \n' + content[:1024])
 
         self.__print_div_line()
