@@ -107,7 +107,7 @@ class HttpUtils(object):
     # Print Logs
     # --------------------------------------------------------------
     def __log_request_info(self, url, data, headers={}):
-        self.__logger.info('\n\n')
+        self.__logger.debug('\n\n')
         self.__print_div_line()
         self.__print_with_prefix('Request: ' + url)
 
@@ -154,7 +154,7 @@ class HttpUtils(object):
         self.__print_with_prefix('-'*60)
 
     def __print_with_prefix(self, text):
-        self.__logger.info('* ' + text)
+        self.__logger.debug('* ' + text)
 
 
 if __name__ == '__main__':

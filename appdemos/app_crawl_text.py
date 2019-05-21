@@ -30,9 +30,9 @@ class CrawlHtml(object):
     def __init__(self):
         self.html_dom = None  # pq object for page html dom
 
-    def fetch_html_content(self, url, query='', method=HttpUtils.HTTP_METHOD_GET):
+    def fetch_html_content(self, url, query='', method=HttpUtils.HTTP_METHOD_GET, timeout=5):
         http_utils = HttpUtils.get_instance()
-        resp = http_utils.send_http_request(method, url, query, timeout=5)
+        resp = http_utils.send_http_request(method, url, query, timeout=timeout)
         try:
             self.html_dom = pq(resp.content.decode(encoding='utf-8'))
         except UnicodeDecodeError as e:
@@ -44,9 +44,9 @@ class CrawlHtml(object):
             raise Exception('Pls invoke fetch_html_content() before get ui elements.')
         return self.html_dom(selector)
 
-    def get_and_save_files(self, url, save_path, query='', method=HttpUtils.HTTP_METHOD_GET):
+    def get_and_save_files(self, url, save_path, query='', method=HttpUtils.HTTP_METHOD_GET, timeout=5):
         http_utils = HttpUtils.get_instance()
-        resp = http_utils.send_http_request(method, url, query, timeout=5, is_log_body=False)
+        resp = http_utils.send_http_request(method, url, query, timeout=timeout, is_log_body=False)
 
         with open(save_path, 'wb') as f:
             f.write(resp.content)
@@ -84,12 +84,12 @@ class CrawlText(object):
 
         executor = ProcessPoolExecutor(max_workers=3)
         page_numbers = [i for i in range(0, int(count)) if i % 10 == 0]
-        furtures = [executor.submit(self.crawl_article_titles_of_page, url, 'page=%d' % num)
-                    for num in page_numbers]
-        furtures_done = wait(furtures, return_when='ALL_COMPLETED')
+        fs_submit = [executor.submit(self.crawl_article_titles_of_page, url, 'page=%d' % num)
+                     for num in page_numbers]
+        fs_finish = wait(fs_submit, return_when='ALL_COMPLETED')
 
         all_titles = []
-        for f in furtures_done.done:
+        for f in fs_finish.done:
             all_titles.extend(f.result())
 
         self._logger.info('TESTING ARTICLE TITLES:')

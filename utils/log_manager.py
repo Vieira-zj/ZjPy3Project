@@ -23,11 +23,11 @@ class LogManager(object):
     @classmethod
     def get_logger(cls):
         if cls.__logger is None:
-            raise Exception('Pls init logger first!')
+            raise Exception('Pls init logger by build_logger() before use!')
         return cls.__logger
 
     @classmethod
-    def build_logger(cls, log_path, basic_log_level=logging.DEBUG, file_log_level=logging.INFO):
+    def build_logger(cls, log_path, basic_log_level=logging.INFO, file_log_level=logging.DEBUG):
         log_format_long = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'
         log_format_short = '%(filename)s: [%(levelname)s] >>> %(message)s'
         date_format_long = '%a, %d %b %Y %H:%M:%S'

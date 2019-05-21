@@ -4,13 +4,14 @@ Created on 2019-05-20
 @author: zhengjin
 '''
 
+import logging
 import os
 import re
 import sys
 sys.path.append(os.getenv('PYPATH'))
 
 from appdemos import CrawlHtml
-from utils import Constants, LogManager, HttpUtils
+from utils import Constants, LogManager, HttpUtils, SysUtils
 
 
 class CrawlImages(object):
@@ -24,28 +25,27 @@ class CrawlImages(object):
         results = re.match('list_3_(.*).html', last_page.attr('href'))
         return results.group(1)
 
-
     def crawl_article_links_of_page(self, url):
         links = CrawlHtml.get_instance().fetch_html_content(url) \
             .get_ui_element_by_css('.text1_1text .list a').items()
         return [link.attr('href') for link in links]
 
-
     def crawl_page_images_process(self, url):
-        save_dir_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/crawl_images')
+        self._logger.info('crawl images for page: ' + url)
+        save_dir_path = os.path.join(os.getenv(
+            'HOME'), 'Downloads/tmp_files/crawl_images', SysUtils.get_current_date())
 
-        img_urls = self.crawl_image_urls_of_page(url)
+        img_urls = self._crawl_image_urls_of_page(url)
         for url in img_urls:
-            self.download_and_save_images(url, save_dir_path)
+            self._download_and_save_images(url, save_dir_path)
 
-
-    def crawl_image_urls_of_page(self, url):
+    def _crawl_image_urls_of_page(self, url):
         images = CrawlHtml.get_instance().fetch_html_content(url) \
             .get_ui_element_by_css('.centen2 img').items()
-        return ['http://www.522yw.city' + img.attr('src') for img in images]
+        base_url = 'http://www.522yw.city'
+        return [base_url + img.attr('src') for img in images]
 
-
-    def download_and_save_images(self, url, save_dir_path):
+    def _download_and_save_images(self, url, save_dir_path):
         items = url.split('/')
         file_name = items[len(items) - 1]
         save_path = os.path.join(save_dir_path, file_name)
@@ -53,7 +53,6 @@ class CrawlImages(object):
         if os.path.exists(save_path):
             return
         # CrawlHtml.get_instance().get_and_save_files(url, save_path)
-
 
     def crawl_images_main(self):
         from concurrent.futures import ProcessPoolExecutor
@@ -63,8 +62,9 @@ class CrawlImages(object):
         count = self.crawl_pages_count(home_url)
 
         base_url = 'http://www.522yw.city/article/list_3_%d.html'
+        # page_urls = []
         page_urls = [home_url]
-        page_urls.extend([base_url % i for i in range(1, int(count)) if i == 1])
+        page_urls.extend([base_url % i for i in range(1, int(count)) if i < 3])
 
         total_article = 0
         f_submit = []
@@ -74,11 +74,10 @@ class CrawlImages(object):
             total_article += len(article_urls)
             f_submit.extend([executor.submit(self.crawl_page_images_process, url)
                             for url in article_urls])
-
         f_done = wait(f_submit, return_when='ALL_COMPLETED')
 
         self._logger.info('\n\nSUMMARY:')
-        self._logger.info('number of %d tasks (for pages) done.' % len(f_done))
+        self._logger.info('number of %d tasks (task => page) done.' % len(f_done))
         self._logger.info('crawl article count: ' + str(total_article))
 
 
