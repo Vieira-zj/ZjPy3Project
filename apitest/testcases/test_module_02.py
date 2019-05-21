@@ -69,7 +69,7 @@ class TestModule02(TestBase):
 
 if __name__ == '__main__':
 
-    LogManager.build_logger(Constants.LOG_FILE_PATH, basic_log_level=logging.DEBUG)
+    LogManager.build_logger(Constants.LOG_FILE_PATH, stream_log_level=logging.DEBUG)
     file_path = os.path.join(os.path.dirname(os.getcwd()), 'TestCases.xlsx')
     LoadCases.get_instance().pre_load_sheet(file_path, 'Module02').load_all_cases_by_sheet()
 

@@ -27,22 +27,29 @@ class LogManager(object):
         return cls.__logger
 
     @classmethod
-    def build_logger(cls, log_path, basic_log_level=logging.INFO, file_log_level=logging.DEBUG):
-        log_format_long = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'
-        log_format_short = '%(filename)s: [%(levelname)s] >>> %(message)s'
-        date_format_long = '%a, %d %b %Y %H:%M:%S'
+    def build_logger(cls, log_path, stream_log_level=logging.INFO, file_log_level=logging.DEBUG):
+        log_format_short = '%(asctime)s %(filename)s: [%(levelname)s] >>> %(message)s'
+        log_format_long = '%(asctime)s %(filename)s[line:%(lineno)d] [%(levelname)s]: %(message)s'
         date_format_short = '%d %b %H:%M:%S'
+        date_format_long = '%a, %d %b %Y %H:%M:%S'
 
-        # log main handler
-        logging.basicConfig(level=basic_log_level, format=log_format_short, datefmt=date_format_short)
+        # set stream handler
+        sh = logging.StreamHandler(stream=sys.stdout)
+        sh.setFormatter(logging.Formatter(fmt=log_format_short, datefmt=date_format_short))
+        sh.setLevel(stream_log_level)
 
         # set file handler
-        # note: file_log_level > basic_log_level
         fh = logging.FileHandler(filename=log_path, mode='w', encoding='utf-8')
         fh.setFormatter(logging.Formatter(fmt=log_format_long, datefmt=date_format_long))
         fh.setLevel(file_log_level)
 
+        # logging.basicConfig(level=logging.NOTSET, format=log_format_short, datefmt=date_format_short)
+
+        # init logger
         cls.__logger = logging.getLogger()
+        # clear default log level of basic configs => WARN
+        cls.__logger.setLevel(logging.NOTSET)
+        cls.__logger.addHandler(sh)
         cls.__logger.addHandler(fh)
         return cls.__logger
 
