@@ -167,8 +167,7 @@ def pyspark_df_demo05(sc):
     print('df_01 data:')
     df_01.show()
 
-    rdd = sc.parallelize(
-        [Row(name='Alice', weight=45), Row(name='Jim', weight=37)])
+    rdd = sc.parallelize([Row(name='Alice', weight=45), Row(name='Jim', weight=37)])
     df_02 = rdd.toDF()
     print('df_02 data:')
     df_02.show()

@@ -17,6 +17,7 @@ from pyspark import SparkConf, SparkContext
 
 # init a rdd
 def pyspark_rdd_demo01(sc):
+    # cache() = persist(pyspark.StorageLevel.MEMORY_ONLY)
     ls_rdd = sc.parallelize([i for i in range(60)]).cache()
     print('rdd partitions size: %d' % ls_rdd.getNumPartitions())
 
