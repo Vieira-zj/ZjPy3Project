@@ -65,24 +65,32 @@ class CrawlImages(object):
         from concurrent.futures import ProcessPoolExecutor
         from concurrent.futures import wait
 
+        def _fn_page_filter(i):
+            return i == 6
+            # return i >= 3 and i < 6
+
         home_url = 'http://www.522yw.city/article/list_3.html'
         count = self.crawl_pages_count(home_url)
 
+        page_urls = []
         base_url = 'http://www.522yw.city/article/list_3_%d.html'
-        # page_urls = []
-        page_urls = [home_url]
-        page_urls.extend([base_url % i for i in range(1, int(count)) if i < 3])
+        # page_urls.append(home_url)
+        page_urls.extend([base_url % i for i in range(1, int(count)) if _fn_page_filter(i)])
 
         f_submit = []
         executor = ProcessPoolExecutor(max_workers=3)
         for page_url in page_urls:
             article_urls = self.crawl_article_links_of_page(page_url)
-            for url in article_urls:
-                f_submit.append(executor.submit(self.crawl_page_images_process, url))
+            f_submit.extend(
+                [executor.submit(self.crawl_page_images_process, url) for url in article_urls])
         f_done = wait(f_submit, return_when='ALL_COMPLETED')
 
         self._logger.info('\n\nSUMMARY:')
         self._logger.info('number of %d tasks (task => article) done.' % len(f_done.done))
+        self._logger.info('FAILED tasks:')
+        for future in f_done.done:
+            if future.exception() is not None:
+                self._logger.error(str(future.exception()))
 
 
 if __name__ == '__main__':

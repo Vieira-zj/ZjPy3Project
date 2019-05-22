@@ -7,6 +7,7 @@ Python multiple process, threads and pool examples.
 '''
 
 import os
+import sys
 import time
 
 
@@ -577,7 +578,9 @@ def py_parallel_demo21(is_thread=False):
     from concurrent.futures import ProcessPoolExecutor
     from concurrent.futures import wait
 
-    executor = ThreadPoolExecutor() if is_thread else ProcessPoolExecutor(max_workers=3)
+    workers_num = 3
+    executor = ThreadPoolExecutor(max_workers=workers_num) \
+        if is_thread else ProcessPoolExecutor(max_workers=workers_num)
     urls = ['http://www.163.com', 'https://www.baidu.com/', 'https://github.com/']
     f_list = [executor.submit(load_url, url) for url in urls]
     res = wait(f_list, return_when='ALL_COMPLETED')
@@ -640,7 +643,54 @@ def py_parallel_demo23(is_thread=False):
     print('[%s:%s] main' % (os.getpid(), threading.current_thread().getName()))
 
 
+# example 22, 多线程/多进程池 异常处理
+def checkfile_process(logger, file_path):
+    import random
+    import time
+
+    logger.debug('[%d] is running ...' % os.getpid())
+    time.sleep(random.randint(1, 4))
+    if not os.path.exists(file_path):
+        raise FileNotFoundError('file not found: ' + file_path)
+    logger.debug('file found:' + file_path)
+
+def py_parallel_demo24(is_thread = False):
+    import logging
+    from concurrent.futures import ThreadPoolExecutor
+    from concurrent.futures import ProcessPoolExecutor
+    from concurrent.futures import wait
+
+    sys.path.append(os.getenv('PYPATH'))
+    from utils import Constants, LogManager
+
+    LogManager.build_logger(Constants.LOG_FILE_PATH, stream_log_level=logging.DEBUG)
+    logger = LogManager.get_logger()
+
+    base_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files')
+    file_paths = [os.path.join(base_path, 'test_data.csv')]
+    file_paths.append(os.path.join(base_path, 'test_log.txt'))
+    file_paths.append(os.path.join(base_path, 'not_exist.txt'))
+
+    workers_num = 3
+    executor = ThreadPoolExecutor(max_workers=workers_num) \
+        if is_thread else ProcessPoolExecutor(max_workers=workers_num)
+    f_submit = [executor.submit(checkfile_process, logger, path)
+                for path in file_paths]
+    f_done = wait(f_submit, return_when='ALL_COMPLETED')
+
+    for future in f_done.done:
+        if future.exception() is None:
+            if future.result() is not None:
+                # if error, result() will directly raise Exception
+                logger.debug('result: ' + future.result())
+        else:
+            logger.error('exception ===> ' + str(future.exception()))
+
+    logger.debug('[%d] main process done.' % os.getpid())
+    LogManager.clear_log_handles()
+
+
 if __name__ == '__main__':
 
-    py_parallel_demo22()
+    py_parallel_demo24()
     print('python parallel demo DONE.')

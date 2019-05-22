@@ -47,7 +47,8 @@ class LogManager(object):
 
         # init logger
         cls.__logger = logging.getLogger()
-        # clear default log level of basic configs => WARN
+        # clear default log level WARN of basic configs
+        # if not, it will override DEBUG and INFO level (WARN > INFO > DEBUG)
         cls.__logger.setLevel(logging.NOTSET)
         cls.__logger.addHandler(sh)
         cls.__logger.addHandler(fh)

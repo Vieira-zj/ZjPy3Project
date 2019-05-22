@@ -180,8 +180,19 @@ def py_base_ex07():
     plt.show()
 
 
-# example 08, reg expression
-def py_base_ex08():
+# example 08_01, re.match() and re.search()
+def py_base_ex08_01():
+    import re
+
+    print(re.match('super', 'superstition').span())  # (0, 5)
+    print(re.match('super', 'insuperable'))  # None
+
+    print(re.search('super', 'superstition').span())  # (0, 5)
+    print(re.search('super', 'insuperable').span())  # (2, 7)
+
+
+# example 08_02, reg exp
+def py_base_ex08_02():
     '''
     Get Java exceptions sum info from input content.
     '''
