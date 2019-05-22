@@ -651,6 +651,9 @@ def checkfile_process(logger, file_path):
     logger.debug('[%d] is running ...' % os.getpid())
     time.sleep(random.randint(1, 4))
     if not os.path.exists(file_path):
+        # NOTE: in sub process/thread, we can NOT see the raised Exception from console,
+        # instead use Future.exception() to get error message,
+        # or use Future.result() to directly raise Exception.
         raise FileNotFoundError('file not found: ' + file_path)
     logger.debug('file found:' + file_path)
 
