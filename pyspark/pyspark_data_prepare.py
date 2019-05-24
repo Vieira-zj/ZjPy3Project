@@ -13,10 +13,11 @@ bin/spark-submit \
 --num-executors 1 \
 --executor-memory 1g \
 --executor-cores 2 \
-/mnt/spark_dir/pyspark_data_handler.py
+/mnt/spark_dir/pyspark_data_prepare.py
 '''
 
 import random
+import numpy as np
 import uuid
 
 import pyspark
@@ -42,7 +43,25 @@ def print_df_info(pyspark_df):
     pyspark_df.show(5)
 
 
-# demo01: generate and write parquet
+# demo01: generate parquet data
+def pyspark_data_demo01(sc, sqlContext):
+    print('generate test data')
+    test_rdd = sc.parallelize(range(1000), 1) \
+        .map(lambda x: [x, str(x) + '_' + random.choice('yn')])
+    test_df = sqlContext.createDataFrame(test_rdd, ['id', 'flag'])
+    print_df_info(test_df)
+
+    write_dir = 'hdfs:///user/root/test/testdata'
+    test_df.write.parquet(write_dir)
+    print('write test data as parquet success')
+
+    # hdfs dfs -ls -h /user/root/test/testdata
+    # outputs:
+    # /user/root/test/testdata/_SUCCESS
+    # /user/root/test/testdata/part-r-00000-408a9e55-ce05-4aeb-aecb-c0de0f5e10cb.gz.parquet
+
+
+# demo02: generate parquet data
 def extend_tbl_account(id_account_rdd):
 
     def _extend_acount(account_id):
@@ -57,7 +76,7 @@ def extend_tbl_account(id_account_rdd):
     return result_rdd, schema
 
 
-def pyspark_data_demo01(sc, sqlContext):
+def pyspark_data_demo02(sc, sqlContext):
     print('generate id_account_list')
     num_account = 1500
     id_account_rdd = sc.parallelize(range(num_account), 1) \
@@ -74,14 +93,14 @@ def pyspark_data_demo01(sc, sqlContext):
     id_account_rdd.unpersist()
     print('write id_account_list success')
 
-    # outputs:
     # hdfs dfs -ls -h /user/root/test/account
+    # outputs:
     # /user/root/test/account/_SUCCESS
     # /user/root/test/account/part-r-00000-7523b316-5d48-46db-8bf4-8c74ce1ef3ec.gz.parquet
 
 
-# demo02: read and rewrite parquet
-def pyspark_data_demo02(sc, sqlContext):
+# demo03: read and rewrite parquet
+def pyspark_data_demo03(sc, sqlContext):
     import pyspark.sql.functions as F
     import pyspark.sql.types as T
 
@@ -89,7 +108,7 @@ def pyspark_data_demo02(sc, sqlContext):
         return str(col2) + '_' + col1
     udf_extend_index = F.udf(extend_index, T.StringType())
 
-    # read records from parquet
+    # read data from parquet
     read_dir = 'hdfs:///user/root/test/account/'
     parquet_file = 'part-r-00000-ef28bf7f-19b0-4430-9bd4-39a67ed1c390.gz.parquet'
     print('read id_account_list parquet file: ' + read_dir + parquet_file)
@@ -122,13 +141,70 @@ def pyspark_data_demo02(sc, sqlContext):
     # /user/root/test/new_account/account_3/part-r-00000-57715fe2-9f00-486f-863d-2c3a9fa510e7.gz.parquet
 
 
+# demo04: prepare bank data
+def pyspark_data_demo04(sc, sqlContext):
+    jobs = ['technician', 'management', 'blue-collar', 'entrepreneur',
+            'services', 'admin', 'housemaid', 'unemployed', 'unknown', 'retired']
+    maritals = ['married', 'divorced', 'single']
+    educations = ['unknown', 'university.degree', 'professional.course',
+                  'high.school', 'basic.4y', 'basic.6y', 'basic.9y']
+    flag = ['yes', 'no']
+    contacts = ['cellular', 'telephone']
+    months = ['jun', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+    days_of_week = ['mon', 'tue', 'wed', 'thu', 'fri']
+    poutcomes = ['nonexistent', 'success', 'failure']
+    labels = [0, 1]
+    dates = ['2015-3-20', '2015-4-20', '2015-4-21']
+
+    def _extend_bank_record(record_id):
+        fields = [record_id]
+        fields.append(random.randint(18, 85))  # age
+        fields.append(random.choice(jobs))  # job
+        fields.append(random.choice(maritals))  # marital
+        fields.append(random.choice(educations))  # education
+        fields.append(random.choice(flag))  # default
+        fields.append(random.choice(flag))  # housing
+        fields.append(random.choice(flag))  # load
+        fields.append(random.choice(contacts))  # contact
+        fields.append(random.choice(months))  # month
+        fields.append(random.choice(days_of_week))  # day_of_week
+        fields.append(random.randint(1, 199))  # duration
+        fields.append(random.randint(1, 199))  # campaign
+        fields.append(random.choice([3, 6, 999]))  # pdays
+        fields.append(random.choice([0, 1]))  # previous
+        fields.append(random.choice(poutcomes))  # poutcome
+        fields.append(float('%.2f' % random.choice(np.arange(-3.0, 2.0, 0.1))))  # emp_var_rate
+        fields.append(float('%.3f' % random.choice(np.arange(92.0, 94.0, 0.001))))  # cons_price_idx
+        fields.append(random.choice(labels))  # y
+        fields.append(random.choice(dates))  # date1
+        fields.append('2015-4-20')  # date2
+        fields.append('2015-4-20')  # date3
+
+        return fields
+
+    print('generate bank_data')
+    num_bankdata = 1500
+    bankdata_rdd = sc.parallelize(range(num_bankdata), 1) \
+        .map(lambda x: gen_evt_id('acc')) \
+        .map(lambda id: _extend_bank_record(id))
+
+    schema = ['age', 'job', 'marital', 'education', 'default', 'housing', 'loan', 'contact'
+              'month', 'day_of_week', 'duration', 'campaign', 'pdays', 'previous', 'poutcome',
+              'emp_var_rate', 'cons_price_idx', 'y', 'date1', 'date2', 'date3']
+    bankdata_df = sqlContext.createDataFrame(bankdata_rdd, schema)
+    print_df_info(bankdata_df)
+
+    write_dir = 'hdfs:///user/root/test/bankdata'
+    bankdata_df.write.parquet(write_dir)
+    print('write band_data success')
+
+
 if __name__ == '__main__':
 
-    conf = SparkConf().setAppName('pyspark_create_data_demo').setMaster('yarn-client')
+    conf = SparkConf().setAppName('data_prepare_demo').setMaster('yarn-client')
     sc = SparkContext(conf=conf)
     print('pyspark version: ' + str(sc.version))
     sqlContext = SQLContext(sc)
 
-    # pyspark_data_demo01(sc, sqlContext)
-    pyspark_data_demo02(sc, sqlContext)
-    print('pyspark data handler demo DONE.')
+    pyspark_data_demo04(sc, sqlContext)
+    print('pyspark data prepare demo DONE.')

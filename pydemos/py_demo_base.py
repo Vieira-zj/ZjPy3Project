@@ -58,6 +58,13 @@ def py_base_ex02():
             )
     print(lines)
 
+    # print random float number within range
+    import random
+    f = float('%.1f' % random.choice(np.arange(-2.0, 2.0, step=0.1)))
+    print('float number with 1 decimal:', f)
+    f = float('%.3f' % random.choice(np.arange(92., 94., step=0.001)))
+    print('float number with 3 decimal:', f)
+
 
 # example 03, import external modules
 def py_base_ex03():
