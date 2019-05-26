@@ -88,7 +88,7 @@ def numpy_demo06():
 
 
 def numpy_demo07():
-    # random array
+    # create random array
     print('random arr:\n', np.random.normal(size=10))
     print('random int arr:\n', np.random.randint(1, high=100, size=10))
     print('random (0,1) arr:\n', np.random.uniform(size=10))

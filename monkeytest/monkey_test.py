@@ -12,15 +12,8 @@ import threading
 import sys
 
 sys.path.append(os.getenv('PYPATH'))
-from utils import Constants
-from utils import LogManager
-from utils import AdbUtils
-from utils import SysUtils
-
-from monkeytest import MonkeyMonitor
-from monkeytest import ProfileMonitor
-from monkeytest import ChartParser
-from monkeytest import MonkeyReport
+from utils import Constants, LogManager, AdbUtils, SysUtils
+from monkeytest import MonkeyMonitor, ProfileMonitor, ChartParser, MonkeyReport
 
 
 class MonkeyTest(object):
@@ -64,7 +57,7 @@ class MonkeyTest(object):
         self.__profile_monitor = ProfileMonitor(Constants.ITEST_COLLECT_INTERVAL)
         self.__chart_parser = ChartParser(self.__log_dir_path_for_win)
         self.__report = MonkeyReport(self.__log_dir_path_for_win, self.__logcat_exception_file_name, self.__logcat_anr_file_name)
-        
+
     # --------------------------------------------------------------
     # Monkey and logcat processes
     # --------------------------------------------------------------

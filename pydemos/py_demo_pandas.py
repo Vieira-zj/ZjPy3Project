@@ -4,6 +4,8 @@ Created on 2019-05-26
 @author: zhengjin
 '''
 
+import os
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from pandas import Series, DataFrame
@@ -41,6 +43,7 @@ def pandas_series_demo03():
     print('series, items > 2:\n', ser[ser > 1])
     print('series, items * 2:\n', ser * 2)
     print('square series:\n', np.square(ser))
+    print('series, sum by rows:\n', ser.cumsum())
 
     # 相同索引值的元素相加
     dict_data = {'Ohio': 35000, 'Texas': 71000, 'Oregon': 16000, 'Utah': 5000}
@@ -151,11 +154,96 @@ def pandas_df_demo05():
 
 
 def pandas_df_demo06():
+    #1
+    df = DataFrame(np.arange(9).reshape(3, 3),
+                   index=['bj', 'sh', 'gz'], columns=['a', 'b', 'c'])
+    print('dataframe:\n', df)
+
+    df.index = Series(['beijing', 'shanghai', 'guangzhou'])
+    print('update index df:\n', df)
+    df.index = df.index.map(str.upper)
+    print('update index with upper df:\n', df)
+
+    df1 = df.rename(index=str.lower, columns=str.upper)
+    print('update index and cols df:\n', df1)
+
+    #2
+    df2 = DataFrame([
+        [2.0, 1.0, 3.0, 5],
+        [3.0, 4.0, 5.0, 5],
+        [3.0, 4.0, 5.0, 5],
+        [1.0, 0.0, 6.0, 5]],
+        columns=list('abcd'))
+    print('sum by rows df:\n', df2.cumsum(axis=0))  # default
+    print('sum by cols df:\n', df2.cumsum(axis=1))
+
+
+def pandas_df_demo07():
+    # function: pd.cut()
+    np.random.seed(666)
+
+    #1
+    score_list = np.random.randint(25, 100, size=20)
+    print('scores:', score_list)
+
+    partitions = [0, 59, 70, 80, 100]
+    labels = ['low', 'middle', 'good', 'perfect']
+    score_cut = pd.cut(score_list, partitions, labels=labels)
+    print('category scores:\n', score_cut)
+    print('category count:\n', pd.value_counts(score_cut))
+
+    #2
+    df = DataFrame()
+    df['score'] = score_list
+    df['student'] = [pd.util.testing.rands(3) for i in range(len(score_list))]
+    print('students and scores df:\n', df)
+
+    df['category'] = pd.cut(df['score'], partitions, labels=labels)
+    print('students and scores by category df:\n', df)
+
+    df.index.name = 'idx'
+    save_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files', 'test.out')
+    df.to_csv(save_path)
+
+
+def pandas_plot_demo01():
+    # series.plot()
+    np.random.seed(666)
+
+    s1 = Series(np.random.randn(1000)).cumsum()
+    s2 = Series(np.random.randn(1000)).cumsum()
+
+    show_num = 3
+    if show_num == 1:
+        s1.plot(kind='line', grid=True, label='S1', title='series_s1')
+        s2.plot(label='s2')
+        plt.legend()
+        plt.show()
+
+    if show_num == 2:
+        figure, ax = plt.subplots(2, 1)
+        ax[0].plot(s1)
+        ax[1].plot(s2)
+        plt.legend()
+        plt.show()
+
+    if show_num == 3:
+        fig, ax = plt.subplots(2, 1)
+        s1.plot(ax=ax[1], label='s1')
+        s2.plot(ax=ax[0], label='s2')
+        plt.legend()
+        plt.show()
+
+
+def pandas_plot_demo02():
+    # dataframe.plot()
+    np.random.seed(666)
     pass
 
 
 if __name__ == '__main__':
 
     # pandas_series_demo03()
-    pandas_df_demo04()
+    # pandas_df_demo07()
+    pandas_plot_demo02()
     print('pandas demo DONE.')
