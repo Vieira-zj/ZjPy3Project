@@ -157,7 +157,7 @@ def pyspark_data_demo04(sc, sqlContext):
     dates = ['2015-3-20', '2015-4-20', '2015-4-21']
 
     def _extend_bank_record(record_id):
-        fields = [record_id]
+        fields = [record_id]  # id
         fields.append(random.randint(18, 85))  # age
         fields.append(random.choice(jobs))  # job
         fields.append(random.choice(maritals))  # marital
@@ -173,8 +173,8 @@ def pyspark_data_demo04(sc, sqlContext):
         fields.append(random.choice([3, 6, 999]))  # pdays
         fields.append(random.choice([0, 1]))  # previous
         fields.append(random.choice(poutcomes))  # poutcome
-        fields.append(float('%.2f' % random.choice(np.arange(-3.0, 2.0, 0.1))))  # emp_var_rate
-        fields.append(float('%.3f' % random.choice(np.arange(92.0, 94.0, 0.001))))  # cons_price_idx
+        fields.append(float('%.2f' % np.random.uniform(-3., 2.)))  # emp_var_rate
+        fields.append(float('%.3f' % np.random.uniform(92., 94.)))  # cons_price_idx
         fields.append(random.choice(labels))  # y
         fields.append(random.choice(dates))  # date1
         fields.append('2015-4-20')  # date2
@@ -182,15 +182,16 @@ def pyspark_data_demo04(sc, sqlContext):
 
         return fields
 
-    print('generate bank_data')
+    print('generate bank_data start')
     num_bankdata = 1500
     bankdata_rdd = sc.parallelize(range(num_bankdata), 1) \
         .map(lambda x: gen_evt_id('acc')) \
         .map(lambda id: _extend_bank_record(id))
 
-    schema = ['age', 'job', 'marital', 'education', 'default', 'housing', 'loan', 'contact'
-              'month', 'day_of_week', 'duration', 'campaign', 'pdays', 'previous', 'poutcome',
-              'emp_var_rate', 'cons_price_idx', 'y', 'date1', 'date2', 'date3']
+    schema = ['id', 'age', 'job', 'marital', 'education', 'default',
+              'housing', 'loan', 'contact', 'month', 'day_of_week', 'duration',
+              'campaign', 'pdays', 'previous', 'poutcome', 'emp_var_rate',
+              'cons_price_idx', 'y', 'date1', 'date2', 'date3']
     bankdata_df = sqlContext.createDataFrame(bankdata_rdd, schema)
     print_df_info(bankdata_df)
 

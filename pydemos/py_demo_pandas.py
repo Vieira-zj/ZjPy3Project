@@ -30,8 +30,9 @@ def pandas_series_demo01():
 def pandas_series_demo02():
     # get index and value
     ser = Series(range(4), index=['a', 'b', 'c', 'd'])
-    print('series item at "a":', ser['a'])
-    print('series item at "a" and "c":\n', ser[['a', 'c']])
+    print('series item at loc 0:', ser[0])
+    print('series item at idx "b":', ser['b'])
+    print('series item at idx "a" and "c":\n', ser[['a', 'c']])
 
     print('series index:\n', ser.index)
     print('series values:\n', ser.values)
@@ -40,7 +41,7 @@ def pandas_series_demo02():
 def pandas_series_demo03():
     # operation on series
     ser = Series(range(4), index=['a', 'b', 'c', 'd'])
-    print('series, items > 2:\n', ser[ser > 1])
+    print('series, items > 1:\n', ser[ser > 1])
     print('series, items * 2:\n', ser * 2)
     print('square series:\n', np.square(ser))
     print('series, sum by rows:\n', ser.cumsum())
@@ -69,7 +70,6 @@ def pandas_df_demo01():
 
     cols = ['year', 'state', 'pop']
     print('dataframe by year:\n', DataFrame(data_dict, columns=cols))
-
     idx = ['one', 'two', 'three', 'four', 'five']
     print('dataframe by index:\n', DataFrame(data_dict, index=idx))
 
@@ -86,7 +86,6 @@ def pandas_df_demo02():
     df = DataFrame(data_dict, index=idx)
     print('dataframe by index:', df)
 
-    # set col and index name
     df.columns.name = 'state'
     df.index.name = 'year'
     print('dataframe by col and index:\n', df)
@@ -201,6 +200,7 @@ def pandas_df_demo07():
     df['category'] = pd.cut(df['score'], partitions, labels=labels)
     print('students and scores by category df:\n', df)
 
+    # save to csv
     df.index.name = 'idx'
     save_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files', 'test.out')
     df.to_csv(save_path)
@@ -209,7 +209,6 @@ def pandas_df_demo07():
 def pandas_plot_demo01():
     # series.plot()
     np.random.seed(666)
-
     s1 = Series(np.random.randn(1000)).cumsum()
     s2 = Series(np.random.randn(1000)).cumsum()
 
@@ -217,33 +216,47 @@ def pandas_plot_demo01():
     if show_num == 1:
         s1.plot(kind='line', grid=True, label='S1', title='series_s1')
         s2.plot(label='s2')
-        plt.legend()
-        plt.show()
-
-    if show_num == 2:
+    elif show_num == 2:
         figure, ax = plt.subplots(2, 1)
         ax[0].plot(s1)
         ax[1].plot(s2)
-        plt.legend()
-        plt.show()
-
-    if show_num == 3:
+    elif show_num == 3:
         fig, ax = plt.subplots(2, 1)
         s1.plot(ax=ax[1], label='s1')
         s2.plot(ax=ax[0], label='s2')
-        plt.legend()
-        plt.show()
+    else:
+        raise KeyError('invalid show_num!')
+
+    plt.legend()
+    plt.show()
 
 
 def pandas_plot_demo02():
     # dataframe.plot()
     np.random.seed(666)
-    pass
+    df = DataFrame(np.random.randint(1, 20, size=40).reshape(10, 4),
+                   columns=['a', 'b', 'c', 'd'])
+
+    show_num = 3
+    if show_num == 1:
+        # 柱状图
+        df.plot(kind='bar')
+    elif show_num == 2:
+        # 横向的柱状图
+        df.plot(kind='barh')
+    elif show_num == 3:
+        for i in df.index:
+            df.iloc[i].plot(label='row' + str(i))
+        plt.legend()
+    else:
+        raise KeyError('invalid show_num!')
+
+    plt.show()
 
 
 if __name__ == '__main__':
 
-    # pandas_series_demo03()
+    pandas_series_demo02()
     # pandas_df_demo07()
-    pandas_plot_demo02()
+    # pandas_plot_demo02()
     print('pandas demo DONE.')

@@ -89,9 +89,27 @@ def numpy_demo06():
 
 def numpy_demo07():
     # create random array
-    print('random arr:\n', np.random.normal(size=10))
-    print('random int arr:\n', np.random.randint(1, high=100, size=10))
-    print('random (0,1) arr:\n', np.random.uniform(size=10))
+    print('np.random.randint arr:\n', np.random.randint(1, 10, size=10))
+    print('np.random.randint int64 value:', np.random.randint(1, 10, dtype=np.int64))
+    print('np.random.randint 2d arr:\n', np.random.randint(1, 10, (3, 2)))
+
+    # value=0.0~1.0
+    print('np.random.rand value:', np.random.rand())
+    # shape=[3,2] value=0.0~1.0
+    print('np.random.rand 2d arr:\n', np.random.rand(3, 2))
+    print('np.random.random 2d arr:\n', np.random.random(size=(3, 2)))
+
+    # value=0.0~1.0
+    print('np.random.uniform arr:\n', np.random.uniform(size=10))
+    # shape=[3,2] value=1.0~10.0
+    print('np.random.uniform 2d arr:\n', np.random.uniform(-1., 1., size=(3, 2)))
+
+    # loc均值为1, scale标准差为3
+    print('np.random.normal arr:\n', np.random.normal(1, 3, size=10))
+    print('np.random.normal 2d arr:\n', np.random.normal(0, 1, size=(3, 2)))
+
+    f = np.random.uniform()
+    print('float: %f, 2 decimal: %.2f' % (f, f))
 
 
 if __name__ == '__main__':
