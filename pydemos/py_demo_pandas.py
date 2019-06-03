@@ -84,7 +84,7 @@ def pandas_df_demo02():
 
     idx = [2002, 2001, 2000]
     df = DataFrame(data_dict, index=idx)
-    print('dataframe by index:', df)
+    print('dataframe by index:\n', df)
 
     df.columns.name = 'state'
     df.index.name = 'year'
@@ -254,9 +254,62 @@ def pandas_plot_demo02():
     plt.show()
 
 
+def pandas_df_save_demo():
+    data_dict = {
+        'state': ['Ohio', 'Ohio', 'Ohio', 'Nevada', 'Nevada'],
+        'year': [2000, 2001, 2002, 2001, 2002],
+        'pop': [1.5, 1.7, 3.6, 2.4, 2.9],
+    }
+    dir_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files')
+
+    # save as csv
+    df1 = DataFrame(data_dict, index=range(1, 6))
+    print('dataframe to be saved as csv:\n', df1)
+    df1.to_csv(os.path.join(dir_path, 'test_df.csv'))
+
+    # save as parquet
+    # pre-condition: pip3 install fastparquet
+    pd.show_versions()
+
+    df2 = DataFrame(data_dict)
+    print('\ndataframe to be saved as parquet:\n', df2)
+    # df2.to_parquet(os.path.join(dir_path, 'test_df.parquet.gzip'))
+    # RuntimeError: Compression 'snappy' not available. Options: ['GZIP', 'UNCOMPRESSED']
+    df2.to_parquet(os.path.join(dir_path, 'test_df.parquet.gzip'),
+                   engine='fastparquet', compression='gzip')
+
+
+def pandas_df_read_demo():
+    home_dir = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files')
+
+    # read csv
+    csv_path = os.path.join(home_dir, 'test_df.csv')
+    if os.path.exists(csv_path):
+        df = pd.read_csv(csv_path, index_col=0)
+        print('read from csv, dataframe:\n', df)
+
+    # read parquet
+    file_path = os.path.join(home_dir, 'test_df.parquet.gzip')
+    if os.path.exists(file_path):
+        df = pd.read_parquet(file_path, engine='fastparquet')
+        print('read from parquet, dataframe:\n', df)
+
+    # read parquet(hive)
+    file_path = os.path.join('/tmp/hive_test', 'pokes_0.parquet')
+    if os.path.exists(file_path):
+        limit = 11
+        df = pd.read_parquet(file_path, engine='fastparquet')
+        print('read from parquet(hive), dataframe:\n', df[:limit])
+
+
 if __name__ == '__main__':
 
-    pandas_series_demo02()
-    # pandas_df_demo07()
+    # pandas_series_demo02()
+    pandas_df_demo01()
+
     # pandas_plot_demo02()
+
+    # pandas_df_save_demo()
+    # pandas_df_read_demo()
+
     print('pandas demo DONE.')

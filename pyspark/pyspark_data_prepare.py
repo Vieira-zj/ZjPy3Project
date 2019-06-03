@@ -183,10 +183,12 @@ def pyspark_data_demo04(sc, sqlContext):
         return fields
 
     print('generate bank_data start')
-    num_bankdata = 1500
-    bankdata_rdd = sc.parallelize(range(num_bankdata), 1) \
+    num_bankdata = 2 * 10000
+    num_partitions = 1
+    bankdata_rdd = sc.parallelize(range(num_bankdata), num_partitions) \
         .map(lambda x: gen_evt_id('acc')) \
         .map(lambda id: _extend_bank_record(id))
+    # bankdata_rdd.repartition(1)
 
     schema = ['id', 'age', 'job', 'marital', 'education', 'default',
               'housing', 'loan', 'contact', 'month', 'day_of_week', 'duration',
