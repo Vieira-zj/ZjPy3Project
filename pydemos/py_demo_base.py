@@ -492,6 +492,71 @@ def py_base_ex21():
         p.kill()
 
 
+# example 22, py tips
+def py_base_ex22():
+    # 序列解包
+    def tip_test01():
+        user_ls = ['henry', 18, 'male']
+        name, age, gender = user_ls
+        print('name=%s, age=%d, male=%s' % (name, age, gender))
+
+    # 判断是否为空列表，空字典，空字符串
+    def tip_test02():
+        l, d, s = [1, 2, 3], {}, ''
+        if l:
+            print('list is not empty')
+        if d:
+            print('dict is not empty')
+        if s:
+            print('string is not empty')
+
+    # 判断诸多条件是否至少有一个成立
+    def tip_test03():
+        math, physics, computer = 70, 40, 80
+        if any([math < 60, physics < 60, computer < 60]):
+            print('not pass')
+
+    # 判断诸多条件是否全部成立
+    def tip_test04():
+        math, physics, computer = 70, 70, 80
+        if all([math >= 60, physics >= 60, computer >= 60]):
+            print('pass')
+
+    # 过滤数字并求和
+    def tip_test05():
+        lst = [1, 2, 3, 'a', 'b', 4, 5.0]
+        count = sum([i for i in lst if type(i) in (int, float)])
+        print('count = %.1f' % count)
+
+    tip_test05()
+
+
+# example 23_01, print process
+def py_base_ex23_01():
+    import time
+    i, n = 0, 100
+    for i in range(n):
+        time.sleep(0.1)
+        if (i + 1) % 10 == 0:
+            print(str(i + 1) + '%', end='\r')
+
+
+# example 23_02, print progress bar
+def py_base_ex23_02():
+    def process_bar(num, total):
+        rate = float(num) / total
+        rate_num = int(100 * rate)
+        r = '\r[%s%s]%d' % (('*' * rate_num), (' ' * (100 - rate_num)), rate_num)
+        sys.stdout.write(r + '%')
+        sys.stdout.flush()
+
+    import time
+    i, n = 0, 100
+    for i in range(n):
+        time.sleep(0.1)
+        process_bar(i + 1, n)
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -499,6 +564,7 @@ if __name__ == '__main__':
     print('\npython version:\n', sys.version)
     print()
 
-    py_base_ex02()
+    py_base_ex22()
+    # py_base_ex23_01()
 
     print('python base demo DONE.')
