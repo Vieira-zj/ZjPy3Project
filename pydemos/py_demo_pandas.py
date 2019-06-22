@@ -206,6 +206,20 @@ def pandas_df_demo07():
     df.to_csv(save_path)
 
 
+def pandas_df_demo08():
+    # np.dtype高效地存储数据
+    mem = pd.DataFrame([[133, 2, 4]], columns=['uid', 'dogs', 'cats']).memory_usage()
+    print('default int64 memory usage:\n', mem)
+
+    mem = pd.DataFrame([[133, 2, 4]], columns=['uid', 'dogs', 'cats']) \
+        .astype({
+            'uid': np.dtype('int32'),
+            'dogs': np.dtype('int32'),
+            'cats': np.dtype('int32')
+        }).memory_usage()
+    print('\ndefault int32 memory usage:\n', mem)
+
+
 def pandas_plot_demo01():
     # series.plot()
     np.random.seed(666)
@@ -305,7 +319,7 @@ def pandas_df_read_demo():
 if __name__ == '__main__':
 
     # pandas_series_demo02()
-    pandas_df_demo01()
+    pandas_df_demo08()
 
     # pandas_plot_demo02()
 
