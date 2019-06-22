@@ -316,6 +316,102 @@ def pandas_df_read_demo():
         print('read from parquet(hive), dataframe:\n', df[:limit])
 
 
+def pandas_read_excel_demo_01():
+    file_path = get_lemon_cases_excel_path()
+    df = pd.read_excel(file_path, sheet_name='multiply')
+
+    # 按列读取数据
+    # 返回一个Series对象，title列的数据
+    print('col [title] as series:\n', df['title'])
+
+    print('\ncol [title] list:', list(df['title']))
+    print('col [df.title] list:', list(df.title))
+    print('col [title] tuple:', tuple(df['title']))
+    print('cols [index,title] dict:', dict(df['title']))  # key为数字索引
+
+    print('\ncol [title] 1st value:', df['title'][0])
+
+    print('\ncols [title,actual]:\n', df[['title', 'actual']])
+
+    # 按行读取数据
+    print('\nrow 1 (list):', list(df.iloc[0]))
+    print('row 1 (tuple):', tuple(df.iloc[0]))
+    print('row 1 (dict):', dict(df.iloc[0]))
+    print('row last (dict):', dict(df.iloc[-1]))
+
+    print('\nrow 1 [l_data]:', df.iloc[0]['l_data'])
+    print('row 1 [l_data] by index:', df.iloc[0][2])
+
+    print('\nrow 0-2:\n', df.iloc[0:3])
+
+    # 读取所有数据
+    print('\nall rows (dataframe):\n', df)
+    print('\nall rows (list):\n', df.values)
+
+    data_list = []
+    for idx in df.index:
+        data_list.append(df.iloc[idx].to_dict())
+    print('\nall rows (list of dict):\n', data_list)
+
+
+def pandas_read_excel_demo_02():
+    file_path = get_lemon_cases_excel_path()
+    df = pd.read_excel(file_path, sheet_name='multiply')
+
+    # iloc, by index
+    print('col 1 [index,case_id]:\n', df.iloc[:, 0])
+    print('\ncol last [index,result]:\n', df.iloc[:, -1])
+    print('\ncols 0-2 [index,case_id,title,l_data]:\n', df.iloc[:, 0:3])
+
+    print('\n2-3 rows and 1-3 cols:\n', df.iloc[2:4, 1:4])
+    print('\n1,3 rows and 2,4 cols:\n', df.iloc[[1, 3], [2, 4]])
+
+    # loc, by name
+    print('\n1-2 rows and col [title]:\n', df.loc[1:2, 'title'])
+    print('\n1-2 rows and cols [title,l_data,r_data]:\n', df.loc[1:2, 'title':'r_data'])
+
+    print('\ncols boolean(r_data > 5):\n', df['r_data'] > 5)
+    print('\nrows (r_data > 5):\n', df.loc[df['r_data'] > 5])
+    print('\nrows (r_data > 5) and cols [r_data,expected,actual]:\n',
+          df.loc[df['r_data'] > 5, 'r_data':'actual'])
+
+
+def pandas_write_excel_demo():
+    file_path = get_lemon_cases_excel_path()
+    df = pd.read_excel(file_path, sheet_name='multiply')
+
+    df['result'][0] = 'test'
+    output_path = os.path.join(
+        os.getenv('HOME'), 'Downloads/tmp_files', 'lemon_cases_new.xlsx')
+    # pip3 install openpyxl
+    with pd.ExcelWriter(output_path) as writer:
+        df.to_excel(writer, sheet_name='new', index=False)
+
+
+def get_lemon_cases_excel_path():
+    file_path = os.path.join(os.getenv('PYPATH'), 'pydemos', 'data', 'lemon_cases.xlsx')
+    if not os.path.exists(file_path):
+        raise FileNotFoundError('file not found: ' + file_path)
+    return file_path
+
+
+def pandas_read_csv_demo():
+    file_path = os.path.join(os.getenv('PYPATH'), 'pydemos', 'data', 'data.log')
+    if not os.path.exists(file_path):
+        raise FileNotFoundError('file not found: ' + file_path)
+
+    # csv_frame = pd.read_csv(file_path)
+    # csv_frame = pd.read_csv(file_path, header=None, names=['Col1', 'Col2', 'Col3'])
+    df = pd.read_csv(file_path, sep=',')
+    success_df = df.loc[df['Success'] == 0]
+    testtime_series = success_df['TestTime']
+    print('Success TestTime Series:\n', testtime_series)
+
+    avg_result = round(sum(testtime_series) / len(testtime_series), 2)
+    print('\nmin TestTime: %r, max TestTime: %r, avg TestTime: %r'
+          % (min(testtime_series), max(testtime_series), avg_result))
+
+
 if __name__ == '__main__':
 
     # pandas_series_demo02()
@@ -325,5 +421,10 @@ if __name__ == '__main__':
 
     # pandas_df_save_demo()
     # pandas_df_read_demo()
+
+    # pandas_read_excel_demo_01()
+    # pandas_read_excel_demo_02()
+    # pandas_write_excel_demo()
+    # pandas_read_csv_demo()
 
     print('pandas demo DONE.')
