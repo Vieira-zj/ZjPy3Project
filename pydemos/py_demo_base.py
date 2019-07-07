@@ -557,6 +557,60 @@ def py_base_ex23_02():
         process_bar(i + 1, n)
 
 
+# example 24, value and reference
+def py_base_ex24():
+    # 1 list
+    def update_list(lst):
+        lst[2] = 30
+        print("[update]", lst)
+
+    lst = [1, 2, 3, 4, 5]
+    print("\nsrc list:", lst)
+
+    lst2 = lst
+    lst[0] = 10
+    lst2[1] = 20
+    update_list(lst)
+    print("lst: %r, lst2: %r" %(lst, lst2))
+
+    #2 map
+    def update_map(m):
+        m[3] ="THREE"
+        print("[update]", m)
+
+    m = {1:"one", 2:"two", 3:"three"}
+    print("\nsrc map:", m)
+
+    m2 = m
+    m[1] = "ONE"
+    m2[2] = "TWO"
+    update_map(m)
+    print("map: %r, map2: %r" %(m, m2))
+
+    #3 object
+    class person(object):
+        def __init__(self, name, age, job):
+            self.name = name
+            self.age = age
+            self.job = job
+
+        def __str__(self):
+            return "name=%s, age=%d, job=%s" %(self.name, self.age, self.job)
+
+    def update_person(person):
+        person.job = "TESTER"
+        print("[update]", person)
+
+    p = person("Henry", 30, "tester")
+    print("\nsrc person:", p)
+
+    p1 = p
+    p.name = "HENRY"
+    p1.age += 1
+    update_person(p)
+    print("p: %s, p1:%s" %(p, p1))
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -564,7 +618,7 @@ if __name__ == '__main__':
     print('\npython version:\n', sys.version)
     print()
 
-    py_base_ex22()
+    py_base_ex24()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
