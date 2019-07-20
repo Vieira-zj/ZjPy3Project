@@ -9,7 +9,6 @@ import os
 
 
 def generate_data_from_csv(count):
-
     root_dir = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/prophet_testdata')
     input_file_path = os.path.join(root_dir, 'test_data.csv')
     if not os.path.exists(input_file_path):

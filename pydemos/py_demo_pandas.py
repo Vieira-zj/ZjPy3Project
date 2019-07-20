@@ -153,7 +153,7 @@ def pandas_df_demo05():
 
 
 def pandas_df_demo06():
-    #1
+    # 1
     df = DataFrame(np.arange(9).reshape(3, 3),
                    index=['bj', 'sh', 'gz'], columns=['a', 'b', 'c'])
     print('dataframe:\n', df)
@@ -166,7 +166,7 @@ def pandas_df_demo06():
     df1 = df.rename(index=str.lower, columns=str.upper)
     print('update index and cols df:\n', df1)
 
-    #2
+    # 2
     df2 = DataFrame([
         [2.0, 1.0, 3.0, 5],
         [3.0, 4.0, 5.0, 5],
@@ -181,7 +181,7 @@ def pandas_df_demo07():
     # function: pd.cut()
     np.random.seed(666)
 
-    #1
+    # 1
     score_list = np.random.randint(25, 100, size=20)
     print('scores:', score_list)
 
@@ -191,7 +191,7 @@ def pandas_df_demo07():
     print('category scores:\n', score_cut)
     print('category count:\n', pd.value_counts(score_cut))
 
-    #2
+    # 2
     df = DataFrame()
     df['score'] = score_list
     df['student'] = [pd.util.testing.rands(3) for i in range(len(score_list))]
@@ -202,13 +202,15 @@ def pandas_df_demo07():
 
     # save to csv
     df.index.name = 'idx'
-    save_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files', 'test.out')
+    save_path = os.path.join(
+        os.getenv('HOME'), 'Downloads/tmp_files', 'test.out')
     df.to_csv(save_path)
 
 
 def pandas_df_demo08():
     # np.dtype高效地存储数据
-    mem = pd.DataFrame([[133, 2, 4]], columns=['uid', 'dogs', 'cats']).memory_usage()
+    mem = pd.DataFrame([[133, 2, 4]], columns=[
+                       'uid', 'dogs', 'cats']).memory_usage()
     print('default int64 memory usage:\n', mem)
 
     mem = pd.DataFrame([[133, 2, 4]], columns=['uid', 'dogs', 'cats']) \
@@ -218,6 +220,26 @@ def pandas_df_demo08():
             'cats': np.dtype('int32')
         }).memory_usage()
     print('\ndefault int32 memory usage:\n', mem)
+
+
+def pandas_df_demo09():
+    # axis=0 沿着行方向（纵向）, axis=1 沿着列方向（横向）
+    df = pd.DataFrame({
+        'col1': [1, 2, 3],
+        'col2': [1, 2, 3],
+        'col3': [1, 2, 3],
+    })
+    print('df data:\n', df)
+
+    df1 = df.drop('col2', axis=1)
+    print('\ndrop col2, and df data:\n', df1)
+    df2 = df.drop(1, axis=0)
+    print('\ndrop row2, and df data:\n', df2)
+
+    avg1 = df.mean(axis=1)
+    print('\navg value for each line:\n', avg1)
+    avg2 = df.mean(axis=0)
+    print('\navg value for each row:\n', avg2)
 
 
 def pandas_plot_demo01():
@@ -368,7 +390,8 @@ def pandas_read_excel_demo_02():
 
     # loc, by name
     print('\n1-2 rows and col [title]:\n', df.loc[1:2, 'title'])
-    print('\n1-2 rows and cols [title,l_data,r_data]:\n', df.loc[1:2, 'title':'r_data'])
+    print('\n1-2 rows and cols [title,l_data,r_data]:\n',
+          df.loc[1:2, 'title':'r_data'])
 
     print('\ncols boolean(r_data > 5):\n', df['r_data'] > 5)
     print('\nrows (r_data > 5):\n', df.loc[df['r_data'] > 5])
@@ -389,14 +412,16 @@ def pandas_write_excel_demo():
 
 
 def get_lemon_cases_excel_path():
-    file_path = os.path.join(os.getenv('PYPATH'), 'pydemos', 'data', 'lemon_cases.xlsx')
+    file_path = os.path.join(
+        os.getenv('PYPATH'), 'pydemos', 'data', 'lemon_cases.xlsx')
     if not os.path.exists(file_path):
         raise FileNotFoundError('file not found: ' + file_path)
     return file_path
 
 
 def pandas_read_csv_demo():
-    file_path = os.path.join(os.getenv('PYPATH'), 'pydemos', 'data', 'data.log')
+    file_path = os.path.join(
+        os.getenv('PYPATH'), 'pydemos', 'data', 'data.log')
     if not os.path.exists(file_path):
         raise FileNotFoundError('file not found: ' + file_path)
 
@@ -415,7 +440,7 @@ def pandas_read_csv_demo():
 if __name__ == '__main__':
 
     # pandas_series_demo02()
-    pandas_df_demo08()
+    pandas_df_demo09()
 
     # pandas_plot_demo02()
 
