@@ -424,13 +424,16 @@ def py_base_ex17():
 def py_base_ex18():
     test_lst = ['a', 'b', 'c']
 
+    # as input
     def print_abc(a, b, c):
         print(f'a={a}, b={b}, c={c}')
     print_abc(*test_lst)
 
+    # as args
     def print_vals(*args):
         print('type:', type(args))
         print(f'input arguments: {args}')
+    print_vals(1,2,3)
     print_vals(test_lst)
     print_vals(*test_lst)
 
@@ -611,6 +614,32 @@ def py_base_ex24():
     print("p: %s, p1:%s" %(p, p1))
 
 
+# example 25, datetime
+def py_base_ex25():
+    import datetime
+    from datetime import datetime as dt
+
+    def print_next_day(timestamp):
+        next_day_timestamp = timestamp + datetime.timedelta(days=1)
+        next_date = dt.strftime(next_day_timestamp, '%Y-%m-%d')
+        print('next date:', next_date)
+
+    test_timestamp = dt.strptime('20190801', '%Y%m%d')
+    print_next_day(test_timestamp)
+    now_timestamp = dt.now()
+    print_next_day(now_timestamp)
+
+    def print_days(s_date, e_date):
+        s_date_timestamp = dt.strptime(s_date, '%Y-%m-%d')
+        e_date_timestamp = dt.strptime(e_date, '%Y-%m-%d')
+        while s_date_timestamp <= e_date_timestamp:
+            print("day:", dt.strftime(s_date_timestamp, '%Y%m%d'))
+            s_date_timestamp += datetime.timedelta(days=1)
+
+    print('\ndays between 2019-07-01 and 2019-07-05:')
+    print_days('2019-07-01', '2019-07-05')
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -618,7 +647,7 @@ if __name__ == '__main__':
     print('\npython version:\n', sys.version)
     print()
 
-    py_base_ex24()
+    py_base_ex25()
     # py_base_ex23_01()
 
     print('python base demo DONE.')

@@ -13,7 +13,7 @@ bin/spark-submit \
 --num-executors 1 \
 --executor-memory 1g \
 --executor-cores 2 \
-/mnt/spark_dir/pyspark_data_prepare.py
+/mnt/spark_dir/data_prepare01.py
 '''
 
 import random
