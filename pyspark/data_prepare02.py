@@ -69,7 +69,7 @@ class DataCreate(object):
         else:
             path += '/dt='
         return path
-# end class
+# DataCreate class end
 
 
 class DataLoad(object):
@@ -98,24 +98,22 @@ class DataLoad(object):
             path += '/dt='
         return path
 
-    def load_data(self, d_path, s_date, e_date, f_type='parquet'):
+    def load_data_parquet(self, d_path, s_date, e_date):
         '''
-        Load data from parquet or orc files by dt (start_date, end_date).
+        Load data from parquet files by dt (start_date, end_date).
         '''
         f_paths = self._pre_load(d_path, s_date, e_date)
-        if len(f_paths) == 0:
-            raise Exception("Dataload is not init!")
+        return self._sqlContext.read.parquet(*f_paths)
 
-        reader = None
-        if f_type == 'orc':
-            reader = self._hiveContext.read.orc
-        else:
-            reader = self._sqlContext.read.parquet
-
+    def load_data_orc(self, d_path, s_date, e_date):
+        '''
+        Load data from orc files by dt (start_date, end_date).
+        '''
         read_dfs = []
+        f_paths = self._pre_load(d_path, s_date, e_date)
         for f_path in f_paths:
             try:
-                df = reader(f_path)
+                df = self._hiveContext.read.orc(f_path)
             except Exception as e:
                 print(e)
                 continue
@@ -125,7 +123,7 @@ class DataLoad(object):
         for i in range(1, len(read_dfs)):
             ret_df = ret_df.unionAll(df)
         return ret_df
-# end class
+# DataLoad class end
 
 
 def testDataPrepareForParquet(sc, sqlContext, hiveContext):
@@ -133,10 +131,10 @@ def testDataPrepareForParquet(sc, sqlContext, hiveContext):
     start_date = '20190701'
 
     dataCreate = DataCreate(sc, sqlContext, hiveContext)
-    dataCreate.data_prepare(d_path, 10000, start_date, 3, f_type='parquet')
+    dataCreate.data_prepare(d_path, 11000, start_date, 3, f_type='parquet')
 
     load = DataLoad(sc, sqlContext, hiveContext)
-    df = load.load_data(d_path, start_date, '20190703')
+    df = load.load_data_parquet(d_path, start_date, '20190703')
     print_df_info(df)
     # output:
     # /user/root/test/test_parquet/dt=20190701
@@ -149,10 +147,10 @@ def testDataPrepareForOrc(sc, sqlContext, hiveContext):
     start_date = '20190701'
 
     dataCreate = DataCreate(sc, sqlContext, hiveContext)
-    dataCreate.data_prepare(d_path, 10000, start_date, 3, f_type='orc')
+    dataCreate.data_prepare(d_path, 12000, start_date, 3, f_type='orc')
 
     load = DataLoad(sc, sqlContext, hiveContext)
-    df = load.load_data(d_path, start_date, '20190703', f_type='orc')
+    df = load.load_data_orc(d_path, start_date, '20190703')
     print_df_info(df)
     # output:
     # /user/root/test/test_orc/dt=20190701
@@ -168,7 +166,7 @@ if __name__ == '__main__':
     sqlContext = SQLContext(sc)
     hiveContext = HiveContext(sc)
 
-    # testDataPrepareForParquet(sc, sqlContext, hiveContext)
-    testDataPrepareForOrc(sc, sqlContext, hiveContext)
+    testDataPrepareForParquet(sc, sqlContext, hiveContext)
+    # testDataPrepareForOrc(sc, sqlContext, hiveContext)
 
     print('pyspark data prepare demo DONE.')
