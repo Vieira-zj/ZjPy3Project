@@ -622,12 +622,14 @@ def py_base_ex25():
     def print_next_day(timestamp):
         next_day_timestamp = timestamp + datetime.timedelta(days=1)
         next_date = dt.strftime(next_day_timestamp, '%Y-%m-%d')
-        print('next date:', next_date)
+        print(next_date)
 
-    test_timestamp = dt.strptime('20190801', '%Y%m%d')
-    print_next_day(test_timestamp)
+    print('\ntomorrow date:')
     now_timestamp = dt.now()
     print_next_day(now_timestamp)
+    print('next day for 20190831:')
+    test_timestamp = dt.strptime('20190831', '%Y%m%d')
+    print_next_day(test_timestamp)
 
     def print_days(s_date, e_date):
         s_date_timestamp = dt.strptime(s_date, '%Y-%m-%d')
@@ -636,8 +638,16 @@ def py_base_ex25():
             print("day:", dt.strftime(s_date_timestamp, '%Y%m%d'))
             s_date_timestamp += datetime.timedelta(days=1)
 
-    print('\ndays between 2019-07-01 and 2019-07-05:')
-    print_days('2019-07-01', '2019-07-05')
+    print('\ndays between 2019-08-27 and 2019-09-02:')
+    print_days('2019-08-27', '2019-09-02')
+
+
+# example 26, 2d array
+def py_base_ex26():
+    array_2d = np.zeros((2,5))
+    for i in range(5):
+        array_2d[0][i] = i
+    print(array_2d)
 
 
 if __name__ == '__main__':
@@ -647,7 +657,7 @@ if __name__ == '__main__':
     print('\npython version:\n', sys.version)
     print()
 
-    py_base_ex25()
+    py_base_ex26()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
