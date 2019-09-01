@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 
 print('python base demo INIT.')
 
+
 # examle 01, base
 def py_base_ex01():
     # test for None
@@ -52,10 +53,10 @@ def py_base_ex02():
     print(lines)
     print()
 
-    line = ('stepA, this is the line one for test;'
-            'stepB, this is the line two for test;'
-            'stepC, this is the line three for test.'
-            )
+    lines = ('stepA, this is the line one for test;'
+             'stepB, this is the line two for test;'
+             'stepC, this is the line three for test.'
+             )
     print(lines)
 
     # print random float number within range
@@ -76,6 +77,7 @@ def py_base_ex03():
 
     try:
         logger = LogManager.build_logger(Constants.LOG_FILE_PATH)
+        logger.info('import external modules test.')
         utils = SysUtils().get_instance()
         utils.run_sys_cmd('python --version')
     finally:
@@ -140,7 +142,8 @@ def py_base_ex06():
     z_arr = [y for y in range(0, 20) if y % 2 != 0]
 
     plt.title('Chart Test')
-    ave_desc = 'y average: %d, z average: %d' % (np.average(y_arr), np.average(z_arr))
+    ave_desc = 'y average: %d, z average: %d' % (
+        np.average(y_arr), np.average(z_arr))
     plt.xlabel('X_label_text\n green: system_cpu, blue: user_cpu\n' + ave_desc)
     plt.ylabel('Y_label_text')
 
@@ -160,7 +163,7 @@ def py_base_ex06():
     plt.close()
 
 
-# example 07, chart spot 
+# example 07, chart spot
 def py_base_ex07():
     # data
     # y_arr = [float(y) for y in range(0, 100) if y % 2 == 0]
@@ -216,7 +219,7 @@ def py_base_ex08_02():
     import re
     ret_dict = {}
     for line in input_lines:
-        re_results = re.match('.*:\s+(.*Exception.{20,30})', line)
+        re_results = re.match(r'.*:\s+(.*Exception.{20,30})', line)
         exception_key = ''
         try:
             exception_key = re_results.group(1)
@@ -252,7 +255,7 @@ def py_base_ex09():
 
     # "glob.iglob" return generator
     print('\ntext files in tmp dir:')
-    for file in glob.iglob(tmp_dir  + '/*.txt'):
+    for file in glob.iglob(tmp_dir + '/*.txt'):
         print(file)
 
     print('\npy files in current dir:')
@@ -263,7 +266,7 @@ def py_base_ex09():
 # example 10, list files in sub dir
 def py_base_ex10():
     output_dir = os.path.join(os.getenv('PYPATH'), 'apitest/outputs')
-    
+
     # list subdirs and files in dir, depth=1, ret name
     print('\nresult files in outputs: ')
     for file in os.listdir(output_dir):
@@ -281,7 +284,8 @@ def py_base_ex10():
     # list files by walk, depth=max
     print('\nresult files in outputs by walk:')
     total = 0
-    for dir_path, subpaths, files in os.walk(output_dir):
+    # for dir_path, subpaths, files in os.walk(output_dir):
+    for dir_path, _, files in os.walk(output_dir):
         for file in files:
             print(os.path.join(dir_path, file))
         total = total + len(files)
@@ -336,7 +340,8 @@ def py_base_ex14():
     for k, v in zip(tmp_lst_ks, tmp_lst_vs):
         print('%s=%s' % (k, v))
 
-    tmp_dict = dict([(k.upper(), v.upper()) for k, v in zip(tmp_lst_ks, tmp_lst_vs)])
+    tmp_dict = dict([(k.upper(), v.upper())
+                     for k, v in zip(tmp_lst_ks, tmp_lst_vs)])
     print('%s: %s' % (type(tmp_dict), tmp_dict))
     print()
 
@@ -415,7 +420,8 @@ def py_base_ex17():
             files = glob.glob(self._dir_path + '/*.yml')
             print('yml files:', files)
 
-    list_file = ListFile(os.path.join(os.getenv('HOME'), 'Downloads/tmp_files'))
+    list_file = ListFile(os.path.join(
+        os.getenv('HOME'), 'Downloads/tmp_files'))
     list_file.listTextFiles()
     list_file.listYmlFiles()
 
@@ -433,7 +439,7 @@ def py_base_ex18():
     def print_vals(*args):
         print('type:', type(args))
         print(f'input arguments: {args}')
-    print_vals(1,2,3)
+    print_vals(1, 2, 3)
     print_vals(test_lst)
     print_vals(*test_lst)
 
@@ -442,7 +448,8 @@ def py_base_ex18():
 def py_base_ex19():
     import json
 
-    input_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/test.json')
+    input_path = os.path.join(
+        os.getenv('HOME'), 'Downloads/tmp_files/test.json')
     if not os.path.exists(input_path):
         raise FileNotFoundError(input_path)
 
@@ -453,12 +460,14 @@ def py_base_ex19():
     if len(json_text) > 0:
         json_object = json.loads(json_text)
         print('request id:', json_object['requestId'])
-        print('instance job:', json_object['rawInstances'][0]['rawFeatures']['job'])
+        print('instance job:',
+              json_object['rawInstances'][0]['rawFeatures']['job'])
 
 
 # example 20, 写入中文到文件
 def py_base_ex20():
-    file_path = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/test.file')
+    file_path = os.path.join(
+        os.getenv('HOME'), 'Downloads/tmp_files/test.file')
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(file_path)
@@ -481,7 +490,8 @@ def py_base_ex21():
             super().__init__()  # super.init() should be invoked
 
         def run(self):
-            print('%s => pid=%d, name=%s is running ...' % (self._tag, os.getpid(), self.name))
+            print('%s => pid=%d, name=%s is running ...' %
+                  (self._tag, os.getpid(), self.name))
             time.sleep(3)
 
     p = MyProcess('test')
@@ -502,6 +512,7 @@ def py_base_ex22():
         user_ls = ['henry', 18, 'male']
         name, age, gender = user_ls
         print('name=%s, age=%d, male=%s' % (name, age, gender))
+    tip_test01()
 
     # 判断是否为空列表，空字典，空字符串
     def tip_test02():
@@ -512,25 +523,27 @@ def py_base_ex22():
             print('dict is not empty')
         if s:
             print('string is not empty')
+    tip_test02()
 
     # 判断诸多条件是否至少有一个成立
     def tip_test03():
         math, physics, computer = 70, 40, 80
         if any([math < 60, physics < 60, computer < 60]):
             print('not pass')
+    tip_test03()
 
     # 判断诸多条件是否全部成立
     def tip_test04():
         math, physics, computer = 70, 70, 80
         if all([math >= 60, physics >= 60, computer >= 60]):
             print('pass')
+    tip_test04()
 
     # 过滤数字并求和
     def tip_test05():
         lst = [1, 2, 3, 'a', 'b', 4, 5.0]
         count = sum([i for i in lst if type(i) in (int, float)])
         print('count = %.1f' % count)
-
     tip_test05()
 
 
@@ -549,7 +562,8 @@ def py_base_ex23_02():
     def process_bar(num, total):
         rate = float(num) / total
         rate_num = int(100 * rate)
-        r = '\r[%s%s]%d' % (('*' * rate_num), (' ' * (100 - rate_num)), rate_num)
+        r = '\r[%s%s]%d' % (
+            ('*' * rate_num), (' ' * (100 - rate_num)), rate_num)
         sys.stdout.write(r + '%')
         sys.stdout.flush()
 
@@ -574,23 +588,23 @@ def py_base_ex24():
     lst[0] = 10
     lst2[1] = 20
     update_list(lst)
-    print("lst: %r, lst2: %r" %(lst, lst2))
+    print("lst: %r, lst2: %r" % (lst, lst2))
 
-    #2 map
+    # 2 map
     def update_map(m):
-        m[3] ="THREE"
+        m[3] = "THREE"
         print("[update]", m)
 
-    m = {1:"one", 2:"two", 3:"three"}
+    m = {1: "one", 2: "two", 3: "three"}
     print("\nsrc map:", m)
 
     m2 = m
     m[1] = "ONE"
     m2[2] = "TWO"
     update_map(m)
-    print("map: %r, map2: %r" %(m, m2))
+    print("map: %r, map2: %r" % (m, m2))
 
-    #3 object
+    # 3 object
     class person(object):
         def __init__(self, name, age, job):
             self.name = name
@@ -598,7 +612,7 @@ def py_base_ex24():
             self.job = job
 
         def __str__(self):
-            return "name=%s, age=%d, job=%s" %(self.name, self.age, self.job)
+            return "name=%s, age=%d, job=%s" % (self.name, self.age, self.job)
 
     def update_person(person):
         person.job = "TESTER"
@@ -611,7 +625,7 @@ def py_base_ex24():
     p.name = "HENRY"
     p1.age += 1
     update_person(p)
-    print("p: %s, p1:%s" %(p, p1))
+    print("p: %s, p1:%s" % (p, p1))
 
 
 # example 25, datetime
@@ -642,22 +656,53 @@ def py_base_ex25():
     print_days('2019-08-27', '2019-09-02')
 
 
-# example 26, 2d array
+# example 26, 2d array by numpy
 def py_base_ex26():
-    array_2d = np.zeros((2,5))
+    array_2d = np.zeros((2, 5))
     for i in range(5):
         array_2d[0][i] = i
     print(array_2d)
 
 
+# example 27, type hint
+def py_base_ex2701():
+    def addTwo(x: int) -> int:
+        return x+2
+    print('results:', addTwo(10))
+
+
+def py_base_ex2702():
+    import pprint
+    from typing import List
+
+    Vector = List[float]
+    Matrix = List[Vector]
+
+    def addMatrix(a: Matrix, b: Matrix) -> Matrix:  # type hint
+        result = []
+        for i, row in enumerate(a):
+            result_row = []
+            for j, row in enumerate(row):
+                result_row += [a[i][j] + b[i][j]]  # instead of list.append()
+            result += [result_row]
+        return result
+
+    x = [[1.0, 2.0], [3.0, 4.0]]
+    y = [[2.0, 2.0], [-3.0, -3.0]]
+    res = addMatrix(x, y)
+    print('print:', res)
+    pprint.pprint(res)  # print复杂对象
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
-    print('PYPATH='+os.getenv('PYPATH') if len(os.getenv('PYPATH')) > 0 else 'PYPATH=null')
+    print('PYPATH='+os.getenv('PYPATH')
+          if len(os.getenv('PYPATH')) > 0 else 'PYPATH=null')
     print('\npython version:\n', sys.version)
     print()
 
-    py_base_ex26()
+    py_base_ex2702()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
