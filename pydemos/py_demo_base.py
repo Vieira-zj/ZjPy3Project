@@ -664,7 +664,7 @@ def py_base_ex26():
     print(array_2d)
 
 
-# example 27, type hint
+# example 27, field type hint
 def py_base_ex2701():
     def addTwo(x: int) -> int:
         return x+2
@@ -694,6 +694,32 @@ def py_base_ex2702():
     pprint.pprint(res)  # print复杂对象
 
 
+# example 28, 类装饰器
+def py_base_ex28():
+    import functools
+
+    class MyLogging(object):
+        def __init__(self, level='warn'):
+            self.level = level
+
+        def __call__(self, func):
+            @functools.wraps(func)
+            def _deco(*args, **kwargs):
+                if self.level == 'warn':
+                    self.notify(func)
+                return func(*args, **kwargs)
+            return _deco
+
+        def notify(self, func):
+            print('%s is running' % func.__name__)
+
+    @MyLogging(level='warn')  # 执行__call__方法
+    def bar(a, b):
+        print('i am bar: %d' % (a+b))
+
+    bar(1, 2)
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -702,7 +728,7 @@ if __name__ == '__main__':
     print('\npython version:\n', sys.version)
     print()
 
-    py_base_ex2702()
+    py_base_ex28()
     # py_base_ex23_01()
 
     print('python base demo DONE.')

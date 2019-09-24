@@ -31,7 +31,7 @@ def py_class_ex01():
 
     f = Foo()
     print('Foo class:', f.__class__)
-    print('Foo super class:', f.__class__.__class__)
+    print('Foo super class:', f.__class__.__class__) # type
 
 
 # example 02, 使用class来当做元类
@@ -57,7 +57,7 @@ def py_class_ex02():
 
     f = Foo()
     print('Foo class:', f.__class__)
-    print('Foo super class:', f.__class__.__class__)
+    print('Foo super class:', f.__class__.__class__) # UpperAttrMetaclass
 
 
 # example 03, class: __new__, __init__, __call__
