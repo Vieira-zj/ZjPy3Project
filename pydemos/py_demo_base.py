@@ -720,6 +720,35 @@ def py_base_ex28():
     bar(1, 2)
 
 
+# example 29, iterator and generator
+def py_base_ex29():
+    from collections.abc import Iterable,Iterator
+
+    mylist = ['a','b','c']
+    print('isinstance(mylist, Iterable):', isinstance(mylist, Iterable))
+    print('isinstance(mylist, Iterator):', isinstance(mylist, Iterator))
+
+    myiter = iter(mylist)
+    print('\nmyiter:', myiter)
+    print('isinstance(myiter, Iterable):', isinstance(myiter, Iterable))
+    print('isinstance(myiter, Iterator):', isinstance(myiter, Iterator))
+
+    mygen = (x for x in mylist)
+    print('\nmygen:', mygen)
+    print('isinstance(mygen, Iterable):', isinstance(mygen, Iterable))
+    print('isinstance(mygen, Iterator):', isinstance(mygen, Iterator))
+
+    # file is both iterable and iterator
+    with open('data/data.log', mode='r', encoding='UTF-8') as f:
+        print('\nfile:', f)
+        print('isinstance(f, Iterable):', isinstance(f, Iterable))
+        print('isinstance(f, Iterator):', isinstance(f, Iterator))
+
+        print('\nfile content:')
+        for line in f:
+            print(line.rstrip('\n'))
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -728,7 +757,7 @@ if __name__ == '__main__':
     print('\npython version:\n', sys.version)
     print()
 
-    py_base_ex28()
+    py_base_ex29()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
