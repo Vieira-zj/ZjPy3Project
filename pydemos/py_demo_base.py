@@ -722,9 +722,9 @@ def py_base_ex28():
 
 # example 29, iterator and generator
 def py_base_ex29():
-    from collections.abc import Iterable,Iterator
+    from collections.abc import Iterable, Iterator
 
-    mylist = ['a','b','c']
+    mylist = ['a', 'b', 'c']
     print('isinstance(mylist, Iterable):', isinstance(mylist, Iterable))
     print('isinstance(mylist, Iterator):', isinstance(mylist, Iterator))
 
@@ -749,6 +749,18 @@ def py_base_ex29():
             print(line.rstrip('\n'))
 
 
+# example 30, py tips
+def py_base_ex30():
+    # decimal
+    from decimal import Decimal
+    assert Decimal('0.1') + Decimal('0.2') == Decimal('0.3')
+
+    # 列表的扁平化
+    groups = [['x1', 'x2'], ['y1', 'y2'], ['z']]
+    names = sum(groups, [])
+    print('names:', names)
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -757,7 +769,7 @@ if __name__ == '__main__':
     print('\npython version:\n', sys.version)
     print()
 
-    py_base_ex29()
+    py_base_ex30()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
