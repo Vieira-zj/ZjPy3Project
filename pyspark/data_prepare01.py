@@ -45,7 +45,7 @@ def print_df_info(pyspark_df):
 
 # demo01: generate parquet data
 def pyspark_data_demo01(sc, sqlContext):
-    print('generate test data')
+    print('generate test data (parquet).')
     test_rdd = sc.parallelize(range(1000), 1) \
         .map(lambda x: [x, str(x) + '_' + random.choice('yn')])
     test_df = sqlContext.createDataFrame(test_rdd, ['id', 'flag'])
@@ -53,7 +53,7 @@ def pyspark_data_demo01(sc, sqlContext):
 
     write_dir = 'hdfs:///user/root/test/testdata'
     test_df.write.parquet(write_dir)
-    print('write test data as parquet success')
+    print('write test data as parquet success.')
 
     # hdfs dfs -ls -h /user/root/test/testdata
     # outputs:
@@ -77,13 +77,13 @@ def extend_tbl_account(id_account_rdd):
 
 
 def pyspark_data_demo02(sc, sqlContext):
-    print('generate id_account_list')
+    print('generate id_account_list.')
     num_account = 1500
     id_account_rdd = sc.parallelize(range(num_account), 1) \
         .map(lambda x: gen_evt_id('acc'))
     id_account_rdd.persist(storageLevel=pyspark.StorageLevel.MEMORY_AND_DISK)
 
-    print('extend tbl_account by account_ids')
+    print('extend tbl_account by account_ids:')
     tbl_account_rdd, schema_account = extend_tbl_account(id_account_rdd)
     tbl_account_df = sqlContext.createDataFrame(tbl_account_rdd, schema_account)
     print_df_info(tbl_account_df)
@@ -91,7 +91,7 @@ def pyspark_data_demo02(sc, sqlContext):
     write_dir = 'hdfs:///user/root/test/account'
     tbl_account_df.write.parquet(write_dir)
     id_account_rdd.unpersist()
-    print('write id_account_list success')
+    print('write id_account_list success.')
 
     # hdfs dfs -ls -h /user/root/test/account
     # outputs:
@@ -114,7 +114,7 @@ def pyspark_data_demo03(sc, sqlContext):
     print('read id_account_list parquet file: ' + read_dir + parquet_file)
     id_account_df = sqlContext.read.parquet(read_dir + parquet_file)
     id_account_df.persist(storageLevel=pyspark.StorageLevel.MEMORY_AND_DISK)
-    print('read id_account_list success')
+    print('read id_account_list success.')
     print_df_info(id_account_df)
 
     # copy df with new account_ids, and write to parquet
@@ -130,7 +130,7 @@ def pyspark_data_demo03(sc, sqlContext):
 
         new_id_account_df.write.mode('overwrite') \
             .parquet(write_dir + 'account_' + str(i))
-        print('write new id_account_list success')
+        print('write new id_account_list success.')
 
     id_account_df.unpersist()
 
@@ -150,7 +150,8 @@ def pyspark_data_demo04(sc, sqlContext):
                   'high.school', 'basic.4y', 'basic.6y', 'basic.9y']
     flag = ['yes', 'no']
     contacts = ['cellular', 'telephone']
-    months = ['jun', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+    months = ['jun', 'feb', 'mar', 'apr', 'may', 'jun',
+              'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
     days_of_week = ['mon', 'tue', 'wed', 'thu', 'fri']
     poutcomes = ['nonexistent', 'success', 'failure']
     labels = [0, 1]
@@ -182,7 +183,7 @@ def pyspark_data_demo04(sc, sqlContext):
 
         return fields
 
-    print('generate bank_data start')
+    print('generate bank_data start.')
     num_bankdata = 2 * 10000
     num_partitions = 1
     bankdata_rdd = sc.parallelize(range(num_bankdata), num_partitions) \
@@ -199,7 +200,7 @@ def pyspark_data_demo04(sc, sqlContext):
 
     write_dir = 'hdfs:///user/root/test/bankdata'
     bankdata_df.write.parquet(write_dir)
-    print('write band_data success')
+    print('write band_data success.')
 
 
 if __name__ == '__main__':

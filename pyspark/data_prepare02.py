@@ -25,13 +25,13 @@ from pyspark.sql import SQLContext
 from pyspark.sql import HiveContext
 
 
-def print_df_info(pyspark_df):
+def print_df_info(df):
     print('\nDATAFRAME INFO:')
     print('data schema:')
-    pyspark_df.printSchema()
-    print('records count: %d' % pyspark_df.count())
+    df.printSchema()
+    print('records count: %d' % df.count())
     print('top 10 records:')
-    pyspark_df.show(10)
+    df.show(10)
 
 
 class DataCreate(object):
@@ -55,7 +55,8 @@ class DataCreate(object):
                 .map(lambda x: [x, str(x) + random.choice('yn')])
             test_df = self._hiveContext.createDataFrame(test_rdd, schema)
 
-            dt = datetime.datetime.strftime(dt_timestamp + datetime.timedelta(days=i), '%Y%m%d')
+            dt = datetime.datetime.strftime(
+                dt_timestamp + datetime.timedelta(days=i), '%Y%m%d')
             if f_type == 'orc':
                 test_df.write.orc(write_path + dt)
             else:
@@ -81,12 +82,13 @@ class DataLoad(object):
 
     def _pre_load(self, d_path, s_date, e_date):
         d_path = self._format_path(d_path)
-        f_paths = [d_path + s_date]
 
+        f_paths = []
         s_date_timestamp = datetime.datetime.strptime(s_date, '%Y%m%d')
         e_date_timestamp = datetime.datetime.strptime(e_date, '%Y%m%d')
         while s_date_timestamp <= e_date_timestamp:
-            f_paths.append(d_path + datetime.datetime.strftime(s_date_timestamp, '%Y%m%d'))
+            f_paths.append(
+                d_path + datetime.datetime.strftime(s_date_timestamp, '%Y%m%d'))
             s_date_timestamp += datetime.timedelta(days=1)
 
         return f_paths
@@ -120,7 +122,7 @@ class DataLoad(object):
             read_dfs.append(df)
 
         ret_df = read_dfs[0]
-        for i in range(1, len(read_dfs)):
+        for _ in range(1, len(read_dfs)):
             ret_df = ret_df.unionAll(df)
         return ret_df
 # DataLoad class end
@@ -158,6 +160,39 @@ def testDataPrepareForOrc(sc, sqlContext, hiveContext):
     # /user/root/test/test_orc/dt=20190703
 
 
+def testUpdateDFColumns(sc, sqlContext, hiveContext):
+    from pyspark.sql.types import StringType, IntegerType
+    import pyspark.sql.functions as F
+
+    d_path = 'hdfs:///user/root/test/test_parquet/'
+    start_date = '20191001'
+
+    dataCreate = DataCreate(sc, sqlContext, hiveContext)
+    dataCreate.data_prepare(d_path, 11000, start_date, 3, f_type='parquet')
+
+    load = DataLoad(sc, sqlContext, hiveContext)
+    df = load.load_data_parquet(d_path, start_date, '20191003').cache()
+    print_df_info(df)
+
+    print('##1: update dataframe with new column "isOK":')
+    # df1 = df.withColumn('isOK', F.col('flag'))
+    df1 = df.withColumn('isOK', df['flag'])
+    print_df_info(df1)
+
+    print('##2: update dataframe column type, id:long => id:int:')
+    # df2 = df.withColumn('id', F.col('id').cast(IntegerType()))
+    df2 = df.withColumn('id', df['id'].cast(IntegerType()))
+    print_df_info(df2)
+
+    print('##3: dataframe column format with select.')
+    print('id:long => id_str:string, flag:string => is_ok:string:')
+    df3 = df.select(
+        df['id'].cast(StringType()).alias('id_str'),
+        df['flag'].alias('is_ok')
+    )
+    print_df_info(df3)
+
+
 if __name__ == '__main__':
 
     conf = SparkConf().setAppName('data_prepare_demo').setMaster('yarn-client')
@@ -166,7 +201,8 @@ if __name__ == '__main__':
     sqlContext = SQLContext(sc)
     hiveContext = HiveContext(sc)
 
-    testDataPrepareForParquet(sc, sqlContext, hiveContext)
+    # testDataPrepareForParquet(sc, sqlContext, hiveContext)
     # testDataPrepareForOrc(sc, sqlContext, hiveContext)
+    testUpdateDFColumns(sc, sqlContext, hiveContext)
 
     print('pyspark data prepare demo DONE.')
