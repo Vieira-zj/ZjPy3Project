@@ -34,6 +34,13 @@ def print_df_info(df):
     df.show(10)
 
 
+def print_rdd_debug_info(rdd):
+    print('\nRDD DEBUG INFO:')
+    print('rdd number of partitions: ' + str(rdd.getNumPartitions()))
+    print('rdd dag details:')
+    print(rdd.toDebugString())
+
+
 class DataCreate(object):
 
     def __init__(self, sc, sqlContext, hiveContext):
@@ -168,11 +175,16 @@ def testUpdateDFColumns(sc, sqlContext, hiveContext):
     start_date = '20191001'
 
     dataCreate = DataCreate(sc, sqlContext, hiveContext)
-    dataCreate.data_prepare(d_path, 11000, start_date, 3, f_type='parquet')
+    dataCreate.data_prepare(d_path, 12000, start_date, 3, f_type='parquet')
 
     load = DataLoad(sc, sqlContext, hiveContext)
-    df = load.load_data_parquet(d_path, start_date, '20191003').cache()
+    df = load.load_data_parquet(d_path, start_date, '20191003')
+    print('###src rdd number of partitions: ' + str(df.rdd.getNumPartitions()))
+
+    # repartition with shuffle
+    df = df.repartition(4).cache()
     print_df_info(df)
+    print_rdd_debug_info(df.rdd)
 
     print('##1: update dataframe with new column "isOK":')
     # df1 = df.withColumn('isOK', F.col('flag'))
@@ -191,6 +203,15 @@ def testUpdateDFColumns(sc, sqlContext, hiveContext):
         df['flag'].alias('is_ok')
     )
     print_df_info(df3)
+
+    print('###dataframe write to parquet (4 partitions).')
+    w_path = 'hdfs:///user/root/test/write_parquet/'
+    df.write.parquet(w_path, mode='overwrite')
+    # write files:
+    # /user/root/test/write_parquet/part-r-00000-15f7284b-1263-4129-9389-bf1effcf198c.gz.parquet
+    # /user/root/test/write_parquet/part-r-00001-15f7284b-1263-4129-9389-bf1effcf198c.gz.parquet
+    # /user/root/test/write_parquet/part-r-00002-15f7284b-1263-4129-9389-bf1effcf198c.gz.parquet
+    # /user/root/test/write_parquet/part-r-00003-15f7284b-1263-4129-9389-bf1effcf198c.gz.parquet
 
 
 if __name__ == '__main__':
