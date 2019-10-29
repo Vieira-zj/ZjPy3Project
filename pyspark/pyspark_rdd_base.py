@@ -12,6 +12,7 @@ bin/spark-submit \
 /mnt/spark_dir/pyspark_rdd_base.py
 '''
 
+import random
 from pyspark import SparkConf, SparkContext
 
 
@@ -27,7 +28,7 @@ def pyspark_rdd_demo01(sc):
     print('filter output: ' + str(filter_output))
 
 
-# distinct
+# filter, distinct
 def pyspark_rdd_demo02(sc):
     def _doubleIfOdd(x):
         return x if x % 2 == 0 else x * 2
@@ -39,7 +40,7 @@ def pyspark_rdd_demo02(sc):
     print('result rdd: ' + str(result_rdd.collect()))
 
 
-# read hdfs text file
+# read text file on hdfs
 def pyspark_rdd_demo03(sc):
     # pre-condition: mkdir and put file on hdfs
     hdfs_path = '/user/root/wordcount/helloworld.txt'
@@ -48,20 +49,21 @@ def pyspark_rdd_demo03(sc):
     print('first line output: ' + rdd.first())
 
 
-# wordcount example
+# wordcount
 def pyspark_rdd_demo04(sc):
     from operator import add
 
-    hdfs_path = '/user/root/wordcount/helloworld.txt'
+    hdfs_path = 'hdfs:///user/root/wordcount/helloworld.txt'
     rdd = sc.textFile(hdfs_path)
     counts = rdd.flatMap(lambda x: x.split(' ')) \
         .map(lambda x: (x, 1)).reduceByKey(add)
 
+    print('wordcount:')
     for (word, count) in counts.collect():
         print('%s: %d' % (word, count))
 
 
-# pair rdd
+# pair rdd, sortBy
 def pyspark_rdd_demo05(sc):
     rdd = sc.parallelize(['Hello hello', 'Hello New York', 'York says hello'])
     result_rdd = rdd.flatMap(lambda sentence: sentence.split(' ')) \
@@ -74,12 +76,11 @@ def pyspark_rdd_demo05(sc):
 
     seq_rdd = result_rdd.sortByKey(ascending=True)
     print('\nfirst 2 word count: ' + str(seq_rdd.take(2)))
-
     top_rdd = result_rdd.sortBy(lambda x: x[1], ascending=False)
     print('\ntop 2 word count: ' + str(top_rdd.take(2)))
 
 
-# rdd join
+# union
 def pyspark_rdd_demo06(sc):
     num_rdd_01 = sc.parallelize([1, 2, 3]).cache()
     num_rdd_02 = sc.parallelize([2, 3, 4]).cache()
@@ -95,7 +96,7 @@ def pyspark_rdd_demo06(sc):
     print('\nrdds subtract result: ' + str(subtract_rdd.collect()))
 
 
-# pair rdd join
+# pair rdd, join
 def pyspark_rdd_demo07(sc):
     home_rdd = sc.parallelize([
         ('Brussels', 'John'),
@@ -129,11 +130,50 @@ def pyspark_rdd_demo08(sc):
     print('\naverage value: ' + str(avg))
 
 
+# partitionBy
+def pyspark_rdd_demo09(sc):
+    save_path = 'hdfs:///user/root/output/09'
+    rdd = sc.parallelize(range(1, 60)).map(lambda x: [x, random.choice('ab')])
+    rdd.partitionBy(2, lambda x: x % 2).saveAsTextFile(save_path)
+    # output:
+    # hdfs dfs -ls /user/root/output/01
+    # -rw-r--r--  /user/root/output/01/part-00000
+    # -rw-r--r--  /user/root/output/01/part-00001
+
+
+# countBy
+def pyspark_rdd_demo10(sc):
+    tmp_str = 'I love apple ? do you love apple too ?'
+    rdd = sc.parallelize(tmp_str.split(' '), 2)
+    print('\nwordcount (countByValue):')
+    for k, v in rdd.countByValue().iteritems():
+        print('%s:%d' % (k, v))
+
+    lst = [('a', 1), ('a', 5), ('b', 2), ('b', 3), ('b', 4)]
+    rdd = sc.parallelize(lst, 2).cache()  # pair rdd
+    print('\ncountByKey:')
+    for k, v in rdd.countByKey().iteritems():
+        print('%s:%d' % (k, v))
+    # output: a:2 b:3
+
+    print('\ngroupby, and sorted rows:')
+    rdd1 = rdd.groupByKey().sortBy(lambda x: x[1], False, 1)
+    for v in rdd1.collect():
+        print('%s:%s' % (v[0], v[1].data))
+    # output: a:[1, 5] b:[2, 3, 4]
+
+    print('\ngroupby, and rows value count:')
+    rdd2 = rdd.reduceByKey(lambda x, y: x+y)
+    for v in rdd2.collect():
+        print('%s:%s' % (v[0], v[1]))
+    # output: a:6 b:9
+
+
 if __name__ == '__main__':
 
     conf = SparkConf().setAppName('pyspark_rdd_base_test').setMaster('yarn-client')
     sc = SparkContext(conf=conf)
     print('pyspark version: ' + str(sc.version))
 
-    pyspark_rdd_demo08(sc)
+    pyspark_rdd_demo10(sc)
     print('pyspark rdd base demo DONE.')

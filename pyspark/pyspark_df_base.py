@@ -9,17 +9,21 @@ bin/spark-submit \
 --driver-memory 1g \
 --executor-memory 1g \
 --executor-cores 1 \
+--conf "spark.sql.shuffle.partitions=2" \
 /mnt/spark_dir/pyspark_df_base.py
 
 NOTE: 
 spark shuffle asks for more memory, and in docker engine, update limited memory to 3G (2G is default)!
 '''
 
+import random
 from pyspark import SparkConf, SparkContext
 from pyspark.sql import SQLContext
+from pyspark.sql.types import StructType, StructField, IntegerType, LongType, StringType
+import pyspark.sql.functions as F
 
 
-# read hdfs file
+# read file on hdfs
 def pyspark_df_demo01(sqlContext):
     print('read hdfs json file =>')
     # {"name":"Michael"}
@@ -85,8 +89,6 @@ def pyspark_df_demo02(sqlContext):
 
 # dataframe sql
 def pyspark_df_demo03(sqlContext):
-    from pyspark.sql.types import StructType, StructField, StringType, LongType
-
     records = []
     records.append((100, 'Katie', 19, 'brown'))
     records.append((101, 'Michael', 22, 'green'))
@@ -122,7 +124,7 @@ def pyspark_df_demo03(sqlContext):
     sqlContext.sql(str_sql).show()
 
 
-# dataframe join
+# dataframe union
 def pyspark_df_demo04(sqlContext):
     # same data schema for 2 dataframe
     df_01 = sqlContext.createDataFrame((
@@ -180,6 +182,33 @@ def pyspark_df_demo05(sc):
     # df_01.join(df_02, df_01.name == df_02.name, 'inner').show()
 
 
+# dataframe groupby and agg
+def pyspark_df_demo06(sc, sqlContext):
+    rdd = sc.parallelize(range(1, 1000), 2).map(lambda x: [random.choice('ab'), x])
+    schema = StructType([
+        StructField('level', StringType(), True),
+        StructField('count', IntegerType(), True)])
+    df = sqlContext.createDataFrame(rdd, schema).sample(False, 0.1, 999).cache()
+
+    print('\ndataframe count: %d, and first 3 rows:' % (df.count()))
+    df.show(3)
+
+    print('\n#1: group and aggregation (max) results:')
+    df1 = df.groupBy('level').agg(F.max('count').alias('count_max'))
+    for item in df1.collect():
+        print(item.asDict())
+
+    print('\n#2: group and aggregation (max) results:')
+    df2 = df.groupBy('level').max('count')
+    print_rdd_debug_info(df2.rdd)  # partition#, 2 => 2
+    df2.show()
+
+
+def print_rdd_debug_info(rdd):
+    print('rdd dag debug info:')
+    print(rdd.toDebugString())
+
+
 if __name__ == '__main__':
 
     conf = SparkConf().setAppName('pyspark_df_base_test').setMaster('yarn-client')
@@ -187,6 +216,7 @@ if __name__ == '__main__':
     print('pyspark version: ' + str(sc.version))
     sqlContext = SQLContext(sc)
 
-    pyspark_df_demo04(sqlContext)
+    # pyspark_df_demo04(sqlContext)
     # pyspark_df_demo05(sc)
+    pyspark_df_demo06(sc, sqlContext)
     print('pyspark dataframe base demo DONE.')
