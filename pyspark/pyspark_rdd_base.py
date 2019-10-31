@@ -175,5 +175,5 @@ if __name__ == '__main__':
     sc = SparkContext(conf=conf)
     print('pyspark version: ' + str(sc.version))
 
-    pyspark_rdd_demo10(sc)
+    pyspark_rdd_demo01(sc)
     print('pyspark rdd base demo DONE.')

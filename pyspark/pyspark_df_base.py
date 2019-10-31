@@ -3,22 +3,25 @@
 Created on 2019-04-25
 @author: zhengjin
 
+pyspark api:
+http://spark.apache.org/docs/1.6.2/api/python/pyspark.sql.html
+
 cmd for submit spark job:
 bin/spark-submit \
 --master yarn-client \
 --driver-memory 1g \
 --executor-memory 1g \
---executor-cores 1 \
+--executor-cores 2 \
+--conf "spark.default.parallelism=4" \
 --conf "spark.sql.shuffle.partitions=2" \
 /mnt/spark_dir/pyspark_df_base.py
 
-NOTE: 
-spark shuffle asks for more memory, and in docker engine, update limited memory to 3G (2G is default)!
+Note: spark shuffle asks for more memory, and in docker engine, update limited memory to 3G (2G is default)!
 '''
 
 import random
 from pyspark import SparkConf, SparkContext
-from pyspark.sql import SQLContext
+from pyspark.sql import SQLContext, HiveContext
 from pyspark.sql.types import StructType, StructField, IntegerType, LongType, StringType
 import pyspark.sql.functions as F
 
@@ -209,14 +212,127 @@ def print_rdd_debug_info(rdd):
     print(rdd.toDebugString())
 
 
+# dataframe distinct
+def pyspark_df_demo07(hiveContext):
+    course_list = [
+        ('001', 'stu001', 'math'),
+        ('001', 'stu002', 'math'),
+        ('001', 'stu003', 'math'),
+        ('002', 'stu001', 'english'),
+        ('002', 'stu002', 'english'),
+        ('002', 'stu003', 'english')
+    ]
+
+    schema = StructType([
+        StructField('course_id', StringType(), False),
+        StructField('user_id', StringType(), False),
+        StructField('course_name', StringType(), False)
+    ])
+
+    df = hiveContext.createDataFrame(course_list, schema).coalesce(1).cache()
+
+    # 整行去重
+    print('\n#1: distinct course_id+course_name:')
+    df.select('course_id', 'course_name').distinct().show()
+
+    # 某一列或者多列相同的去除重复
+    print('\n#2: distince col course_id and course_name:')
+    df2 = df.distinct().dropDuplicates(
+        subset=[c for c in df.columns if c in ['course_id', 'course_name']])
+    df2.select('user_id', 'course_id', 'course_name').show()
+
+
+# dataframe hive table
+def pyspark_df_demo08(hiveContext):
+    course_list = [
+        ('001', 'math'),
+        ('002', 'chinese'),
+        ('003', 'english'),
+        ('004', 'computer')
+    ]
+
+    schema = StructType([
+        StructField('course_id', StringType(), False),
+        StructField('course_name', StringType(), False)
+    ])
+
+    df = hiveContext.createDataFrame(course_list, schema).coalesce(1).cache()
+    df.show()
+
+    save_table = 'course_table1'
+    print('\n#1: save df as hive table (%s) by saveAsTable().' % save_table)
+    df.write.format('orc').mode('overwrite').saveAsTable(save_table)
+
+    save_table = 'course_table2'
+    print('\n#2: save df as hive table (%s) by sql "insert overwrite".' % save_table)
+    hiveContext.sql("CREATE TABLE IF NOT EXISTS %s ( \
+        course_id string COMMENT '课程ID', \
+        course_name string COMMENT '')COMMENT '课程名称'" % save_table)
+
+    df.registerTempTable('tmp_table_df')
+    hiveContext.sql('insert overwrite table %s select * from tmp_table_df' % save_table)
+
+    # output:
+    # hdfs dfs -ls -R /user/hive/warehouse
+    # /user/hive/warehouse/course_table1/part-r-00000-8f23206b-cb18-418c-82d9-ff493b978960.orc
+    # /user/hive/warehouse/course_table2/part-00000
+
+
+# dataframe 拆分多项
+def pyspark_df_demo09(hiveContext):
+    course_list = [
+        ('001', 'math', 'stu001,stu002,stu003'),
+        ('002', 'english', 'stu001,stu003,stu004'),
+    ]
+
+    schema = StructType([
+        StructField('course_id', StringType(), nullable=False),
+        StructField('course_name', StringType(), nullable=False),
+        StructField('student_ids', StringType(), nullable=False)
+    ])
+
+    df = hiveContext.createDataFrame(course_list, schema).coalesce(1).cache()
+    df.show()
+
+    print('\none row split to multiple rows.')
+    df.withColumn('student_id', F.explode(F.split(df['student_ids'], ','))) \
+        .drop(df['student_ids']).show()
+
+
+# dataframe 多项合并
+def pyspark_df_demo10(hiveContext):
+    course_list = [
+        ('001', 'math', 'desc001', 'desc002', 'desc003'),
+        ('002', 'english', 'desc011', 'desc012', 'desc013')
+    ]
+
+    schema = StructType([
+        StructField('course_id', StringType(), nullable=False),
+        StructField('course_name', StringType(), nullable=False),
+        StructField('comment_1', StringType(), nullable=False),
+        StructField('comment_2', StringType(), nullable=False),
+        StructField('comment_3', StringType(), nullable=False)
+    ])
+
+    df = hiveContext.createDataFrame(course_list, schema).coalesce(1).cache()
+    df.show()
+
+    print('\nmultiple fields merge into one field.')
+    df.withColumn('all_comments', F.concat_ws(
+        '|', df['comment_1'], df['comment_2'], df['comment_3'])).show()
+
+
 if __name__ == '__main__':
 
     conf = SparkConf().setAppName('pyspark_df_base_test').setMaster('yarn-client')
     sc = SparkContext(conf=conf)
     print('pyspark version: ' + str(sc.version))
     sqlContext = SQLContext(sc)
+    hiveContext = HiveContext(sc)
 
     # pyspark_df_demo04(sqlContext)
     # pyspark_df_demo05(sc)
-    pyspark_df_demo06(sc, sqlContext)
+    # pyspark_df_demo06(sc, sqlContext)
+    pyspark_df_demo10(hiveContext)
+
     print('pyspark dataframe base demo DONE.')
