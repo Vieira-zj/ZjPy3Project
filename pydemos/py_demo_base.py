@@ -761,6 +761,34 @@ def py_base_ex30():
     print('names:', names)
 
 
+# example 31, *args and **kwargs
+def py_base_ex31():
+    # as declare
+    def _sum(*args):
+        print('input args:', args)
+        return sum(args)
+
+    print()
+    print('*args as declare, and return:', _sum(1, 2, 3))
+
+    # as input
+    def _add(a, b):
+        return a + b
+
+    tmp_list = [1, 2]
+    print('\n*args as input, and return:', _add(*tmp_list))
+    tmp_dict = {'a': 1, 'b': 6}
+    print('**kwargs as input, and return:', _add(**tmp_dict))
+
+    # list to tuple
+    def _print(*val):
+        print('\ninput args type:', type(val))
+        print('input values:', val)
+
+    vals = ['a', 'b', 'c']
+    _print(*vals)
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -769,7 +797,7 @@ if __name__ == '__main__':
     print('\npython version:\n', sys.version)
     print()
 
-    py_base_ex30()
+    py_base_ex31()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
