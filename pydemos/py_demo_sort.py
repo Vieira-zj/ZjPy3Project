@@ -4,9 +4,9 @@ Created on 2019-11-08
 @author: zhengjin
 '''
 
-# --------------------------------------------------------------
+# -----------------------------------
 # Sort
-# --------------------------------------------------------------
+# -----------------------------------
 
 
 def bubble_sort(iter):
@@ -83,6 +83,43 @@ def merge(iter1, iter2):
     return ret_iter
 
 
+# -----------------------------------
+# Search
+# -----------------------------------
+def binarySearch01(val, sort_list, start, end):
+    '''
+    二分查找 有序数组 O(logN) 递归
+    '''
+    if start > end:
+        return -1
+
+    mid = int(start + (end - start) / 2)
+    if val > sort_list[mid]:
+        return binarySearch01(val, sort_list, mid+1, end)
+    elif val < sort_list[mid]:
+        return binarySearch01(val, sort_list, start, mid-1)
+    else:
+        return mid
+
+
+def binarySearch02(val, sort_list):
+    '''
+    二分查找 有序数组 O(logN) 非递归
+    '''
+    start = 0
+    end = len(sort_list) - 1
+
+    while start <= end:
+        mid = int(start + (end - start) / 2)
+        if val > sort_list[mid]:
+            start = mid + 1
+        elif val < sort_list[mid]:
+            end = mid - 1
+        else:
+            return mid
+    return -1
+
+
 if __name__ == '__main__':
 
     numbers = [15, 16, 1, 99, 50, 0, 99, 13, 6, 2]
@@ -95,5 +132,12 @@ if __name__ == '__main__':
 
     numbers = [3, 16, 14, 8, 99, 53, 0, 99, 8, 32, 66]
     print('\nmerge sort results:', merge_sort(numbers))
+
+    numbers = [1, 3, 4, 6, 8, 9, 10, 12, 13, 77]
+    for val in [1, 12, 77]:
+        print('#1. search number %d, and index %d' %
+              (val, binarySearch01(val, numbers, 0, len(numbers)-1)))
+        print('#2. search number %d, and index %d' %
+              (val, binarySearch02(val, numbers)))
 
     print('py sort demo done.')
