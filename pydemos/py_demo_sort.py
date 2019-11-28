@@ -86,7 +86,8 @@ def merge(iter1, iter2):
 # -----------------------------------
 # Search
 # -----------------------------------
-def binarySearch01(val, sort_list, start, end):
+
+def bin_search01(val, sort_list, start, end):
     '''
     二分查找 有序数组 O(logN) 递归
     '''
@@ -95,14 +96,14 @@ def binarySearch01(val, sort_list, start, end):
 
     mid = int(start + (end - start) / 2)
     if val > sort_list[mid]:
-        return binarySearch01(val, sort_list, mid+1, end)
+        return bin_search01(val, sort_list, mid+1, end)
     elif val < sort_list[mid]:
-        return binarySearch01(val, sort_list, start, mid-1)
+        return bin_search01(val, sort_list, start, mid-1)
     else:
         return mid
 
 
-def binarySearch02(val, sort_list):
+def bin_search02(val, sort_list):
     '''
     二分查找 有序数组 O(logN) 非递归
     '''
@@ -118,6 +119,104 @@ def binarySearch02(val, sort_list):
         else:
             return mid
     return -1
+
+
+# -----------------------------------
+# Stack
+# -----------------------------------
+
+class Stack(object):
+
+    def __init__(self):
+        self.top = 0
+        self.store_list = []
+
+    def size(self):
+        return len(self.store_list)
+
+    def push(self, val):
+        self.top += 1
+        self.store_list.append(val)
+
+    def pop(self):
+        if self.top < 1:
+            raise StackEmptyException()
+        self.top -= 1
+        return self.store_list.pop(self.size() - 1)
+
+    def toString(self):
+        if self.size < 1:
+            return '[]'
+        return ','.join(self.store_list)
+
+
+class StackEmptyException(Exception):
+
+    def __init__(self):
+        self.value = 'stack is empty'
+
+    def __str__(self):
+        # return repr(self.value)
+        return self.value
+
+
+# -----------------------------------
+# Tree Iterator
+# -----------------------------------
+
+class BinTree(object):
+
+    def __init__(self, val):
+        self.value = val
+        self.left = None
+        self.right = None
+
+    def SetLeftNode(self, node):
+        self.left = node
+
+    def SetRightNode(self, node):
+        self.right = node
+
+
+def create_bin_tree(int_list):
+    nodes = []
+    for i in range(0, len(int_list)):
+        nodes.append(BinTree(i))
+
+    for i in range(0, int(len(nodes) / 2)):
+        nodes[i].SetLeftNode(nodes[i*2 + 1])
+        if i*2 + 2 < len(nodes):
+            nodes[i].SetRightNode(nodes[i*2 + 2])
+    return nodes[0]
+
+
+def pre_order_bin_tree01(tree_node):
+    '''
+    按层打印二叉树 从上往下 从左往右（先序遍历-递归）
+    '''
+    if tree_node is None:
+        return
+    print(tree_node.value)
+    pre_order_bin_tree01(tree_node.left)
+    pre_order_bin_tree01(tree_node.right)
+
+
+def pre_order_bin_tree02(tree_node):
+    '''
+    按层打印二叉树 从上往下 从左往右（先序遍历-非递归）
+    '''
+    s = Stack()
+    s.push(tree_node)
+    try:
+        while True:
+            node = s.pop()
+            print(node.value)
+            if node.right != None:
+                s.push(node.right)
+            if node.left != None:
+                s.push(node.left)
+    except StackEmptyException as e:
+        print(e)
 
 
 if __name__ == '__main__':
@@ -136,8 +235,14 @@ if __name__ == '__main__':
     numbers = [1, 3, 4, 6, 8, 9, 10, 12, 13, 77]
     for val in [1, 12, 77]:
         print('#1. search number %d, and index %d' %
-              (val, binarySearch01(val, numbers, 0, len(numbers)-1)))
+              (val, bin_search01(val, numbers, 0, len(numbers)-1)))
         print('#2. search number %d, and index %d' %
-              (val, binarySearch02(val, numbers)))
+              (val, bin_search02(val, numbers)))
+
+    bin_tree = create_bin_tree(range(0, 10))
+    print('\n#1. print bin tree by pre order:')
+    pre_order_bin_tree01(bin_tree)
+    print('#2. print bin tree by pre order:')
+    pre_order_bin_tree02(bin_tree)
 
     print('py sort demo done.')
