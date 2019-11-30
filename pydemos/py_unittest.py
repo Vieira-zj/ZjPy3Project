@@ -3,9 +3,11 @@
 Created on 2018-10-30
 @author: zhengjin
 
-Run test demos by using python "unittest" module.
+Includes unit test and selenium ui test by "unittest" module.
 '''
 
+import chromedriver_binary
+import os
 import threading
 import time
 import unittest
@@ -13,15 +15,15 @@ import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.support import expected_conditions as cond
 from selenium.webdriver.support.ui import WebDriverWait
 
 
 class TestPy01(unittest.TestCase):
     '''
-    unit test refer to:
-    https://blog.csdn.net/xiaoquantouer/article/details/75089200
+    unit test.
     '''
 
     def test_subprocess(self):
@@ -46,15 +48,23 @@ class TestPy01(unittest.TestCase):
     def test_reg_expr(self):
         import re
         test_str = 'list: device offline'
-        self.assertTrue(re.search('unknown|offline', test_str), 'search success')
-        self.assertFalse(re.search('unknown|online', test_str), 'search failed')
+        self.assertTrue(re.search(
+            'unknown|offline', test_str), 'search success')
+        self.assertFalse(re.search(
+            'unknown|online', test_str), 'search failed')
 
-    # --------------------------------------------------------------
-    # Selenium grid demos
-    # --------------------------------------------------------------
+
+class TestPy02(unittest.TestCase):
+    '''
+    selenium ui test.
+    '''
+
     def test_selenium_chrome(self):
         '''
-        selenium headless demo in local (chrome).
+        selenium ui test with headless mode in local (chrome).
+
+        pre-condition:
+        pip3 install chromedriver-binary
         '''
         caps = {
             'browserName': 'chrome',
@@ -62,107 +72,138 @@ class TestPy01(unittest.TestCase):
             'platform': 'MAC',
             'javascriptEnabled': True,
         }
-
-        # headless mode
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
-
-        DRIVER_PATH = '/Users/zhengjin/Downloads/selenium_driver/chromedriver'
+        br_options = ChromeOptions()
+        br_options.add_argument('--headless')
+        br_options.add_argument('--disable-gpu')
         browser = webdriver.Chrome(
-            executable_path=DRIVER_PATH, desired_capabilities=caps, chrome_options=chrome_options)
+            desired_capabilities=caps, options=br_options)
         browser.implicitly_wait(8)
-        print('browser info:', browser.get('version', 'null'))
 
-        open_url = 'http://www.baidu.com'
-        browser.get(open_url)
-        print('page title:', browser.title)
-        self.assertTrue('百度' in browser.title, 'verify baidu page title')
+        print('\nbrowser: %s, version: %s' % (
+            browser.capabilities['browserName'], browser.capabilities['browserVersion']))
+        try:
+            ms_bing_open_steps(self, browser)
+        finally:
+            browser.quit()
 
-        element = WebDriverWait(browser, 5, 0.5).until(cond.presence_of_element_located((By.ID, 'setf')))
-        print('element text:', element.text)
-        self.assertTrue('百度' in element.text, 'verify element text')
-
-        time.sleep(1)
-        browser.quit()
-
-    def test_selenium_grid_debug(self):
+    def test_selenium_grid_headless_chrome(self):
         '''
-        selenium grid debug, with vnc record enabled.
-        grid in docker: $ docker-compose -f selenium-hub-compose-debug.yaml up
+        selenium ui test with headless mode by grid, and vnc record is disabled (chrome).
+
+        pre-condition: selenium grid is running
+        check selenium hub: curl "http://localhost:4444/wd/hub/status" | jq
         '''
-        # caps = DesiredCapabilities.CHROME
-        caps = DesiredCapabilities.FIREFOX
-        caps['platform'] = 'ANY'
-
-        # check hub status:
-        # http://localhost:4444/wd/hub/status
-        hub_url = 'http://localhost:4444/wd/hub'
-
-        browser = webdriver.Remote(command_executor=hub_url, desired_capabilities=caps)
-        browser.implicitly_wait(8)
-        print('browser info:', browser.capabilities.get('version', 'null'))
-
-        open_url = 'http://www.baidu.com'
-        browser.get(open_url)
-        print('page title:', browser.title)
-        self.assertTrue('百度' in browser.title, 'verify baidu page title')
-
-        element = WebDriverWait(browser, 5, 0.5).until(
-            cond.presence_of_element_located((By.ID, 'setf')))
-        print('element text:', element.text)
-        self.assertTrue('百度' in element.text, 'verify element text')
-
-        time.sleep(1)
-        browser.quit()
-
-    def test_selenium_grid_headless(self):
-        '''
-        selenium grid with vnc record disabled for headless mode (chrome).
-        grid in docker: $ docker-compose -f selenium-hub-compose.yaml up
-        '''
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
+        br_options = ChromeOptions()
+        br_options.add_argument('--headless')
+        br_options.add_argument('--disable-gpu')
 
         caps = DesiredCapabilities.CHROME
         caps['platform'] = 'ANY'
-        caps.update(chrome_options.to_capabilities())
+        caps.update(br_options.to_capabilities())
 
         hub_url = 'http://localhost:4444/wd/hub'
-        browser = webdriver.Remote(command_executor=hub_url, desired_capabilities=caps)
+        browser = webdriver.Remote(
+            command_executor=hub_url, desired_capabilities=caps)
         browser.implicitly_wait(8)
-        print('browser info:', browser.capabilities['version'])
 
-        open_url = 'http://www.baidu.com'
-        browser.get(open_url)
-        print('page title:', browser.title)
-        self.assertTrue('百度' in browser.title, 'verify baidu page title')
+        b_caps = browser.capabilities
+        print('\nbrowser: %s, version: %s' %
+              (b_caps.get('browserName', 'null'), b_caps.get('version', 'null')))
+        try:
+            ms_bing_open_steps(self, browser)
+        finally:
+            browser.quit()
 
-        element = WebDriverWait(browser, 5, 0.5).until(
-            cond.presence_of_element_located((By.ID, 'setf')))
-        print('element text:', element.text)
-        self.assertTrue('百度' in element.text, 'verify element text')
+    def test_selenium_grid_headless_firefox(self):
+        '''
+        selenium ui test with headless mode by grid, and vnc record is disabled (firefox).
 
-        time.sleep(1)
-        browser.quit()
+        pre-condition: selenium grid is running
+        check selenium hub: curl "http://localhost:4444/wd/hub/status" | jq
+        '''
+        br_options = FirefoxOptions()
+        br_options.headless = True
+
+        caps = DesiredCapabilities.FIREFOX
+        caps['platform'] = 'ANY'
+        caps.update(br_options.to_capabilities())
+
+        hub_url = 'http://localhost:4444/wd/hub'
+        browser = webdriver.Remote(
+            command_executor=hub_url, desired_capabilities=caps)
+        browser.implicitly_wait(8)
+
+        b_caps = browser.capabilities
+        print('\nbrowser: %s, version: %s' %
+              (b_caps.get('browserName', 'unknown'), b_caps.get('version', 'unknown')))
+        try:
+            ms_bing_open_steps(self, browser)
+        finally:
+            browser.quit()
+
+    def test_selenium_grid_vnc_debug(self):
+        '''
+        selenium ui test by grid, and vnc record is enabled (chrome).
+
+        pre-condition: selenium grid is running
+        check selenium hub: curl "http://localhost:4444/wd/hub/status" | jq
+        '''
+        caps = DesiredCapabilities.CHROME
+        caps['platform'] = 'ANY'
+
+        hub_url = 'http://localhost:4444/wd/hub'
+        browser = webdriver.Remote(
+            command_executor=hub_url, desired_capabilities=caps)
+        browser.implicitly_wait(8)
+
+        b_caps = browser.capabilities
+        print('\nbrowser: %s, version: %s' %
+              (b_caps.get('version', 'unknown'), b_caps.get('browserName', 'unknown')))
+        try:
+            ms_bing_open_steps(self, browser)
+            ms_bing_search_steps(self, browser)
+        finally:
+            browser.quit()
+
+
+def ms_bing_open_steps(t, browser):
+    open_url = 'https://cn.bing.com/'
+    browser.get(open_url)
+    print('page title:', browser.title)
+    t.assertTrue('Bing' in browser.title, 'verify ms bing page title')
+
+    en_tab = WebDriverWait(browser, 5, 0.5).until(
+        cond.presence_of_element_located((By.ID, 'est_en')))
+    print('en tab element text:', en_tab.text)
+    t.assertTrue('国际版' in en_tab.text, 'verify en tab element text')
+    en_tab.click()
+    time.sleep(1)
+
+
+def ms_bing_search_steps(t, browser):
+    input = browser.find_element_by_id('sb_form_q')
+    t.assertIsNotNone(input, 'verify input element is exist')
+    input.send_keys('docker selenium')
+    input.submit()
+    time.sleep(2)
 
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
     # unittest.main(verbosity=2)
 
-    suite = unittest.TestSuite()
     tests = []
     # tests.append(TestPy01('test_subprocess'))
     tests.append(TestPy01('test_time_counter'))
     # tests.append(TestPy01('test_reg_expr'))
 
     # selenium test
-    # tests.append(TestPy01('test_selenium_chrome'))
-    # tests.append(TestPy01('test_selenium_grid_debug'))
-    # tests.append(TestPy01('test_selenium_grid_headless'))
+    # tests.append(TestPy02('test_selenium_chrome'))
+    # tests.append(TestPy02('test_selenium_grid_headless_chrome'))
+    # tests.append(TestPy02('test_selenium_grid_headless_firefox'))
+    # tests.append(TestPy02('test_selenium_grid_vnc_debug'))
 
+    suite = unittest.TestSuite()
     suite.addTests(tests)
 
     runner = unittest.TextTestRunner(verbosity=2)
