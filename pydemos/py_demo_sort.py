@@ -145,7 +145,7 @@ class Stack(object):
         return self.store_list.pop(self.size() - 1)
 
     def toString(self):
-        if self.size < 1:
+        if self.size() < 1:
             return '[]'
         return ','.join(self.store_list)
 
@@ -218,12 +218,29 @@ def pre_order_bin_tree02(tree_node):
     except StackEmptyException as e:
         print(e)
 
+
+def get_tree_max_depth(root_node):
+    # TODO:
+    pass
+
+
 # -----------------------------------
 # String
 # -----------------------------------
 
 
-def isRecycleString(input_str):
+def reverse_string(input_str):
+    start = 0
+    end = len(input_str) - 1
+    while start < end:
+        input_str[start], input_str[end] = input_str[end], input_str[start]
+        start += 1
+        end -= 1
+
+    return input_str
+
+
+def is_recycle_string(input_str):
     '''
     判断回文字符串
     '''
@@ -237,27 +254,68 @@ def isRecycleString(input_str):
     return True
 
 
-def filterABAString(aba_str):
+def get_longest_numbers(num_str):
     '''
-    过滤掉输入字符串中的驼峰字符串（ABA）
+    找出字符串中最长的连续数字
+    '''
+    start = tmp_start = 0
+    num_len = tmp_len = 0
+
+    for i in range(len(num_str) - 1):
+        if num_str[i].isdigit():
+            tmp_len += 1
+        else:
+            tmp_len = 0
+            tmp_start = i + 1
+
+        if tmp_len > num_len:
+            num_len = tmp_len
+            start = tmp_start
+    return num_str[start:start+num_len]
+
+
+def filter_aba_string(aba_str):
+    '''
+    过滤掉输入字符串中的驼峰字符串（aba）
     input: AaabxbcdyayBxxy
     output: AaacdBxxy
     '''
-    def isABAstring(input_str):
+    def is_aba_string(input_str):
         return input_str[0] == input_str[2]
 
     local_str = aba_str[:]
     i = 0
     while i < (len(local_str) - 2):
-        if isABAstring(local_str[i:i+3]):
+        if is_aba_string(local_str[i:i+3]):
             local_str = local_str[0:i] + local_str[i+3:]
         else:
             i += 1
     return local_str
 
+# -----------------------------------
+# Other
+# -----------------------------------
+
+
+def reverse_by_words(sentence):
+    '''
+    reverse words divied by space
+    input: this is a test
+    output: test a is this
+    '''
+    s = Stack()
+    for word in sentence.split(' '):
+        s.push(word)
+
+    tmp_list = []
+    while s.size() > 0:
+        tmp_list.append(s.pop())
+    return ' '.join(tmp_list)
+
 
 if __name__ == '__main__':
 
+    # sort
     numbers = [15, 16, 1, 99, 50, 0, 99, 13, 6, 2]
     bubble_sort(numbers)
     print('bubble sort results:', numbers)
@@ -269,6 +327,7 @@ if __name__ == '__main__':
     numbers = [3, 16, 14, 8, 99, 53, 0, 99, 8, 32, 66]
     print('\nmerge sort results:', merge_sort(numbers))
 
+    # search
     numbers = [1, 3, 4, 6, 8, 9, 10, 12, 13, 77]
     for val in [1, 12, 77]:
         print('#1. search number %d, and index %d' %
@@ -276,19 +335,29 @@ if __name__ == '__main__':
         print('#2. search number %d, and index %d' %
               (val, bin_search02(val, numbers)))
 
+    # tree
     bin_tree = create_bin_tree(range(0, 10))
     print('\n#1. print bin tree by pre order:')
     pre_order_bin_tree01(bin_tree)
     print('#2. print bin tree by pre order:')
     pre_order_bin_tree02(bin_tree)
 
+    # string
     print('\nrecycle string test:')
     for input_str in ['xyayx', 'ahha', 'haha']:
         print('%s is recycle string: %s' %
-              (input_str, str(isRecycleString(input_str))))
+              (input_str, str(is_recycle_string(input_str))))
+
+    num_str = 'abcd13579ed124ss123456789z'
+    print('\nlongest continuious numbers:', get_longest_numbers(num_str))
 
     aba_str = 'AaabxbcdyayBxxy'
     print('\nsrc aba string:', aba_str)
-    print('filter aba string:', filterABAString(aba_str))
+    print('filter aba string:', filter_aba_string(aba_str))
+
+    # others
+    sentence = 'this is a test'
+    print('\nsrc text:', sentence)
+    print('text reverse by words:', reverse_by_words(sentence))
 
     print('py sort demo done.')
