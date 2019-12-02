@@ -218,6 +218,43 @@ def pre_order_bin_tree02(tree_node):
     except StackEmptyException as e:
         print(e)
 
+# -----------------------------------
+# String
+# -----------------------------------
+
+
+def isRecycleString(input_str):
+    '''
+    判断回文字符串
+    '''
+    start = 0
+    end = len(input_str) - 1
+    while start < end:
+        if input_str[start] != input_str[end]:
+            return False
+        start += 1
+        end -= 1
+    return True
+
+
+def filterABAString(aba_str):
+    '''
+    过滤掉输入字符串中的驼峰字符串（ABA）
+    input: AaabxbcdyayBxxy
+    output: AaacdBxxy
+    '''
+    def isABAstring(input_str):
+        return input_str[0] == input_str[2]
+
+    local_str = aba_str[:]
+    i = 0
+    while i < (len(local_str) - 2):
+        if isABAstring(local_str[i:i+3]):
+            local_str = local_str[0:i] + local_str[i+3:]
+        else:
+            i += 1
+    return local_str
+
 
 if __name__ == '__main__':
 
@@ -244,5 +281,14 @@ if __name__ == '__main__':
     pre_order_bin_tree01(bin_tree)
     print('#2. print bin tree by pre order:')
     pre_order_bin_tree02(bin_tree)
+
+    print('\nrecycle string test:')
+    for input_str in ['xyayx', 'ahha', 'haha']:
+        print('%s is recycle string: %s' %
+              (input_str, str(isRecycleString(input_str))))
+
+    aba_str = 'AaabxbcdyayBxxy'
+    print('\nsrc aba string:', aba_str)
+    print('filter aba string:', filterABAString(aba_str))
 
     print('py sort demo done.')
