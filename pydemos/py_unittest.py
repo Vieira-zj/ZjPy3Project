@@ -24,10 +24,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 # Unit Test
 # --------------------------------------------------------------
 
+
 class TestPy01(unittest.TestCase):
     '''
     unit test.
     '''
+
     def test_subprocess(self):
 
         def subprocess_main():
@@ -59,10 +61,12 @@ class TestPy01(unittest.TestCase):
 # Web UI Test
 # --------------------------------------------------------------
 
+
 class TestPy02(unittest.TestCase):
     '''
     selenium web ui test.
     '''
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.utils = TestUtils()
@@ -122,7 +126,8 @@ class TestPy02(unittest.TestCase):
             self.ms_bing_page.open_steps(self, browser)
             self.utils.save_screenshot(browser, '/tmp/uitest_bing_home_01.png')
             self.ms_bing_page.search_steps(self, browser)
-            self.utils.save_screenshot(browser, '/tmp/uitest_bing_search_01.png')
+            self.utils.save_screenshot(
+                browser, '/tmp/uitest_bing_search_01.png')
         finally:
             browser.quit()
 
@@ -152,7 +157,8 @@ class TestPy02(unittest.TestCase):
             self.ms_bing_page.open_steps(self, browser)
             self.utils.save_screenshot(browser, '/tmp/uitest_bing_home_02.png')
             self.ms_bing_page.search_steps(self, browser)
-            self.utils.save_screenshot(browser, '/tmp/uitest_bing_search_02.png')
+            self.utils.save_screenshot(
+                browser, '/tmp/uitest_bing_search_02.png')
         finally:
             browser.quit()
 
@@ -184,10 +190,12 @@ class TestPy02(unittest.TestCase):
 # UI Test Steps
 # --------------------------------------------------------------
 
+
 class MsBingPage(object):
     '''
     ms bing search home page.
     '''
+
     def open_steps(self, t, browser):
         open_url = 'https://cn.bing.com/'
         browser.get(open_url)
@@ -201,7 +209,6 @@ class MsBingPage(object):
         en_tab.click()
         time.sleep(1)
 
-
     def search_steps(self, t, browser):
         input = browser.find_element_by_id('sb_form_q')
         t.assertIsNotNone(input, 'verify input element is exist')
@@ -214,6 +221,7 @@ class TestUtils(object):
     '''
     test utils.
     '''
+
     def __init__(self):
         self.is_screenshot = False
 
