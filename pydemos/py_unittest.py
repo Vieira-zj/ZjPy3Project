@@ -3,7 +3,7 @@
 Created on 2018-10-30
 @author: zhengjin
 
-Includes unit test and selenium ui test by "unittest" module.
+Includes unit test and selenium web ui test demo by "unittest" module.
 '''
 
 import chromedriver_binary
@@ -20,12 +20,14 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.support import expected_conditions as cond
 from selenium.webdriver.support.ui import WebDriverWait
 
+# --------------------------------------------------------------
+# Unit Test
+# --------------------------------------------------------------
 
 class TestPy01(unittest.TestCase):
     '''
     unit test.
     '''
-
     def test_subprocess(self):
 
         def subprocess_main():
@@ -53,11 +55,18 @@ class TestPy01(unittest.TestCase):
         self.assertFalse(re.search(
             'unknown|online', test_str), 'search failed')
 
+# --------------------------------------------------------------
+# Web UI Test
+# --------------------------------------------------------------
 
 class TestPy02(unittest.TestCase):
     '''
-    selenium ui test.
+    selenium web ui test.
     '''
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.utils = TestUtils()
+        self.ms_bing_page = MsBingPage()
 
     def test_selenium_chrome(self):
         '''
@@ -82,7 +91,7 @@ class TestPy02(unittest.TestCase):
         print('\nbrowser: %s, version: %s' % (
             browser.capabilities['browserName'], browser.capabilities['browserVersion']))
         try:
-            ms_bing_open_steps(self, browser)
+            self.ms_bing_page.open_steps(self, browser)
         finally:
             browser.quit()
 
@@ -90,8 +99,8 @@ class TestPy02(unittest.TestCase):
         '''
         selenium ui test with headless mode by grid, and vnc record is disabled (chrome).
 
-        pre-condition: selenium grid is running
-        check selenium hub: curl "http://localhost:4444/wd/hub/status" | jq
+        pre-condition: selenium grid is running.
+        check selenium hub: curl "http://localhost:4444/wd/hub/status" | jq .
         '''
         br_options = ChromeOptions()
         br_options.add_argument('--headless')
@@ -110,7 +119,10 @@ class TestPy02(unittest.TestCase):
         print('\nbrowser: %s, version: %s' %
               (b_caps.get('browserName', 'null'), b_caps.get('version', 'null')))
         try:
-            ms_bing_open_steps(self, browser)
+            self.ms_bing_page.open_steps(self, browser)
+            self.utils.save_screenshot(browser, '/tmp/uitest_bing_home_01.png')
+            self.ms_bing_page.search_steps(self, browser)
+            self.utils.save_screenshot(browser, '/tmp/uitest_bing_search_01.png')
         finally:
             browser.quit()
 
@@ -118,8 +130,8 @@ class TestPy02(unittest.TestCase):
         '''
         selenium ui test with headless mode by grid, and vnc record is disabled (firefox).
 
-        pre-condition: selenium grid is running
-        check selenium hub: curl "http://localhost:4444/wd/hub/status" | jq
+        pre-condition: selenium grid is running.
+        check selenium hub: curl "http://localhost:4444/wd/hub/status" | jq .
         '''
         br_options = FirefoxOptions()
         br_options.headless = True
@@ -137,7 +149,10 @@ class TestPy02(unittest.TestCase):
         print('\nbrowser: %s, version: %s' %
               (b_caps.get('browserName', 'unknown'), b_caps.get('version', 'unknown')))
         try:
-            ms_bing_open_steps(self, browser)
+            self.ms_bing_page.open_steps(self, browser)
+            self.utils.save_screenshot(browser, '/tmp/uitest_bing_home_02.png')
+            self.ms_bing_page.search_steps(self, browser)
+            self.utils.save_screenshot(browser, '/tmp/uitest_bing_search_02.png')
         finally:
             browser.quit()
 
@@ -145,8 +160,8 @@ class TestPy02(unittest.TestCase):
         '''
         selenium ui test by grid, and vnc record is enabled (chrome).
 
-        pre-condition: selenium grid is running
-        check selenium hub: curl "http://localhost:4444/wd/hub/status" | jq
+        pre-condition: selenium grid is running.
+        check selenium hub: curl "http://localhost:4444/wd/hub/status" | jq .
         '''
         caps = DesiredCapabilities.CHROME
         caps['platform'] = 'ANY'
@@ -160,32 +175,55 @@ class TestPy02(unittest.TestCase):
         print('\nbrowser: %s, version: %s' %
               (b_caps.get('version', 'unknown'), b_caps.get('browserName', 'unknown')))
         try:
-            ms_bing_open_steps(self, browser)
-            ms_bing_search_steps(self, browser)
+            self.ms_bing_page.open_steps(self, browser)
+            self.ms_bing_page.search_steps(self, browser)
         finally:
             browser.quit()
 
+# --------------------------------------------------------------
+# UI Test Steps
+# --------------------------------------------------------------
 
-def ms_bing_open_steps(t, browser):
-    open_url = 'https://cn.bing.com/'
-    browser.get(open_url)
-    print('page title:', browser.title)
-    t.assertTrue('Bing' in browser.title, 'verify ms bing page title')
+class MsBingPage(object):
+    '''
+    ms bing search home page.
+    '''
+    def open_steps(self, t, browser):
+        open_url = 'https://cn.bing.com/'
+        browser.get(open_url)
+        print('page title:', browser.title)
+        t.assertTrue('Bing' in browser.title, 'verify ms bing page title')
 
-    en_tab = WebDriverWait(browser, 5, 0.5).until(
-        cond.presence_of_element_located((By.ID, 'est_en')))
-    print('en tab element text:', en_tab.text)
-    t.assertTrue('国际版' in en_tab.text, 'verify en tab element text')
-    en_tab.click()
-    time.sleep(1)
+        en_tab = WebDriverWait(browser, 5, 0.5).until(
+            cond.presence_of_element_located((By.ID, 'est_en')))
+        print('en tab element text:', en_tab.text)
+        t.assertTrue('国际版' in en_tab.text, 'verify en tab element text')
+        en_tab.click()
+        time.sleep(1)
 
 
-def ms_bing_search_steps(t, browser):
-    input = browser.find_element_by_id('sb_form_q')
-    t.assertIsNotNone(input, 'verify input element is exist')
-    input.send_keys('docker selenium')
-    input.submit()
-    time.sleep(2)
+    def search_steps(self, t, browser):
+        input = browser.find_element_by_id('sb_form_q')
+        t.assertIsNotNone(input, 'verify input element is exist')
+        input.send_keys('docker selenium')
+        input.submit()
+        time.sleep(2)
+
+
+class TestUtils(object):
+    '''
+    test utils.
+    '''
+    def __init__(self):
+        self.is_screenshot = False
+
+    def save_screenshot(self, browser, path):
+        if not self.is_screenshot:
+            return
+
+        if os.path.exists(path):
+            os.remove(path)
+        browser.save_screenshot(path)
 
 
 if __name__ == "__main__":
