@@ -35,7 +35,7 @@ class CrawlHtml(object):
         resp = http_utils.send_http_request(method, url, query, timeout=timeout)
         try:
             self.html_dom = pq(resp.content.decode(encoding='utf-8'))
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError as _:
             self.html_dom = pq(resp.content.decode(encoding='gbk'))
         return self
 

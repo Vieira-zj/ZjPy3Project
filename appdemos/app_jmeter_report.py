@@ -17,9 +17,9 @@ class JmeterReport(object):
         # duration,label,samplers,error%,avg,median,min,max,90%,95%,99%,99.9%,throughput
         header = ['%15s' % 'Duration (sec)', '%20s' % 'Label', '%10s' % 'Samples', '%10s' % 'Error%', '%10s' % 'Average', '%10s' % 'Median', '%10s' %
                   'Min', '%10s' % 'Max', '%10s' % '90%', '%10s' % '99%', '%10s' % '99.9%', '%10s' % '99.99%', '%20s' % 'Throughput (sec)']
-        for field in header:
-            print(field, end='')
-        print()
+        print('-' * 170)
+        print('|'.join(header))
+        print('-' * 170)
 
     def print(self, lines):
         self._label = ''
@@ -27,10 +27,11 @@ class JmeterReport(object):
         self._end_ts = 0
         self._count = 0
         self._errors = 0
+        self._average = 0
         self._elapsed_list = []
 
         self._format_jtl_lines(lines)
-        self._print_body()
+        self._parse_and_print_body()
 
     def _format_jtl_lines(self, lines):
         self._label = lines[0].split(',')[2]
@@ -38,50 +39,44 @@ class JmeterReport(object):
         self._end_ts = int(lines[len(lines) - 1].split(',')[0])
         self._count = len(lines)
 
+        sum_elapsed = 0
         for line in lines:
             fields = line.split(',')
             elapsed = int(fields[1])
+            sum_elapsed += elapsed
             self._elapsed_list.append(elapsed)
 
             code = fields[3]
             if code != '200':
                 self._errors += 1
 
-    def _print_body(self):
+        self._average = int(sum_elapsed / self._count)
+
+    def _parse_and_print_body(self):
         samplers_count = self._count
-        duration = float(
-            (int(self._end_ts) - int(self._start_ts)) / 1000)  # second
+        average = self._average
+        duration = float((self._end_ts - self._start_ts) / 1000)  # second
 
-        error_percent = str('%.3f' %
-                            (100 * float(self._errors / samplers_count))) + '%'
-
-        sum_elapsed = 0
-        for elapsed in self._elapsed_list:
-            sum_elapsed += elapsed
-        average = int(sum_elapsed / samplers_count)
+        error_percent = '%.3f' % float(
+            100 * self._errors / samplers_count) + '%'
 
         sorted_elapsed_list = sorted(self._elapsed_list)
-        median = int(sorted_elapsed_list[int(round(samplers_count / 2)) - 1])
-        min = int(sorted_elapsed_list[0])
-        max = int(sorted_elapsed_list[samplers_count - 1])
+        median = sorted_elapsed_list[int(samplers_count / 2)]
+        min = sorted_elapsed_list[0]
+        max = sorted_elapsed_list[samplers_count - 1]
 
-        line_90 = int(sorted_elapsed_list[int(
-            round(samplers_count * 0.9)) - 1])
-        line_99 = int(sorted_elapsed_list[int(
-            round(samplers_count * 0.99)) - 1])
-        line_999 = int(sorted_elapsed_list[int(
-            round(samplers_count * 0.999)) - 1])
-        line_9999 = int(sorted_elapsed_list[int(
-            round(samplers_count * 0.9999)) - 1])
+        line_90 = sorted_elapsed_list[int(round(samplers_count * 0.9)) - 1]
+        line_99 = sorted_elapsed_list[int(round(samplers_count * 0.99)) - 1]
+        line_999 = sorted_elapsed_list[int(round(samplers_count * 0.999)) - 1]
+        line_9999 = sorted_elapsed_list[int(
+            round(samplers_count * 0.9999)) - 1]
 
-        throughput = float(samplers_count / duration)
+        throughput = float(samplers_count / duration)  # tps
 
         line = ['%15.2f' % duration, '%20s' % self._label, '%10d' % samplers_count, '%10s' % error_percent, '%10d' % average, '%10d' % median, '%10d' % min, '%10d' % max, '%10d' %
                 line_90, '%10d' % line_99, '%10d' % line_999, '%10d' % line_9999, '%20.2f' % throughput]
-        for field in line:
-            print(field, end='')
-        print()
-# end class
+        print('|'.join(line))
+# end JmeterReport class
 
 
 def read_file(file_path):
