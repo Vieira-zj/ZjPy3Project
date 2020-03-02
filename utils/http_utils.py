@@ -140,10 +140,10 @@ class HttpUtils(object):
         if is_log_body:
             try:
                 content = resp.content.decode(encoding='utf-8')
-            except UnicodeDecodeError as e:
+            except UnicodeDecodeError as _:
                 try:
                     content = resp.content.decode(encoding='gbk')
-                except UnicodeDecodeError as e:
+                except UnicodeDecodeError as _:
                     content = str(base64.b64encode(resp.content))
         self.__print_with_prefix('Body: \n' + content[:1024])
 
