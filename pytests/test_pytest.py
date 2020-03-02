@@ -24,8 +24,10 @@ import pytest
 def print_prefix(text):
     print('\n======>', text)
 
+
 def setup_module(module):
     print_prefix('[setup_module] module:%s' % module.__name__)
+
 
 def teardown_module(module):
     print_prefix('[teardown_module] module:%s' % module.__name__)

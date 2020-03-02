@@ -67,11 +67,16 @@ def pandas_df_demo01():
         'year': [2000, 2001, 2002, 2001, 2002],
         'pop': [1.5, 1.7, 3.6, 2.4, 2.9],
     }
-    print('dataframe:\n', DataFrame(data_dict))
+    df = DataFrame(data_dict)
+    print('dataframe:\n', df)
+    col = df['year']
+    print('\ncol type %s, and value:\n %s' % (type(col), col))
+    row = df.iloc[0]
+    print('\nrow type %s, and value:\n %s' % (type(row), row))
 
     cols = ['year', 'state', 'pop']
     print('\ndataframe by year:\n', DataFrame(data_dict, columns=cols))
-    idx = ['one', 'two', 'three', 'four', 'five']
+    idx = ['1st', '2nd', '3rd', '4th', '5th']
     print('\ndataframe by index:\n', DataFrame(data_dict, index=idx))
 
 
@@ -488,8 +493,8 @@ def pandas_read_csv_demo():
 if __name__ == '__main__':
 
     # pandas_series_demo03()
-    # pandas_df_demo10()
-    pandas_df_pipeline()
+    pandas_df_demo01()
+    # pandas_df_pipeline()
 
     # pandas_plot_demo02()
 

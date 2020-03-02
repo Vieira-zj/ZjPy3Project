@@ -7,6 +7,6 @@
   ],
   "python.jediEnabled": true,
   "python.linting.pylintEnabled": true,
-  "python.linting.enabled": true,
-  "python.linting.pylintArgs": ["--generate-members"]
+  "python.linting.enabled": true
+  // "python.linting.pylintArgs": ["--generate-members"] // for pytest and allure
 }

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
 Created on 2019-03-10
-
 @author: zhengjin
 '''
 
@@ -76,7 +75,7 @@ def ft_mails_data(request):
     '''
     printWithPrefix('[fixture_mails_data] init.')
     mail_addr = request.param
-    
+
     def clear():
         printWithPrefix('[fixture_mails_data] finalizing %s' % mail_addr)
     request.addfinalizer(clear)
