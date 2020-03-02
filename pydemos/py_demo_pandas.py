@@ -15,48 +15,49 @@ def pandas_series_demo01():
     # create series
     print('series with default index:\n', Series([1, 2, 3, 4]))  # 默认索引（从0到N-1）
 
-    print('series with index:\n', Series(range(4), index=['a', 'b', 'c', 'd']))
+    print('\nseries with index:\n', Series(
+        range(4), index=['a', 'b', 'c', 'd']))
 
     dict_data = {'Ohio': 35000, 'Texas': 71000, 'Oregon': 16000, 'Utah': 5000}
-    print('series by dict:\n', Series(dict_data))
+    print('\nseries by dict:\n', Series(dict_data))
 
     states = ['California', 'Ohio', 'Oregon', 'Texas']
-    ser = Series(dict_data, index=states)
-    print('series by dict and index:\n', ser)
-    print('series in null:\n', pd.isnull(ser))
-    print('series not null:\n', pd.notnull(ser))
+    s = Series(dict_data, index=states)
+    print('\nseries by dict and index:\n', s)
+    print('\nseries in null:\n', pd.isnull(s))
+    print('\nseries not null:\n', pd.notnull(s))
 
 
 def pandas_series_demo02():
-    # get index and value
-    ser = Series(range(4), index=['a', 'b', 'c', 'd'])
-    print('series item at loc 0:', ser[0])
-    print('series item at idx "b":', ser['b'])
-    print('series item at idx "a" and "c":\n', ser[['a', 'c']])
+    # series index and value
+    s = Series(range(4), index=['a', 'b', 'c', 'd'])
+    print('series item at loc 0:', s[0])
+    print('series item at idx "b":', s['b'])
+    print('series item at idx "a" and "c":\n', s[['a', 'c']])
 
-    print('series index:\n', ser.index)
-    print('series values:\n', ser.values)
+    print('\nseries index:\n', s.index.values)
+    print('\nseries values:\n', s.values)
 
 
 def pandas_series_demo03():
     # operation on series
-    ser = Series(range(4), index=['a', 'b', 'c', 'd'])
-    print('series, items > 1:\n', ser[ser > 1])
-    print('series, items * 2:\n', ser * 2)
-    print('square series:\n', np.square(ser))
-    print('series, sum by rows:\n', ser.cumsum())
+    s = Series(range(4), index=['a', 'b', 'c', 'd'])
+    print('series, items > 1:\n', s[s > 1])
+    print('series, items * 2:\n', s * 2)
+    print('square series:\n', np.square(s))
+    print('series, sum by rows:\n', s.cumsum())
 
     # 相同索引值的元素相加
     dict_data = {'Ohio': 35000, 'Texas': 71000, 'Oregon': 16000, 'Utah': 5000}
-    ser1 = Series(dict_data)
+    s1 = Series(dict_data)
     states = ['California', 'Ohio', 'Oregon', 'Texas']
-    ser2 = Series(dict_data, index=states)
-    ser3 = ser1 + ser2
-    print('series1 + series2:\n', ser3)
+    s2 = Series(dict_data, index=states)
+    s3 = s1 + s2
+    print('\nseries1 + series2:\n', s3)
 
-    ser3.index.name = 'state'
-    ser3.name = 'population'
-    print('series with name:\n', ser3)
+    s3.index.name = 'state'
+    s3.name = 'population'
+    print('\nseries with name:\n', s3)
 
 
 def pandas_df_demo01():
@@ -69,9 +70,9 @@ def pandas_df_demo01():
     print('dataframe:\n', DataFrame(data_dict))
 
     cols = ['year', 'state', 'pop']
-    print('dataframe by year:\n', DataFrame(data_dict, columns=cols))
+    print('\ndataframe by year:\n', DataFrame(data_dict, columns=cols))
     idx = ['one', 'two', 'three', 'four', 'five']
-    print('dataframe by index:\n', DataFrame(data_dict, index=idx))
+    print('\ndataframe by index:\n', DataFrame(data_dict, index=idx))
 
 
 def pandas_df_demo02():
@@ -84,11 +85,11 @@ def pandas_df_demo02():
 
     idx = [2002, 2001, 2000]
     df = DataFrame(data_dict, index=idx)
-    print('dataframe by index:\n', df)
+    print('\ndataframe by index:\n', df)
 
     df.columns.name = 'state'
     df.index.name = 'year'
-    print('dataframe by col and index:\n', df)
+    print('\ndataframe by col and index:\n', df)
 
 
 def pandas_df_demo03():
@@ -100,21 +101,21 @@ def pandas_df_demo03():
     }
     df1 = DataFrame(data_dict)
     print('dataframe state:\n', df1['state'])
-    print('dataframe population:\n', df1.year)
+    print('\ndataframe population:\n', df1.year)
 
     # get df rows
     idx = ['one', 'two', 'three', 'four', 'five']
     df2 = DataFrame(data_dict, index=idx)
-    print('dataframe row "one":\n', df2.loc['one'])
-    print('dataframe row 2:\n', df2.iloc[1])
+    print('\ndataframe row "one":\n', df2.loc['one'])
+    print('\ndataframe row 2:\n', df2.iloc[1])
 
     rows = ['two', 'three', 'four']
-    print('dataframe rows "two", "three", "four":\n', df2.loc[rows])
-    print('dataframe row 1~3:\n', df2.iloc[range(3)])
+    print('\ndataframe rows "two", "three", "four":\n', df2.loc[rows])
+    print('\ndataframe row 1~3:\n', df2.iloc[range(3)])
 
 
 def pandas_df_demo04():
-    # get df field
+    # get df cell
     data_dict = {
         'state': ['Ohio', 'Ohio', 'Ohio', 'Nevada', 'Nevada'],
         'year': [2000, 2001, 2002, 2001, 2002],
@@ -125,10 +126,10 @@ def pandas_df_demo04():
     print('dataframe:\n', df)
 
     # index by [col,row]
-    print('dataframe row 1 state:', df['state'][0])
+    print('\ndataframe row 1 state:', df['state'][0])
     print('dataframe row two pop:', df['pop']['two'])
     # index by [row, col]
-    print('dataframe row 1 state:', df.iloc[0]['state'])
+    print('\ndataframe row 1 state:', df.iloc[0]['state'])
     print('dataframe row two pop:', df.loc['two']['pop'])
 
 
@@ -144,12 +145,12 @@ def pandas_df_demo05():
 
     df['debt'] = 10
     print('add col debt dataframe:\n', df)
-    df1['debt'] = np.arange(5)
-    print('update col debt dataframe:\n', df)
+    df['debt'] = np.arange(5)
+    print('\nupdate col debt dataframe:\n', df)
 
     east = (df['state'] == 'Ohio')
-    df1['east'] = east
-    print('add col east dataframe:\n', df)
+    df['east'] = east
+    print('\nadd col east dataframe:\n', df)
 
 
 def pandas_df_demo06():
@@ -159,12 +160,12 @@ def pandas_df_demo06():
     print('dataframe:\n', df)
 
     df.index = Series(['beijing', 'shanghai', 'guangzhou'])
-    print('update index df:\n', df)
+    print('\nupdate index df:\n', df)
     df.index = df.index.map(str.upper)
-    print('update index with upper df:\n', df)
+    print('\nupdate index with upper df:\n', df)
 
     df1 = df.rename(index=str.lower, columns=str.upper)
-    print('update index and cols df:\n', df1)
+    print('\nupdate index and cols df:\n', df1)
 
     # 2
     df2 = DataFrame([
@@ -173,8 +174,8 @@ def pandas_df_demo06():
         [3.0, 4.0, 5.0, 5],
         [1.0, 0.0, 6.0, 5]],
         columns=list('abcd'))
-    print('sum by rows df:\n', df2.cumsum(axis=0))  # default
-    print('sum by cols df:\n', df2.cumsum(axis=1))
+    print('\nsum by rows df:\n', df2.cumsum(axis=0))  # default
+    print('\nsum by cols df:\n', df2.cumsum(axis=1))
 
 
 def pandas_df_demo07():
@@ -189,16 +190,16 @@ def pandas_df_demo07():
     labels = ['low', 'middle', 'good', 'perfect']
     score_cut = pd.cut(score_list, partitions, labels=labels)
     print('category scores:\n', score_cut)
-    print('category count:\n', pd.value_counts(score_cut))
+    print('\ncategory count:\n', pd.value_counts(score_cut))
 
     # 2
     df = DataFrame()
     df['score'] = score_list
     df['student'] = [pd.util.testing.rands(3) for i in range(len(score_list))]
-    print('students and scores df:\n', df)
+    print('\nstudents and scores df:\n', df)
 
     df['category'] = pd.cut(df['score'], partitions, labels=labels)
-    print('students and scores by category df:\n', df)
+    print('\nstudents and scores by category df:\n', df)
 
     # save to csv
     df.index.name = 'idx'
@@ -240,6 +241,52 @@ def pandas_df_demo09():
     print('\navg value for each line:\n', avg1)
     avg2 = df.mean(axis=0)
     print('\navg value for each row:\n', avg2)
+
+
+def pandas_df_demo10():
+    df = pd.DataFrame(np.arange(9).reshape(3, 3), columns=[
+                      'col1', 'col2', 'col3'], index=['one', 'two', 'three'])
+    df['col4'] = df.apply(lambda x: x.sum(), axis=1)
+    print('sum of each row:\n', df)
+
+    total = df.apply(lambda x: x.sum(), axis=0)
+    df.loc['total'] = total
+    print('\nsum of each col:\n', df)
+
+
+def pandas_df_pipeline():
+    def load_df():
+        file_path = get_lemon_cases_excel_path()
+        return pd.read_excel(file_path, sheet_name='Sheet1', parse_dates=['birthdate'])
+
+    def check_df(df):
+        cols = ['income', 'outcome']
+        cond = df[cols].isna().any(axis=1)
+        return df[cond]
+
+    def cal_split_mail(x_df):
+        def split_mail(x_s):
+            arr = x_s.split('@')
+            prefix = arr[0]
+            post = arr[1]
+            return Series((prefix, post), index='mail_prefix mail_post'.split())
+
+        res = x_df['mail'].apply(split_mail)
+        x_df[res.columns] = res
+        return x_df
+
+    def cal_convert_sex(x_df):
+        mapping = {'M': '男', 'F': '女'}
+        x_df['sex'] = x_df['sex'].map(mapping)
+        return x_df
+
+    df = load_df()
+    print('load df:\n', df)
+    df = check_df(df)
+    print('\ncheck df and invalid data:\n', df)
+
+    res = (load_df().pipe(cal_split_mail).pipe(cal_convert_sex))
+    print('\npipeline df:\n', res)
 
 
 def pandas_plot_demo01():
@@ -341,10 +388,11 @@ def pandas_df_read_demo():
 def pandas_read_excel_demo_01():
     file_path = get_lemon_cases_excel_path()
     df = pd.read_excel(file_path, sheet_name='multiply')
+    df.info()
 
     # 按列读取数据
     # 返回一个Series对象，title列的数据
-    print('col [title] as series:\n', df['title'])
+    print('\ncol [title] as series:\n', df['title'])
 
     print('\ncol [title] list:', list(df['title']))
     print('col [df.title] list:', list(df.title))
@@ -439,8 +487,9 @@ def pandas_read_csv_demo():
 
 if __name__ == '__main__':
 
-    # pandas_series_demo02()
-    pandas_df_demo09()
+    # pandas_series_demo03()
+    # pandas_df_demo10()
+    pandas_df_pipeline()
 
     # pandas_plot_demo02()
 

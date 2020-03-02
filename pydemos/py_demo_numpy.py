@@ -15,6 +15,9 @@ def numpy_demo01():
     # create array
     arr1 = np.array([6, 7.5, 8, 0, 1])
     print('numpy 1d array:\n', arr1)
+    print(type(arr1))
+    for num in arr1:
+        print(num)
 
     arr2 = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])
     print('\nnumpy 2d array:\n', arr2)
@@ -320,5 +323,5 @@ def numpy_demo26():
 
 if __name__ == '__main__':
 
-    numpy_demo26()
+    numpy_demo01()
     print('numpy demo DONE.')
