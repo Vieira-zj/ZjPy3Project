@@ -41,16 +41,18 @@ np.random.normal(0, 1, (3, 3))
 np.random.randint(0, 10, (3, 3))
 
 
+
 # %%
 # numpy array attributes
 arr = np.random.randint(10, size=(3, 4))  # two-dimensional array
-print(type(arr))
+print(type(arr), '\n')
+print(arr, '\n')
+
 print('ndim:', arr.ndim)
 print('shape:', arr.shape)
 print('size:', arr.size)
 print('dtype:', arr.dtype)
 print('nbytes:', arr.nbytes, 'bytes')
-arr
 
 # %%
 # array slicing: accessing subarrays
@@ -91,6 +93,7 @@ print(lower)
 left, right = np.hsplit(grid, [2])
 print(left)
 print(right)
+
 
 
 # %%
