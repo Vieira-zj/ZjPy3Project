@@ -1,4 +1,5 @@
 # %%
+# Combining Datasets: Merge and Join
 import pandas as pd
 import numpy as np
 np.__version__
@@ -147,6 +148,7 @@ final.isnull().any()
 final['state'][final['area (sq. mi)'].isnull()].unique()
 
 # %%
+# inplace: bool, default False. Modify the DataFrame in place (do not create a new object).
 final.dropna(inplace=True)
 final.head()
 

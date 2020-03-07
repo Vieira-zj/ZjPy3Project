@@ -1,4 +1,5 @@
 # %%
+# Hierarchical Indexing
 import pandas as pd
 import numpy as np
 np.__version__
@@ -173,7 +174,7 @@ data_mean.mean(axis=1, level='type')
 
 
 # %%
-# Concat and Append
+# Combining Datasets: Concat and Append
 def make_df(cols, ind):
     '''Quickly make a DataFrame'''
     data = {c: [str(c) + str(i) for i in ind] for c in cols}
@@ -266,7 +267,7 @@ display('df5', 'df6', 'pd.concat([df5, df6])')
 display('df5', 'df6', "pd.concat([df5, df6], join='inner')")
 
 # %%
-display('df5', 'df6', "pd.concat([df5, df6], join_axes=[df5.columns])")
+display('df5', 'df6', 'pd.concat([df5, df6], join_axes=[df5.columns])')
 
 # %%
 # The append() method

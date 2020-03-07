@@ -1,5 +1,5 @@
 # %%
-# Index Preservation
+# Operating on Data in Pandas
 import pandas as pd
 import numpy as np
 np.__version__
@@ -77,6 +77,7 @@ df.subtract(df['R'], axis=0)
 
 
 # %%
+# Handling Missing Data
 # None: Pythonic missing data
 vals1 = np.array([1, None, 3, 4])
 vals1
