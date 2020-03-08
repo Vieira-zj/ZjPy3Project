@@ -145,5 +145,62 @@ decade.head()
 # %%
 planets.groupby(['method', decade])['number'].sum().unstack().fillna(0)
 
+
+
+# %%
+# Pivot Tables
+# Motivating Pivot Tables
+import seaborn as sns
+titanic = sns.load_dataset('titanic')
+titanic.shape
+
+# %%
+titanic.head()
+
+# %%
+# Pivot Tables by Hand
+titanic.groupby('sex')[['survived']].mean()
+
+# %%
+titanic.groupby(['sex', 'class'])['survived'].aggregate('mean').unstack()
+
+# %%
+# Pivot Table Syntax
+titanic.pivot_table('survived', index='sex', columns='class')
+
+# %%
+# Multi-level pivot tables
+age = pd.cut(titanic['age'], [0, 18, 80])
+titanic.pivot_table('survived', ['sex', age], 'class')
+
+# %%
+fare = pd.qcut(titanic['fare'], 2)
+titanic.pivot_table('survived', ['sex', age], [fare, 'class'])
+
+# %%
+# Additional pivot table options
+titanic.pivot_table(index='sex', columns='class',
+                    aggfunc={'survived': sum, 'fare': 'mean'})
+
+# %%
+titanic.pivot_table('survived', index='sex', columns='class', margins=True)
+
+# %%
+# Example: Birthrate Data
+births = pd.read_csv('data/births.csv')
+births.head()
+
+# %%
+births['decade'] = 10 * (births['year'] // 10)
+births.pivot_table('births', index='decade', columns='gender', aggfunc='sum')
+
+# %%
+%matplotlib inline
+import matplotlib.pyplot as plt
+sns.set()
+births.pivot_table('births', index='year',
+                   columns='gender', aggfunc='sum').plot()
+plt.ylabel('total births per year')
+
 # %%
 print('end')
