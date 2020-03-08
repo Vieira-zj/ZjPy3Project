@@ -7,29 +7,37 @@ np.__version__
 # %%
 # The Pandas Series Object
 data = pd.Series([0.25, 0.5, 0.75, 1.0])
-print(data, '\n')
+data
 
+# %%
 print(data.values, '\n')
 print(data.index, '\n')
 print(data[1], '\n')
-print(data[1:3])
+data[1:3]
 
 # %%
 # Series as generalized NumPy array
 data = pd.Series([0.25, 0.5, 0.75, 1.0], index=['a', 'b', 'c', 'd'])
-print(data, '\n')
-print(data['b'])
+data
+
+# %%
+data['b']
 
 # %%
 # Series as specialized dictionary
 population_dict = {'California': 38332521, 'Texas': 26448193, 'New York': 19651127,
                    'Florida': 19552860, 'Illinois': 12882135}
 population = pd.Series(population_dict)
-print(population, '\n')
-print(population.values, '\n')
+population
 
-print(population['California'], '\n')
-print(population['California':'Illinois'])
+# %%
+population.values
+
+# %%
+population['California']
+
+# %%
+population['California':'Illinois']
 
 # %%
 # Constructing Series objects
@@ -43,10 +51,11 @@ area_dict = {'California': 423967, 'Texas': 695662, 'New York': 141297,
              'Florida': 170312, 'Illinois': 149995}
 area = pd.Series(area_dict)
 states = pd.DataFrame({'population': population, 'area': area})
-print(states, '\n')
+states
 
+# %%
 print(states.index, '\n')
-print(states.columns)
+states.columns
 
 # %%
 # DataFrame as specialized dictionary
@@ -77,25 +86,29 @@ pd.DataFrame(np.random.rand(3, 2), columns=[
 # %%
 # The Pandas Index Object
 ind = pd.Index([2, 3, 5, 7, 11])
+print(type(ind), '\n')
 ind
 
 # %%
 # Index as immutable array
-print(type(ind), '\n')
 print(ind.size, ind.shape, ind.ndim, ind.dtype, '\n')
-
 print(ind[1], '\n')
-print(ind[::2])
+ind[::2]
 
 # %%
 # Index as ordered set
 indA = pd.Index([1, 3, 5, 7, 9])
 indB = pd.Index([2, 3, 5, 7, 11])
-print(indA | indB, '\n')  # union
-print(indA & indB, '\n')  # intersection
-print(indA ^ indB)  # symmetric difference
+# union
+indA | indB
 
+# %%
+# intersection
+indA & indB
 
+# %%
+# # symmetric difference
+indA ^ indB
 
 # %%
 # Data Indexing and Selection
@@ -114,29 +127,29 @@ data
 # Series as one-dimensional array
 print(data['a':'c'], '\n')
 print(data[0:2], '\n')
-print(data[['a', 'e']], '\n')
+data[['a', 'e']]
 
 # %%
 cond = (data > 0.3) & (data < 0.8)
-print(data[cond])
+data[cond]
 
 # %%
 # Indexers: loc, iloc, and ix
 data = pd.Series(['a', 'b', 'c'], index=[1, 3, 5])
-print(data, '\n')
+data
+
+# %%
 print(data[1], '\n')
-print(data[1:3])
+data[1:3]
 
 # %%
 # explicit index
 print(data.loc[1], '\n')
-print(data.loc[1:3], '\n')
+data.loc[1:3]
 
 # implicit Python-style index
 print(data.iloc[1], '\n')
-print(data.iloc[1:3])
-
-
+data.iloc[1:3]
 
 # %%
 # Data Selection in DataFrame
@@ -151,21 +164,30 @@ data = pd.DataFrame({'area': area, 'pop': pop})
 data
 
 # %%
-print(data['area'], '\n')
-print(data.area, '\n')
+data['area']
 
+# %%
+data.area
+
+# %%
 data['density'] = data['pop'] / data['area']
 data
 
 # %%
 # DataFrame as two-dimensional array
-print(data.values, '\n')
 print(data.values[0], '\n')
-print(data.T)
+data.values
 
 # %%
-print(data.loc[:'Illinois', :'pop'], '\n')
-print(data.iloc[:3, :2], '\n')
+data.T
+
+# %%
+data.loc[:'Illinois', :'pop']
+
+# %%
+data.iloc[:3, :2]
+
+# %%
 data.ix[:3, :'pop']
 
 # %%

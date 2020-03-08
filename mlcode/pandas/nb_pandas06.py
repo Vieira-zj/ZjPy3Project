@@ -52,6 +52,9 @@ full_monte = pd.DataFrame({'name': monte,
 full_monte
 
 # %%
+full_monte['name'].str.upper()
+
+# %%
 full_monte['info'].str.get_dummies('|')
 
 
@@ -150,4 +153,6 @@ result2 = df.query('A < @Cmean and B < @Cmean')
 np.allclose(result1, result2)
 
 # %%
+# The benefit of eval/query is mainly in the saved memory,
+# and the sometimes cleaner syntax they offer.
 print('end')

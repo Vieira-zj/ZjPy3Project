@@ -86,13 +86,11 @@ np.concatenate([grid, grid], axis=1)
 # splitting of arrays
 grid = np.arange(16).reshape((4, 4))
 upper, lower = np.vsplit(grid, [2])
-print(upper)
-print(lower)
+upper, lower
 
 # %%
 left, right = np.hsplit(grid, [2])
-print(left)
-print(right)
+left, right
 
 
 

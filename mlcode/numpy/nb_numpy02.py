@@ -75,7 +75,7 @@ print(y, '\n')
 cond = y < 6
 print(np.sum(cond), '\n')
 print(np.sum(cond, axis=1), '\n')
-print(np.all(y < 8, axis=1))
+np.all(y < 8, axis=1)
 
 # %%
 print(y, '\n')
@@ -87,8 +87,7 @@ print(y[cond])
 z = np.arange(10)
 cond = (z > 4) & (z < 8)
 print(cond, '\n')
-print(z[cond])
-
+z[cond]
 
 # %%
 print('end')

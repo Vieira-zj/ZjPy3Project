@@ -29,7 +29,8 @@ population = pd.Series({'California': 38332521, 'Texas': 26448193,
 population / area
 
 # %%
-area.index | population.index  # union
+# union
+area.index | population.index
 
 # %%
 A = pd.Series([2, 4, 6], index=[0, 1, 2])
@@ -89,7 +90,7 @@ vals2.dtype
 
 # %%
 print(1 + np.nan, '\n')
-print(0 * np.nan)
+0 * np.nan
 
 # %%
 vals2.sum(), vals2.max(), vals2.min()

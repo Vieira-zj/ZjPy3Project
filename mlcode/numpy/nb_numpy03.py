@@ -29,9 +29,11 @@ y[2, [2, 0, 1]]
 x = np.arange(10)
 i = np.array([2, 1, 8, 4])
 x[i] = 99
-print(x, '\n')
+x
+
+# %%
 x[i] -= 10
-print(x)
+x
 
 
 
@@ -63,8 +65,9 @@ plt.scatter(selection[:, 0], selection[:, 1], facecolor='none', s=200)
 # %%
 # sorting arrays
 x = np.array([2, 1, 4, 3, 5])
-print(np.sort(x), '\n')
+np.sort(x)
 
+# %%
 i = np.argsort(x)
 x[i]
 
@@ -72,9 +75,13 @@ x[i]
 # sorting along rows or columns
 rand = np.random.RandomState(42)
 X = rand.randint(0, 10, (4, 6))
-print(X, '\n')
-print(np.sort(X, axis=0), '\n')
-print(np.sort(X, axis=1), '\n')
+X
+
+# %%
+np.sort(X, axis=0)
+
+# %%
+np.sort(X, axis=1)
 
 # %%
 X = rand.rand(10, 2)
@@ -93,10 +100,20 @@ data['name'] = name
 data['age'] = age
 data['weight'] = weight
 
-print(data, '\n')
-print(data['name'], '\n')  # get all names
-print(data[0], '\n')  # get first row of data
-print(data[-1]['name'])  # get name of last row
+# %%
+data
+
+# %%
+# get all names
+data['name']
+
+# %%
+# get first row of data
+data[0]
+
+# %%
+# get name of last row
+print(data[-1]['name'])
 
 # Get names where age is under 30
 data[data['age'] < 30]['name']
