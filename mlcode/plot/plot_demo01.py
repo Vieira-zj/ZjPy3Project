@@ -99,6 +99,14 @@ ax.set(xlim=(0, 10), ylim=(-2, 2),
 
 # %%
 # Simple Scatter Plots
+%matplotlib inline
+import matplotlib.pyplot as plt
+plt.style.use('seaborn-whitegrid')
+
+import numpy as np
+np.__version__
+
+# %%
 x = np.linspace(0, 10, 30)
 y = np.sin(x)
 plt.plot(x, y, 'o', color='black')
@@ -145,6 +153,14 @@ plt.colorbar()  # show color scale
 
 # %%
 # Visualizing Errors
+%matplotlib inline
+import matplotlib.pyplot as plt
+plt.style.use('seaborn-whitegrid')
+
+import numpy as np
+np.__version__
+
+# %%
 # Basic Errorbars
 x = np.linspace(0, 10, 50)
 dy = 0.8
@@ -159,6 +175,15 @@ plt.errorbar(x, y, yerr=dy, fmt='o', color='black',
 
 # %%
 # Density and Contour Plots
+%matplotlib inline
+import matplotlib.pyplot as plt
+plt.style.use('seaborn-white')
+
+import numpy as np
+np.__version__
+
+# %%
+# Visualizing a Three-Dimensional Function
 def f(x, y):
     return np.sin(x) ** 10 + np.cos(10 + y * x) * np.cos(x)
 
@@ -178,6 +203,79 @@ plt.contour(X, Y, Z, 20, cmap='RdGy')
 # %%
 plt.contourf(X, Y, Z, 20, cmap='RdGy')
 plt.colorbar()
+
+# %%
+plt.imshow(Z, extent=[0, 5, 0, 5], origin='lower', cmap='RdGy')
+plt.colorbar()
+plt.axis(aspect='image')
+
+# %%
+contours = plt.contour(X, Y, Z, 3, colors='black')
+plt.clabel(contours, inline=True, fontsize=8)
+
+plt.imshow(Z, extent=[0, 5, 0, 5], origin='lower',
+           cmap='RdGy', alpha=0.5)
+plt.colorbar()
+
+
+
+# %%
+# Histograms, Binnings, and Density
+%matplotlib inline
+import numpy as np
+import matplotlib.pyplot as plt
+plt.style.use('seaborn-white')
+
+data = np.random.randn(1000)
+data.shape
+
+# %%
+plt.hist(data)
+
+# %%
+plt.hist(data, bins=30, normed=True, alpha=0.5,
+         histtype='stepfilled', color='steelblue',
+         edgecolor='none')
+
+# %%
+x1 = np.random.normal(0, 0.8, 1000)
+x2 = np.random.normal(-2, 1, 1000)
+x3 = np.random.normal(3, 2, 1000)
+
+kwargs = dict(histtype='stepfilled', alpha=0.3, normed=True, bins=40)
+
+plt.hist(x1, **kwargs)
+plt.hist(x2, **kwargs)
+plt.hist(x3, **kwargs)
+
+# %%
+arr = np.arange(100)
+counts, bin_edges = np.histogram(arr, bins=5)
+counts, bin_edges
+
+# %%
+counts, bin_edges = np.histogram(data, bins=5)
+counts, bin_edges
+
+# %%
+# Two-Dimensional Histograms and Binnings
+mean = [0, 0]
+cov = [[1, 1], [1, 2]]
+x, y = np.random.multivariate_normal(mean, cov, 10000).T
+x.shape, y.shape
+
+# %%
+plt.hist2d(x, y, bins=30, cmap='Blues')
+cb = plt.colorbar()
+cb.set_label('counts in bin')
+
+# %%
+counts, xedges, yedges = np.histogram2d(x, y, bins=30)
+counts.shape
+
+# %%
+plt.hexbin(x, y, gridsize=30, cmap='Blues')
+plt.colorbar(label='count in bin')
 
 # %%
 print('end')
