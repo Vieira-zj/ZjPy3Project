@@ -24,7 +24,7 @@ X = dataset.iloc[:, :-1].values
 X
 
 # %%
-# label
+# Purchased (label)
 Y = dataset.iloc[:, 3].values
 Y
 
@@ -149,4 +149,4 @@ scaler.transform(data)
 scaler.transform([[2, 2]])
 
 # %%
-print('end')
+print('data preprocess done')
