@@ -77,7 +77,7 @@ X_test = sc_X.transform(X_test)
 X_train, X_test
 
 # %%
-print('scikit-learn end')
+print('data preprocess done')
 
 
 # %%
@@ -149,4 +149,4 @@ scaler.transform(data)
 scaler.transform([[2, 2]])
 
 # %%
-print('data preprocess done')
+print('scikit-learn end')

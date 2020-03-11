@@ -89,6 +89,7 @@ print(X.shape, '\n')
 plt.scatter(X[:, 0], X[:, 1], s=100)
 
 
+
 # %%
 # structured arrays
 data = np.zeros(4, dtype={'names': ('name', 'age', 'weight'),
@@ -117,6 +118,36 @@ print(data[-1]['name'])
 
 # Get names where age is under 30
 data[data['age'] < 30]['name']
+
+
+
+# %%
+# 补充
+# meshgrid（生成坐标矩阵X,Y)
+import numpy as np
+
+# 网格点的横纵坐标列向量
+x = np.array([0, 1, 2])
+y = np.array([0, 1])
+X, Y = np.meshgrid(x, y)
+print(type(X))
+X, Y
+
+# %%
+import matplotlib.pyplot as plt
+plt.plot(X, Y, color='red', marker='.', linestyle='')
+plt.grid(True)
+plt.show()
+
+# %%
+# flatten,ravel（将多维数组降位一维）
+# flatten() 返回一份copy, 对copy所做的修改不会影响原始矩阵
+# ravel() 返回的是view, 会影响原始矩阵
+x = np.array([[1, 2], [3, 4], [5, 6]])
+x.ravel()
+
+# %%
+x.reshape(-1)
 
 # %%
 print('end')
