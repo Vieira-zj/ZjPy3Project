@@ -98,4 +98,4 @@ plt.legend()
 plt.show()
 
 # %%
-print('knn done')
+print('knn demo done')

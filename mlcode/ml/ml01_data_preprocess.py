@@ -77,7 +77,7 @@ X_test = sc_X.transform(X_test)
 X_train, X_test
 
 # %%
-print('data preprocess done')
+print('data preprocess demo done')
 
 
 # %%

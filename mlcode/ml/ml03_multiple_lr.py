@@ -67,4 +67,4 @@ print('model predict done')
 y_pred
 
 # %%
-print('multiple lr done')
+print('multiple lr demo done')

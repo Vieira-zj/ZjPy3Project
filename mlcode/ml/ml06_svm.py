@@ -125,7 +125,7 @@ plt.legend()
 plt.show()
 
 # %%
-print('svm done')
+print('svm demo done')
 
 
 # %%

@@ -148,7 +148,7 @@ plt.legend()
 plt.show()
 
 # %%
-print('logistic lr done')
+print('logistic lr demo done')
 
 
 # %%

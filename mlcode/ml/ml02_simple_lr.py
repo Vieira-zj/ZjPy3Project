@@ -57,4 +57,4 @@ plt.plot(X_test, regressor.predict(X_test), color='blue')
 plt.show()
 
 # %%
-print('simple lr done')
+print('simple lr demo done')
