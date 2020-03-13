@@ -64,7 +64,7 @@ print('define a model')
 # %%
 # 开始训练
 model.fit(x_train, y_train, epochs=3)
-print('ft train done')
+print('tf train done')
 # 每完成一次所有 batch 运算就算为 epoch
 # Epoch 1/3 loss: 0.2631 - accuracy: 0.9234
 # Epoch 2/3 loss: 0.1072 - accuracy: 0.9668
