@@ -1,17 +1,20 @@
 *.pyc
-monkeytest/__pycache__/
-monkeyreports/
+
+.DS_Store
 
 pydemos/__pycache__/
 pydemos/.pytest_cache/
 
-.DS_Store
-apitest/.DS_Store
+monkeytest/__pycache__/
+monkeyreports/
 
 pytests/outputs/
 
+apitest/.DS_Store
 apitest/outputs/*.html
 apitest/outputs/assets
 apitest/outputs/logs
 apitest/outputs/reports
 apitest/outputs/results
+
+mlcode/tf/epic_num_reader.model
