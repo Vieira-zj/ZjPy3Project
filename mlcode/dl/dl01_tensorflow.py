@@ -9,7 +9,7 @@
 # %%
 import tensorflow.keras as keras
 import tensorflow as tf
-tf.__version__
+tf.__version__, tf.keras.__version__
 
 # %%
 # 导入手写数字集
@@ -59,6 +59,7 @@ model.add(tf.keras.layers.Dense(10, activation=tf.nn.softmax))
 model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
+model.summary()
 print('define a model')
 
 # %%
@@ -105,4 +106,4 @@ plt.imshow(x_test[1], cmap=plt.cm.binary)
 plt.show()
 
 # %%
-print('tf demo done')
+print('tf keras demo done')

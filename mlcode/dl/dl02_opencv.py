@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import os
 import cv2
 from tqdm import tqdm
-cv2.__version__
+np.__version__, cv2.__version__
 
 # %%
 DATADIR = os.path.join(
@@ -93,15 +93,19 @@ y = []
 for features, label in training_data:
     X.append(features)
     y.append(label)
-len(X), X[0].shape
+len(X), X[0].shape, len(y)
 
 # %%
-X[0].reshape(-1, IMG_SIZE, IMG_SIZE, 1).shape
+# print(X[0].reshape(-1, IMG_SIZE, IMG_SIZE, 1))
 X = np.array(X).reshape(-1, IMG_SIZE, IMG_SIZE, 1)
 X.shape
 
 # %%
-# 保存数据
+y = np.array(y)
+y.shape
+
+# %%
+# 保存数据（序列化）
 import pickle
 SAVEDIR = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/ml_data')
 pickle_out = open(os.path.join(SAVEDIR, 'X.pickle'), 'wb')
@@ -116,6 +120,7 @@ print('data dump done')
 
 # %%
 # PART2: 模型训练
+import time
 import tensorflow as tf
 from tensorflow.keras.datasets import cifar10
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -123,8 +128,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
 from tensorflow.keras.layers import Conv2D, MaxPooling2D
 from tensorflow.keras.callbacks import TensorBoard
-import time
-tf.__version__
+tf.__version__, tf.keras.__version__
 
 # %%
 import pickle
@@ -133,12 +137,11 @@ pickle_in = open(os.path.join(SAVEDIR, 'X.pickle'), 'rb')
 X = pickle.load(pickle_in)
 pickle_in = open(os.path.join(SAVEDIR, 'y.pickle'), 'rb')
 y = pickle.load(pickle_in)
-print('data load done')
-X.shape, len(y)
+X.shape, y.shape
 
 # %%
+# 归一化处理
 X = X / 255.0
-X.shape
 
 # %%
 model = Sequential()
@@ -155,26 +158,31 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Flatten())
 
 model.add(Dense(64))
+model.add(Activation('relu'))
 model.add(Dense(1))
 model.add(Activation('sigmoid'))
 
 model.compile(loss='binary_crossentropy',
               optimizer='adam',
               metrics=['accuracy'])
-print('define a model')
+model.summary()
 
 # %%
 NAME = 'Cats-vs-dogs-CNN'
 tensorboard = TensorBoard(log_dir=os.path.join(
     SAVEDIR, 'logs/{}'.format(NAME)))
 
-# todo: ValueError
 model.fit(X, y,
           batch_size=32,
-          epochs=3,
+          epochs=10,
           validation_split=0.3,
           callbacks=[tensorboard])
 print('opencv train done')
+
+
+# %%
+# PART3: 验证与预测
+# TODO:
 
 
 # %%
@@ -191,4 +199,4 @@ x
 x / 2
 
 # %%
-print('opencv demo done')
+print('keras and opencv demo done')
