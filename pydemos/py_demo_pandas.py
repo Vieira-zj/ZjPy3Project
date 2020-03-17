@@ -259,6 +259,38 @@ def pandas_df_demo10():
     print('\nsum of each col:\n', df)
 
 
+def pandas_df_demo11():
+    rand = np.random.RandomState(66)
+    dframe = pd.DataFrame(rand.randint(100, size=(4, 3)), columns=list(
+        'bde'), index=['India', 'USA', 'China', 'Russia'])
+    print(dframe)
+
+    print('\nmap for each value')
+    def changefn(x): return '%.2f' % x
+    print(dframe['d'].map(changefn))
+
+    print('\napply for each series')
+    def fn(x): return x.max() - x.min()
+    print(dframe.apply(fn))
+
+    print('\nisin 过滤数据帧')
+    cond = dframe['e'].isin([90, 74])
+    print(dframe[cond])
+
+    print('\npivot_table 数据透视表 (instead of groupby)')
+    school = pd.DataFrame({
+        'A': ['Jay', 'Usher', 'Nicky', 'Romero', 'Will'],
+        'B': ['Masters', 'Graduate', 'Graduate', 'Masters', 'Graduate'],
+        'C': [26, 22, 20, 23, 24]})
+    print(school)
+    print()
+
+    # 根据年龄和课程来创建数据透视表
+    table = pd.pivot_table(school, values='A', index=['B', 'C'],
+                           columns=['B'], aggfunc=np.sum, fill_value='Not Available')
+    print(table)
+
+
 def pandas_df_pipeline():
     def load_df():
         file_path = get_lemon_cases_excel_path()
@@ -493,7 +525,7 @@ def pandas_read_csv_demo():
 if __name__ == '__main__':
 
     # pandas_series_demo03()
-    pandas_df_demo01()
+    pandas_df_demo11()
     # pandas_df_pipeline()
 
     # pandas_plot_demo02()

@@ -121,6 +121,36 @@ def numpy_demo07():
     f = np.random.uniform()
     print('float: %f, 2 decimal: %.2f' % (f, f))
 
+
+def numpy_demo08():
+    print('allclose 用于匹配两个数组')
+    array1 = np.array([0.12, 0.17, 0.24, 0.29])
+    array2 = np.array([0.13, 0.19, 0.26, 0.31])
+
+    print(np.allclose(array1, array2, 0.1))  # 公差为0.1, False
+    print(np.allclose(array1, array2, 0.2))  # 公差为0.2, True
+
+    print('\nextract 根据特定条件从数组中提取元素')
+    rand = np.random.RandomState(66)
+    arr = rand.randint(20, size=12)
+    print(arr)
+
+    cond = np.mod(arr, 2) == 1
+    print(np.extract(cond, arr))
+    print(np.extract(((arr < 3) | (arr > 15)), arr))
+
+    print('\nwhere 从满足特定条件的数组中返回元素的索引值')
+    y = np.array([1, 5, 6, 8, 1, 7, 3, 6, 9])
+    del cond
+    cond = np.where(y > 5)
+    print(cond)
+    print(y[cond])
+
+    print('\npercentile 计算沿指定轴的数组元素的第n个百分点')
+    a = np.array([1, 5, 6, 8, 1, 7, 3, 6, 9])
+    print(np.sort(a))
+    print('50th Percentile of array, axis = 0:', np.percentile(a, 50, axis=0))
+
 # -----------------------------------
 # Part2
 # -----------------------------------
@@ -323,5 +353,5 @@ def numpy_demo26():
 
 if __name__ == '__main__':
 
-    numpy_demo01()
+    numpy_demo08()
     print('numpy demo DONE.')
