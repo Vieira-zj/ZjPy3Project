@@ -141,4 +141,4 @@ print(arr.shape)
 arr
 
 # %%
-print('scikit-learn end')
+print('scikit-learn demo done')

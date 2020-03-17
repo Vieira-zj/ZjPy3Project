@@ -2,6 +2,7 @@
 # 数据预处理
 import numpy as np
 import pandas as pd
+np.__version__, pd.__version__
 
 # %%
 # 导入数据集
@@ -41,13 +42,14 @@ X
 
 # %%
 # 解析分类数据
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.preprocessing import LabelEncoder
 labelencoder_X = LabelEncoder()
 X[:, 0] = labelencoder_X.fit_transform(X[:, 0])
 X
 
 # %%
 # 特征值数字化
+from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 categorical_features = [0]
 onehotencoder = OneHotEncoder()
@@ -81,9 +83,10 @@ print('data preprocess demo done')
 
 
 # %%
-# OneHotEncoder 将分类特征的每个元素转化为一个可直接计算的数值
-from sklearn import preprocessing
-enc = preprocessing.OneHotEncoder(categorical_features = [0])
+# OneHotEncoder
+# 将分类特征的每个元素转化为一个可直接计算的数值
+from sklearn.preprocessing import OneHotEncoder
+enc = OneHotEncoder()
 arr = [[0, 0, 3], [1, 1, 0], [0, 2, 1], [1, 0, 2]]
 # fit来学习编码
 enc.fit(arr)
@@ -91,7 +94,7 @@ enc.fit(arr)
 enc.transform([[0, 1, 3]]).toarray()
 
 # %%
-enc = preprocessing.OneHotEncoder(handle_unknown='ignore')
+enc = OneHotEncoder(handle_unknown='ignore')
 enc.fit([['male', 0, 3], ['male', 1, 0], ['female', 2, 1], ['female', 0, 2]])
 enc.categories_
 
@@ -148,5 +151,60 @@ scaler.transform(data)
 # %%
 scaler.transform([[2, 2]])
 
+
 # %%
-print('scikit-learn end')
+# 特征工程 标准化与归一化
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn import preprocessing
+
+def plot(data, title):
+    sns.set_style('dark')
+    f, ax = plt.subplots()
+    ax.set(ylabel='frequency')
+    ax.set(xlabel='height(blue) / weight(green)')
+    ax.set(title=title)
+    sns.distplot(data[:, 0:1], color='blue')
+    sns.distplot(data[:, 1:2], color='green')
+    plt.show()
+
+np.__version__
+
+# %%
+np.random.seed(42)
+height = np.random.normal(loc=168, scale=5, size=1000).reshape(-1, 1)
+weight = np.random.normal(loc=70, scale=10, size=1000).reshape(-1, 1)
+print(height.shape, weight.shape)
+height[:5], weight[:5]
+
+# %%
+original_data = np.concatenate((height, weight), axis=1)
+print(original_data.shape)
+original_data[:5]
+
+# %%
+plot(original_data, 'Original')
+
+# %%
+# 缩放到均值为0, 方差为1
+standard_scaler_data = preprocessing.StandardScaler().fit_transform(original_data)
+plot(standard_scaler_data, 'StandardScaler')
+
+# %%
+# 缩放到0和1之间
+min_max_scaler_data = preprocessing.MinMaxScaler().fit_transform(original_data)
+plot(min_max_scaler_data, 'MinMaxScaler')
+
+# %%
+# 缩放到-1和1之间
+max_abs_scaler_data = preprocessing.MaxAbsScaler().fit_transform(original_data)
+plot(max_abs_scaler_data, 'MaxAbsScaler')
+
+# %%
+# 缩放到0和1之间，保留原始数据的分布
+normalizer_data = preprocessing.Normalizer().fit_transform(original_data)
+plot(normalizer_data, 'Normalizer')
+
+# %%
+print('scikit-learn demo done')

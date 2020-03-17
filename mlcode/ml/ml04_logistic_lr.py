@@ -172,4 +172,4 @@ plt.contour(x,y,z,cmap=cmap)
 plt.show()
 
 # %%
-print('scikit-learn end')
+print('scikit-learn demo done')
