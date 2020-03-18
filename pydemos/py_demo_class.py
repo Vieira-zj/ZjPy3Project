@@ -264,7 +264,52 @@ def py_class_ex08():
     f.print_number()
 
 
+# example 09 abstract method
+def py_class_ex09():
+    from abc import ABCMeta, abstractmethod
+
+    class DataProcessor(metaclass=ABCMeta):
+        '''Base processor to be used for all preparation.'''
+
+        def __init__(self, input_dir, output_dir):
+            self.input_dir = input_dir
+            self.output_dir = output_dir
+
+        @abstractmethod
+        def read(self):
+            '''Read raw data.'''
+
+        @abstractmethod
+        def process(self):
+            '''Processes raw data.'''
+
+        @abstractmethod
+        def save(self):
+            '''Saves processed data.'''
+
+    class MyProcess(DataProcessor):
+        def __init__(self, input, output):
+            super().__init__(input, output)
+
+        def do(self):
+            self.read()
+            self.process()
+            self.save()
+
+        def read(self):
+            print('read raw data from:', self.input_dir)
+
+        def process(self):
+            print('data process ...')
+
+        def save(self):
+            print('save output data:', self.output_dir)
+
+    p = MyProcess('/tmp/input', '/tmp/output')
+    p.do()
+
+
 if __name__ == '__main__':
 
-    py_class_ex08()
+    py_class_ex09()
     print('python meta class demo DONE.')
