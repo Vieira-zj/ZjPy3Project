@@ -54,8 +54,7 @@ states = pd.DataFrame({'population': population, 'area': area})
 states
 
 # %%
-print(states.index, '\n')
-states.columns
+states.index, states.columns
 
 # %%
 # DataFrame as specialized dictionary
@@ -114,10 +113,10 @@ indA ^ indB
 # Data Indexing and Selection
 # Data Selection in Series
 data = pd.Series([0.25, 0.5, 0.75, 1.0], index=['a', 'b', 'c', 'd'])
-data
 print('a' in data, '\n')
 print(data.keys(), '\n')
 print(list(data.items()))
+data
 
 # %%
 data['e'] = 1.25
@@ -175,6 +174,7 @@ data
 
 # %%
 # DataFrame as two-dimensional array
+print(type(data.values), '\n')
 print(data.values[0], '\n')
 data.values
 
@@ -204,6 +204,23 @@ data['Florida':'Illinois']
 
 # %%
 data[1:3]
+
+
+
+# %%
+# 补充
+df = pd.DataFrame(np.arange(12).reshape(3, 4))
+print(type(df.values))
+df.values
+
+# %%
+x = np.random.randint(10, size=10)
+y = np.random.random(10)
+df = pd.DataFrame({'ints': x, 'floats': y})
+df
+
+# %%
+df['ints'].head().values.reshape(-1, 1)
 
 # %%
 print('end')

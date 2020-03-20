@@ -1,15 +1,17 @@
 # %%
 import tensorflow as tf
 import pandas as pd
-from tensorflow.python.saved_model import (
-    signature_constants, signature_def_utils, utils)
-
 pd.__version__, tf.__version__
 
 # %%
+# 前提：在pdms里面引入图片集
+# from nbsdk import get_picture_data
+# image_path = get_picture_data('mnist/123.image-set')
+image_path = 'image_set_pdms_path'
+
 # csv中每一行的数据有两列，[image] 图片的hdfs路径，[label] 图片对应的标注值
 # 可以使用"tf.read_file(filepath)"的方式读取图片
-df = pd.read_csv('image_url_csv', delimiter=',', header=0)
+df = pd.read_csv(image_path, delimiter=',', header=0)
 df.columns, df.shape
 
 # %%
@@ -17,7 +19,7 @@ image_data = df['image'].head(128).as_matrix().reshape(-1, 1)
 label_data = df['label'].head(128).as_matrix().reshape(-1, 1)
 image_data = image_data.reshape(-1)
 label_data = label_data.reshape(-1)
-image_data, label_data
+image_data[:5], label_data[:5]
 
 # %%
 def _decode_image_file(filename, label):
@@ -85,7 +87,7 @@ x_image = tf.reshape(input_x_image, [-1, 28, 28, 1])
 
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 h_pool1 = max_pool_2x2(h_conv1)
-print('tf #1 layer')
+print('cnn layer 第一层卷积')
 
 # %%
 # 第二层卷积 同样使用5*5的过滤器，因为上一层使用32个过滤器所以相当于有32个颜色通道一样。而这一层我们使用64个过滤器
@@ -94,10 +96,10 @@ b_conv2 = bias_variable([64])
 
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
 h_pool2 = max_pool_2x2(h_conv2)
-print('tf #2 layer')
+print('cnn layer 第二层卷积')
 
 # %%
-# 全连接层，经过上面2层以后，图片大小变成了7*7
+# 全连接层 经过上面2层以后，图片大小变成了7*7
 # 初始化权重，全连接层我们使用1024个神经元
 W_fc1 = weight_variable([7 * 7 * 64, 1024])
 b_fc1 = bias_variable([1024])
@@ -111,7 +113,7 @@ h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 # 就是随机地关闭掉一些神经元，使模型不要与原始数据拟合的那么准确
 #keep_prob = tf.placeholder(tf.float32)
 #h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
-print('tf #3 layer')
+print('cnn layer 全连接层')
 
 # %%
 # 创建输出层
@@ -125,10 +127,13 @@ prediction_op = tf.argmax(softmax_op, 1)
 
 correct_prediction_op = tf.equal(prediction_op, batch_label_op)
 accuracy_op = tf.reduce_mean(tf.cast(correct_prediction_op, tf.float32))
-print('tf output layer')
+print('cnn layer 输出层')
 
 # %%
 # 训练过程
+from tensorflow.python.saved_model import (
+    signature_constants, signature_def_utils, utils)
+
 # 1.计算交叉熵损失
 cross_entropy = tf.reduce_mean(
     tf.nn.softmax_cross_entropy_with_logits(labels=batch_label_op, logits=y_conv))
@@ -150,13 +155,14 @@ with tf.Session() as sess:
 
     while True:
       try:
+        print('cnn training ...')
         sess.run(train_step)
       except tf.errors.OutOfRangeError:
         print('训练结束')
         break
 
     builder = tf.saved_model.builder.SavedModelBuilder(
-        'cnn_dataset001/0')
+        'cnn_model01/0')
 
     inputs = {'image': utils.build_tensor_info(input_x_image)}
     outputs = {
@@ -174,8 +180,11 @@ with tf.Session() as sess:
     )
     builder.save()
 
-    # from nbsdk import export_model
-    # prn, hdfs = export_model('cnn_dataset001', 'cnn_dataset001')
-    # print(hdfs, prn)
-
 print('tf session end')
+
+# %%
+# 保存模型到模型中心
+# from nbsdk import export_model
+# prn, hdfs = export_model('cnn_model01', 'cnn_model01')
+# print(hdfs, prn)
+print('cnn demo done')
