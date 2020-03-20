@@ -150,4 +150,4 @@ x.ravel()
 x.reshape(-1)
 
 # %%
-print('end')
+print('numpy end')

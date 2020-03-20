@@ -1,7 +1,7 @@
 # %%
 import numpy as np
-np.__version__
 np.random.seed(0)
+np.__version__
 
 # %%
 # integer array
@@ -113,4 +113,17 @@ print(np.add.accumulate(x))
 
 
 # %%
-print('end')
+# 补充
+x = np.random.randint(100, size=(10))
+x
+
+# %%
+y = x.reshape(-1, 1)
+y
+
+# %%
+z = y.reshape(-1)
+z
+
+# %%
+print('numpy end')

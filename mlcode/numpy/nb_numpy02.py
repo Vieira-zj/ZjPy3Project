@@ -90,4 +90,4 @@ print(cond, '\n')
 z[cond]
 
 # %%
-print('end')
+print('numpy end')

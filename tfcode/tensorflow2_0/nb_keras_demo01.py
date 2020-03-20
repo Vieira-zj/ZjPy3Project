@@ -20,6 +20,8 @@ model.summary()
 # %%
 # 模型训练
 import numpy as np
+np.random.seed(66)
+
 train_x = np.random.random((1000, 72))
 train_y = np.random.random((1000, 10))
 val_x = np.random.random((200, 72))
