@@ -789,6 +789,12 @@ def py_base_ex31():
     _print(*vals)
 
 
+# example 32, check string is int
+def py_base_ex32():
+    for str in ('11.11', '3.0', '10', '-1', '0'):
+        print(str, str.isdigit())
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -797,7 +803,7 @@ if __name__ == '__main__':
     print('\npython version:\n', sys.version)
     print()
 
-    py_base_ex31()
+    py_base_ex32()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
