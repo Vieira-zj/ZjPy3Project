@@ -209,6 +209,7 @@ data[1:3]
 
 # %%
 # 补充
+# 1: reshape(-1, 1)
 df = pd.DataFrame(np.arange(12).reshape(3, 4))
 print(type(df.values))
 df.values
@@ -221,6 +222,39 @@ df
 
 # %%
 df['ints'].head().values.reshape(-1, 1)
+
+# %%
+# 2: df.info(), df.plot()
+x = np.random.random(size=10)
+y = np.random.random(size=10)
+df = pd.DataFrame({'x': x, 'y': y})
+df.head()
+
+# %%
+df.info()
+
+# %%
+df.describe()
+
+# %%
+df.plot(kind='scatter', x='x', y='x', alpha=0.8)
+
+# %%
+# 3: df.value_counts()
+sex = pd.Series([np.random.choice(('Male', 'Female')) for i in range(10)])
+age = pd.Series(np.random.randint(100, size=10))
+df = pd.DataFrame({'sex': sex, 'age': age})
+df
+
+# %%
+df['sex'].value_counts()
+
+# %%
+df['sex'].value_counts() / len(df)
+
+# %%
+# only col "age" is show
+df.describe()
 
 # %%
 print('end')
