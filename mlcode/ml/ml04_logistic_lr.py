@@ -52,8 +52,7 @@ print(X_test[:, 1].min(), X_test[:, 1].max())
 # STEP2: 逻辑回归模型 
 # 
 # 将逻辑回归应用于训练集
-# 该项工作的库将会是一个线性模型库，
-# 之所以被称为线性是因为逻辑回归是一个线性分类器，
+# 该项工作的库将会是一个线性模型库，之所以被称为线性是因为逻辑回归是一个线性分类器，
 # 这意味着我们在二维空间中，我们两类用户（购买和不购买）将被一条直线分割。
 from sklearn.linear_model import LogisticRegression
 classifier = LogisticRegression()
@@ -73,7 +72,7 @@ y_pred[:5]
 # 生成混淆矩阵
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_test, y_pred)
-print('confusion matrix done')
+cm
 
 # %%
 # 训练集可视化
@@ -148,11 +147,11 @@ plt.legend()
 plt.show()
 
 # %%
-print('logistic lr demo done')
+print('ml logistic lr demo done')
 
 
 # %%
-# plt.contour, plt.contourf
+# 补充：plt.contour, plt.contourf
 import numpy as np
 x = np.array([1, 2])
 y = np.array([1, 2])
@@ -162,6 +161,7 @@ np.unique(z)
 # %%
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+
 plt.xlim(1, 2)
 plt.ylim(1, 2)
 colors = ('red', 'blue', 'lightgreen', 'gray', 'cyan')

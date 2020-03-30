@@ -47,7 +47,7 @@ np.sum(y_pred == 1)
 # 生成混淆矩阵，也称作误差矩阵
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_test, y_pred)
-print('confusion matrix done')
+cm
 
 # %%
 # 将训练集结果可视化
@@ -92,4 +92,4 @@ plt.legend()
 plt.show()
 
 # %%
-print('random forests demo done')
+print('ml random forests demo done')

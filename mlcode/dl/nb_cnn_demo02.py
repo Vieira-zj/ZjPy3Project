@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import os
 import cv2
 from tqdm import tqdm
+
 np.__version__, cv2.__version__
 
 # %%
@@ -122,12 +123,12 @@ print('data dump done')
 # PART2: 模型训练
 import time
 import tensorflow as tf
-from tensorflow.keras.datasets import cifar10
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
 from tensorflow.keras.layers import Conv2D, MaxPooling2D
 from tensorflow.keras.callbacks import TensorBoard
+
 tf.__version__, tf.keras.__version__
 
 # %%
@@ -199,4 +200,4 @@ x
 x / 2
 
 # %%
-print('keras and opencv demo done')
+print('opencv and tf cnn demo done')

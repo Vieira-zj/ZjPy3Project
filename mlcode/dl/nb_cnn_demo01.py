@@ -9,6 +9,7 @@
 # %%
 import tensorflow.keras as keras
 import tensorflow as tf
+
 tf.__version__, tf.keras.__version__
 
 # %%
@@ -106,4 +107,4 @@ plt.imshow(x_test[1], cmap=plt.cm.binary)
 plt.show()
 
 # %%
-print('tf keras demo done')
+print('tf cnn demo done')

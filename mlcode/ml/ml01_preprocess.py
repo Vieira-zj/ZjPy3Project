@@ -9,16 +9,8 @@ np.__version__, pd.__version__
 import os
 data_path = os.path.join(os.getenv('PYPATH'), 'mlcode/ml/data/Data.csv')
 dataset = pd.read_csv(data_path)
-dataset.shape
-
-# %%
+print(dataset.shape)
 dataset
-
-# %%
-arr = list(range(10))
-print(arr)
-print(arr[:-1])
-arr[len(arr) - 1], arr[-1]
 
 # %%
 X = dataset.iloc[:, :-1].values
@@ -83,6 +75,14 @@ print('data preprocess demo done')
 
 
 # %%
+# 补充
+arr = list(range(10))
+print(arr)
+print(arr[:-1])
+arr[len(arr) - 1], arr[-1]
+
+
+# %%
 # OneHotEncoder
 # 将分类特征的每个元素转化为一个可直接计算的数值
 from sklearn.preprocessing import OneHotEncoder
@@ -114,7 +114,6 @@ clt.fit([[0, 0, 3],
          [1, 1, 0],
          [0, 2, 1],
          [1, 0, 2]])
-
 clt.transform([[0, 2, 3]])
 
 # %%
@@ -169,7 +168,7 @@ def plot(data, title):
     sns.distplot(data[:, 1:2], color='green')
     plt.show()
 
-np.__version__
+print('def plot')
 
 # %%
 np.random.seed(42)
@@ -179,6 +178,7 @@ print(height.shape, weight.shape)
 height[:5], weight[:5]
 
 # %%
+# point (x,y)
 original_data = np.concatenate((height, weight), axis=1)
 print(original_data.shape)
 original_data[:5]

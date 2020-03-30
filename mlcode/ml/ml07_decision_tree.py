@@ -47,7 +47,7 @@ np.sum(y_pred == 1)
 # 制作混淆矩阵
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_test, y_pred)
-print('confusion matrix done')
+cm
 
 # %%
 # 将训练集结果进行可视化
@@ -92,4 +92,4 @@ plt.legend()
 plt.show()
 
 # %%
-print('decision tree demo done')
+print('ml decision tree demo done')

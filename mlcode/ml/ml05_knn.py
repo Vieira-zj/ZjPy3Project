@@ -59,7 +59,7 @@ y_pred[:5]
 # 生成混淆矩阵
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_test, y_pred)
-print('confusion matrix done')
+cm
 
 # %%
 # 测试集可视化
@@ -98,4 +98,4 @@ plt.legend()
 plt.show()
 
 # %%
-print('knn demo done')
+print('ml knn demo done')

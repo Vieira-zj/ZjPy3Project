@@ -57,7 +57,7 @@ y_pred[:5]
 # 创建混淆矩阵
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_test, y_pred)
-print('confusion matrix done')
+cm
 
 # %%
 # 训练集合结果可视化
@@ -125,10 +125,11 @@ plt.legend()
 plt.show()
 
 # %%
-print('svm demo done')
+print('ml svm demo done')
 
 
 # %%
+# 补充：扁平化函数 ravel()
 arr1 = np.arange(0, 6).reshape(2, 3)
 arr2 = np.arange(10, 16).reshape(2, 3)
 arr = np.array([arr1.ravel(), arr2.ravel()])

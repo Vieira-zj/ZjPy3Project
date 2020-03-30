@@ -18,7 +18,7 @@ X[:5]
 
 # %%
 # Profit
-Y = dataset.iloc[:,  4].values
+Y = dataset.iloc[:, 4].values
 Y[:5]
 
 # %%

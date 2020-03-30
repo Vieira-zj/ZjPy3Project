@@ -38,9 +38,7 @@ print('model train done')
 # %%
 # 预测结果
 Y_pred = regressor.predict(X_test)
-Y_pred.shape
-
-# %%
+print(Y_pred.shape)
 Y_pred
 
 # %%
