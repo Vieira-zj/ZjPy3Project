@@ -1,5 +1,5 @@
 # %%
-# cnn for y = 2 * x - 1
+# dnn for y = 2 * x - 1
 import tensorflow as tf
 import numpy as np
 from tensorflow import keras
