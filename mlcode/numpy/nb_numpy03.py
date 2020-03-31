@@ -1,48 +1,14 @@
 # %%
 import numpy as np
+np.random.seed(6)
 np.__version__
 
 # %%
-# indexing
-rand = np.random.RandomState(42)
-x = rand.randint(100, size=10)
-print(x, '\n')
-idx = [3, 7, 4]
-x[idx]
-
-# %%
-idx = np.array([[3, 7], [4, 5]])
-x[idx]
-
-# %%
-y = np.arange(12).reshape((3, 4))
-print(y, '\n')
-row = np.array([0, 1, 2])
-col = np.array([2, 1, 3])
-y[row, col]
-
-# %%
-y[2, [2, 0, 1]]
-
-# %%
-# modifying values with indexing
-x = np.arange(10)
-i = np.array([2, 1, 8, 4])
-x[i] = 99
-x
-
-# %%
-x[i] -= 10
-x
-
-
-
-# %%
-# selecting random points
+# Selecting random points
 mean = [0, 0]
 cov = [[1, 2], [2, 5]]
 X = rand.multivariate_normal(mean, cov, 100)
-print(X.shape, '\n')
+print(X.shape)
 
 %matplotlib inline
 import matplotlib.pyplot as plt
@@ -53,17 +19,16 @@ plt.scatter(X[:, 0], X[:, 1])
 
 # %%
 indices = np.random.choice(X.shape[0], 20, replace=False)
-print(indices, '\n')
+print(indices)
 selection = X[indices]
-print(selection.shape, '\n')
+print(selection.shape)
 
 plt.scatter(X[:, 0], X[:, 1], alpha=0.3)
 plt.scatter(selection[:, 0], selection[:, 1], facecolor='none', s=200)
 
 
-
 # %%
-# sorting arrays
+# Sorting arrays
 x = np.array([2, 1, 4, 3, 5])
 np.sort(x)
 
@@ -85,13 +50,12 @@ np.sort(X, axis=1)
 
 # %%
 X = rand.rand(10, 2)
-print(X.shape, '\n')
+print(X.shape)
 plt.scatter(X[:, 0], X[:, 1], s=100)
 
 
-
 # %%
-# structured arrays
+# Structured arrays
 data = np.zeros(4, dtype={'names': ('name', 'age', 'weight'),
                           'formats': ('U10', 'i4', 'f8')})
 name = ['Alice', 'Bob', 'Cathy', 'Doug']
@@ -100,8 +64,6 @@ weight = [55.0, 85.5, 68.0, 61.5]
 data['name'] = name
 data['age'] = age
 data['weight'] = weight
-
-# %%
 data
 
 # %%
@@ -116,28 +78,28 @@ data[0]
 # get name of last row
 print(data[-1]['name'])
 
-# Get names where age is under 30
+# get names where age is under 30
 data[data['age'] < 30]['name']
-
 
 
 # %%
 # 补充
-# meshgrid（生成坐标矩阵X,Y)
+# meshgrid (生成坐标矩阵X,Y)
 import numpy as np
+import matplotlib.pyplot as plt
 
 # 网格点的横纵坐标列向量
-x = np.array([0, 1, 2])
-y = np.array([0, 1])
+x = np.array([0, 2, 4])
+y = np.array([1, 3])
 X, Y = np.meshgrid(x, y)
-print(type(X))
+print(X.shape, Y.shape)
 X, Y
 
 # %%
-import matplotlib.pyplot as plt
 plt.plot(X, Y, color='red', marker='.', linestyle='')
 plt.grid(True)
 plt.show()
+
 
 # %%
 # flatten,ravel（将多维数组降位一维）
@@ -150,4 +112,4 @@ x.ravel()
 x.reshape(-1)
 
 # %%
-print('numpy end')
+print('numpy demo done')

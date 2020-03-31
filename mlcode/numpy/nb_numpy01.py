@@ -4,6 +4,7 @@ np.random.seed(0)
 np.__version__
 
 # %%
+# Create numpy ndarray
 # integer array
 np.array([1, 4, 2, 5, 3])
 
@@ -23,7 +24,7 @@ np.ones((3, 5), dtype=float)
 np.full((3, 5), 3.14)
 
 # %%
-# create an array of five values evenly spaced between 0 and 1
+# create an array of 5 values evenly spaced between 0 and 1
 np.linspace(0, 1, 5)
 
 # %%
@@ -41,50 +42,70 @@ np.random.normal(0, 1, (3, 3))
 np.random.randint(0, 10, (3, 3))
 
 
+# %%
+# Numpy array attributes
+# two-dimensional array
+arr = np.random.randint(10, size=(3, 4))
+print(type(arr))
+arr
 
 # %%
-# numpy array attributes
-arr = np.random.randint(10, size=(3, 4))  # two-dimensional array
-print(type(arr), '\n')
-print(arr, '\n')
-
 print('ndim:', arr.ndim)
 print('shape:', arr.shape)
 print('size:', arr.size)
 print('dtype:', arr.dtype)
 print('nbytes:', arr.nbytes, 'bytes')
 
-# %%
-# array slicing: accessing subarrays
-arr[:2, :3]  # two rows, three columns
 
 # %%
-arr[:, 0]  # first column of array
+# Array slicing: accessing subarrays
+# two rows, three columns
+arr[:2, :3]
 
 # %%
-arr[0, :]  # first row of array
+# first column of array
+arr[:, 0]
 
 # %%
-arr[0]  # equivalent to arr[0, :]
+# first row of array
+arr[0, :]
 
 # %%
-# concatenation of arrays
+# equivalent to arr[0, :]
+arr[0]
+
+
+# %%
+# Concatenation of arrays
 x = np.array([1, 2, 3])
 y = np.array([3, 2, 1])
-np.concatenate([x, y])
+z = np.concatenate([x, y])
+print(z.shape)
+z
 
 # %%
 # concatenate along the first axis
 grid = np.arange(6).reshape(2, 3)
-np.concatenate([grid, grid])
+grid
+
+# %%
+z = np.concatenate([grid, grid])
+print(z.shape)
+z
 
 # %%
 # concatenate along the second axis (zero-indexed)
-np.concatenate([grid, grid], axis=1)
+z = np.concatenate([grid, grid], axis=1)
+print(z.shape)
+z
+
 
 # %%
-# splitting of arrays
+# Splitting of arrays
 grid = np.arange(16).reshape((4, 4))
+grid
+
+# %%
 upper, lower = np.vsplit(grid, [2])
 upper, lower
 
@@ -93,12 +114,13 @@ left, right = np.hsplit(grid, [2])
 left, right
 
 
+# %%
+# Array arithmetic
+x = np.arange(4)
+x
 
 # %%
-# array arithmetic
-x = np.arange(4)
-print(x)
-print(np.add(x, 2))
+np.add(x, 2)
 
 # %%
 # absolute value
@@ -108,13 +130,38 @@ np.abs(x)
 # %%
 # aggregates
 x = np.arange(1, 6)
-print(np.add.reduce(x))
-print(np.add.accumulate(x))
+np.add.reduce(x)
+
+# %%
+np.add.accumulate(x)
+
+# %%
+# summing values in an array
+arr = np.arange(1, 6)
+np.sum(arr)
+
+# %%
+big_array = np.random.rand(1000000)
+%timeit sum(big_array)
+%timeit np.sum(big_array)
+
+# %%
+# minimum and maximum
+print(np.min(big_array))
+print(np.max(big_array))
+
+# %%
+arr = np.random.random((3, 4))
+arr
+
+# %%
+print(np.min(arr, axis=0))
+print(np.max(arr, axis=1))
 
 
 # %%
-# 补充
-x = np.random.randint(100, size=(10))
+# 补充 reshape(-1)
+x = np.arange(9).reshape(3, 3)
 x
 
 # %%
@@ -126,4 +173,4 @@ z = y.reshape(-1)
 z
 
 # %%
-print('numpy end')
+print('numpy demo done')
