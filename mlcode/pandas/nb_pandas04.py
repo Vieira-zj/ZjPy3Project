@@ -2,7 +2,7 @@
 # Combining Datasets: Merge and Join
 import pandas as pd
 import numpy as np
-np.__version__
+np.__version__, pd.__version__
 
 # %%
 class display(object):
@@ -32,7 +32,7 @@ df2 = pd.DataFrame({'employee': ['Lisa', 'Bob', 'Jake', 'Sue'],
 display('df1', 'df2')
 
 # %%
-# One-to-one joins
+# One-to-one joins (default inner)
 df3 = pd.merge(df1, df2)
 df3
 
@@ -49,6 +49,7 @@ df5 = pd.DataFrame({'group': ['Accounting', 'Accounting',
                     'skills': ['math', 'spreadsheets', 'coding', 'linux',
                                'spreadsheets', 'organization']})
 display('df1', 'df5', 'pd.merge(df1, df5)')
+
 
 # %%
 # The on keyword
@@ -77,6 +78,7 @@ display('df1a', 'df2a', 'df1a.join(df2a)')
 
 # %%
 display('df1a', 'df3', "pd.merge(df1a, df3, left_index=True, right_on='name')")
+
 
 # %%
 # Specifying Set Arithmetic for Joins
@@ -109,7 +111,6 @@ display('df8', 'df9', 'pd.merge(df8, df9, on="name")')
 display('df8', 'df9', 'pd.merge(df8, df9, on="name", suffixes=["_L", "_R"])')
 
 
-
 # %%
 # Example: US States Data
 pop = pd.read_csv('data/state-population.csv')
@@ -137,6 +138,7 @@ merged.loc[merged['state/region'] == 'PR', 'state'] = 'Puerto Rico'
 merged.loc[merged['state/region'] == 'USA', 'state'] = 'United States'
 merged.isnull().any()
 
+
 # %%
 final = pd.merge(merged, areas, on='state', how='left')
 final.head()
@@ -148,7 +150,7 @@ final.isnull().any()
 final['state'][final['area (sq. mi)'].isnull()].unique()
 
 # %%
-# inplace: bool, default False. Modify the DataFrame in place (do not create a new object).
+# inplace: bool, default "False". Modify the DataFrame in place (do not create a new object).
 final.dropna(inplace=True)
 final.head()
 
@@ -166,4 +168,4 @@ density.head()
 density.tail()
 
 # %%
-print('end')
+print('pandas demo done')

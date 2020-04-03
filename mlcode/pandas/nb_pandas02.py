@@ -2,7 +2,8 @@
 # Operating on Data in Pandas
 import pandas as pd
 import numpy as np
-np.__version__
+np.random.seed(6)
+np.__version__, pd.__version__
 
 # %%
 # Ufuncs: Index Preservation
@@ -11,14 +12,15 @@ ser = pd.Series(rnd.randint(0, 10, 4))
 ser
 
 # %%
+np.exp(ser)
+
+# %%
 df = pd.DataFrame(rnd.randint(0, 10, (3, 4)), columns=['A', 'B', 'C', 'D'])
 df
 
 # %%
-np.exp(ser)
-
-# %%
 np.sin(df * np.pi / 4)
+
 
 # %%
 # Index alignment in Series
@@ -56,10 +58,10 @@ A + B
 fill = A.stack().mean()
 A.add(B, fill_value=fill)
 
+
 # %%
 # Operations Between DataFrame and Series
 A = rnd.randint(10, size=(3, 4))
-print(type(A))
 A
 
 # %%
@@ -76,7 +78,6 @@ df - df.iloc[0]
 df.subtract(df['R'], axis=0)
 
 
-
 # %%
 # Handling Missing Data
 # None: Pythonic missing data
@@ -86,11 +87,12 @@ vals1
 # %%
 # NaN: Missing numerical data
 vals2 = np.array([1, np.nan, 3, 4])
-vals2.dtype
+print(vals2.dtype)
+vals2
 
 # %%
-print(1 + np.nan, '\n')
-0 * np.nan
+print(1 + np.nan)
+print(0 * np.nan)
 
 # %%
 vals2.sum(), vals2.max(), vals2.min()
@@ -108,7 +110,9 @@ data = pd.Series([1, np.nan, 'hello', None])
 data.isnull()
 
 # %%
-data[data.notnull()]
+cond = data.notnull()
+data[cond]
+
 
 # %%
 # Dropping null values
@@ -136,6 +140,7 @@ df
 # %%
 df.dropna(axis='columns', how='all')
 
+
 # %%
 # Filling null values
 data = pd.Series([1, np.nan, 2, None, 3], index=list('abcde'))
@@ -151,4 +156,4 @@ data.fillna(method='ffill')  # forward-fill
 data.fillna(method='bfill')  # back-fill
 
 # %%
-print('end')
+print('pandas demo done')

@@ -2,7 +2,8 @@
 # Introducing Pandas Objects
 import numpy as np
 import pandas as pd
-np.__version__
+np.random.seed(6)
+np.__version__, pd.__version__
 
 # %%
 # The Pandas Series Object
@@ -10,9 +11,18 @@ data = pd.Series([0.25, 0.5, 0.75, 1.0])
 data
 
 # %%
-print(data.values, '\n')
-print(data.index, '\n')
-print(data[1], '\n')
+print(type(data.values))
+data.values
+
+# %%
+print(type(data.index))
+data.index
+
+# %%
+data[1]
+
+# %%
+print(type(data[1:3]))
 data[1:3]
 
 # %%
@@ -44,7 +54,6 @@ population['California':'Illinois']
 pd.Series({2: 'a', 1: 'b', 3: 'c'}, index=[3, 2])
 
 
-
 # %%
 # The Pandas DataFrame Object
 area_dict = {'California': 423967, 'Texas': 695662, 'New York': 141297,
@@ -54,7 +63,8 @@ states = pd.DataFrame({'population': population, 'area': area})
 states
 
 # %%
-states.index, states.columns
+print(states.index)
+print(states.columns)
 
 # %%
 # DataFrame as specialized dictionary
@@ -81,17 +91,18 @@ pd.DataFrame(np.random.rand(3, 2), columns=[
              'foo', 'bar'], index=['a', 'b', 'c'])
 
 
-
 # %%
 # The Pandas Index Object
 ind = pd.Index([2, 3, 5, 7, 11])
-print(type(ind), '\n')
+print(type(ind))
 ind
 
 # %%
 # Index as immutable array
-print(ind.size, ind.shape, ind.ndim, ind.dtype, '\n')
-print(ind[1], '\n')
+print(ind.size, ind.shape, ind.ndim, ind.dtype)
+ind[1]
+
+# %%
 ind[::2]
 
 # %%
@@ -109,14 +120,17 @@ indA & indB
 # # symmetric difference
 indA ^ indB
 
+
 # %%
 # Data Indexing and Selection
 # Data Selection in Series
 data = pd.Series([0.25, 0.5, 0.75, 1.0], index=['a', 'b', 'c', 'd'])
-print('a' in data, '\n')
-print(data.keys(), '\n')
-print(list(data.items()))
 data
+
+# %%
+print('a' in data)
+print(data.keys())
+print(list(data.items()))
 
 # %%
 data['e'] = 1.25
@@ -124,8 +138,12 @@ data
 
 # %%
 # Series as one-dimensional array
-print(data['a':'c'], '\n')
-print(data[0:2], '\n')
+data['a':'c']
+
+# %%
+data[0:2]
+
+# %%
 data[['a', 'e']]
 
 # %%
@@ -138,17 +156,19 @@ data = pd.Series(['a', 'b', 'c'], index=[1, 3, 5])
 data
 
 # %%
-print(data[1], '\n')
+print(data[1])
 data[1:3]
 
 # %%
 # explicit index
-print(data.loc[1], '\n')
+print(data.loc[1])
 data.loc[1:3]
 
+# %%
 # implicit Python-style index
-print(data.iloc[1], '\n')
+print(data.iloc[1])
 data.iloc[1:3]
+
 
 # %%
 # Data Selection in DataFrame
@@ -174,11 +194,17 @@ data
 
 # %%
 # DataFrame as two-dimensional array
-print(type(data.values), '\n')
-print(data.values[0], '\n')
+print(type(data.values))
+print(data.values.dtype)
+print(data.values.shape)
+data.values[0]
+
+# %%
 data.values
 
 # %%
+print(type(data.T))
+print(data.T.shape)
 data.T
 
 # %%
@@ -206,7 +232,6 @@ data['Florida':'Illinois']
 data[1:3]
 
 
-
 # %%
 # 补充
 # 1: reshape(-1, 1)
@@ -223,6 +248,7 @@ df
 # %%
 df['ints'].head().values.reshape(-1, 1)
 
+
 # %%
 # 2: df.info(), df.plot()
 x = np.random.random(size=10)
@@ -238,6 +264,7 @@ df.describe()
 
 # %%
 df.plot(kind='scatter', x='x', y='x', alpha=0.8)
+
 
 # %%
 # 3: df.value_counts()
@@ -257,4 +284,4 @@ df['sex'].value_counts() / len(df)
 df.describe()
 
 # %%
-print('end')
+print('pandas demo done')

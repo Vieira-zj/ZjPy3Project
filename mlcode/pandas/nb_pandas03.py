@@ -1,10 +1,11 @@
 # %%
-# Hierarchical Indexing
 import pandas as pd
 import numpy as np
-np.__version__
+np.random.seed(6)
+np.__version__, pd.__version__
 
 # %%
+# Hierarchical Indexing
 # Pandas MultiIndex
 index = [('California', 2000), ('California', 2010),
          ('New York', 2000), ('New York', 2010),
@@ -40,6 +41,7 @@ pop_df
 # %%
 f_u18 = pop_df['under18'] / pop_df['total']
 f_u18.unstack()
+
 
 # %%
 # Methods of MultiIndex Creation
@@ -80,13 +82,14 @@ health_data
 health_data['Guido']
 
 
-
 # %%
 # Multiply indexed Series
 pop
 
 # %%
-print(pop['California', 2000], '\n')
+pop['California', 2000]
+
+# %%
 pop['California']
 
 # %%
@@ -118,7 +121,6 @@ health_data.loc[:, ('Bob', 'HR')]
 # %%
 idx = pd.IndexSlice
 health_data.loc[idx[:, 1], idx[:, 'HR']]
-
 
 
 # %%
@@ -172,7 +174,6 @@ data_mean
 data_mean.mean(axis=1, level='type')
 
 
-
 # %%
 # Combining Datasets: Concat and Append
 def make_df(cols, ind):
@@ -186,7 +187,6 @@ make_df('ABC', range(3))
 # %%
 class display(object):
     '''Display HTML representation of multiple objects'''
-
     template = '''<div style="float: left; padding: 10px;">
     <p style='font-family:"Courier New", Courier, monospace'>{0}</p>{1}
     </div>'''
@@ -233,6 +233,9 @@ df3 = make_df('AB', [0, 1])
 df4 = make_df('CD', [0, 1])
 display('df3', 'df4', "pd.concat([df3, df4], axis='columns')")
 
+# %%
+# The append() method
+display('df1', 'df2', 'df1.append(df2)')
 
 
 # %%
@@ -270,8 +273,4 @@ display('df5', 'df6', "pd.concat([df5, df6], join='inner')")
 display('df5', 'df6', 'pd.concat([df5, df6], join_axes=[df5.columns])')
 
 # %%
-# The append() method
-display('df1', 'df2', 'df1.append(df2)')
-
-# %%
-print('end')
+print('pandas demo done')
