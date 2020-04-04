@@ -1,19 +1,16 @@
 # %%
-# Simple Line Plots
+import numpy as np
+np.random.seed(66)
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-whitegrid')
 
 # %%
+# Simple Line Plots
 # 画布
 fig = plt.figure()
 # 绘图区
 ax = plt.axes()
 
-# %%
-fig = plt.figure()
-ax = plt.axes()
-
-import numpy as np
 x = np.linspace(0, 10, 1000)
 ax.plot(x, np.sin(x))
 
@@ -96,15 +93,13 @@ ax.set(xlim=(0, 10), ylim=(-2, 2),
        title='A Simple Plot')
 
 
-
 # %%
 # Simple Scatter Plots
+import numpy as np
+np.random.seed(66)
 %matplotlib inline
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-whitegrid')
-
-import numpy as np
-np.__version__
 
 # %%
 x = np.linspace(0, 10, 30)
@@ -150,15 +145,13 @@ plt.colorbar()  # show color scale
 # so the renderer must do the extra work of constructing each point individually.
 
 
-
 # %%
 # Visualizing Errors
+import numpy as np
+np.random.seed(66)
 %matplotlib inline
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-whitegrid')
-
-import numpy as np
-np.__version__
 
 # %%
 # Basic Errorbars
@@ -172,15 +165,13 @@ plt.errorbar(x, y, yerr=dy, fmt='o', color='black',
              ecolor='lightgray', elinewidth=3, capsize=0)
 
 
-
 # %%
 # Density and Contour Plots
+import numpy as np
+np.random.seed(66)
 %matplotlib inline
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-white')
-
-import numpy as np
-np.__version__
 
 # %%
 # Visualizing a Three-Dimensional Function
@@ -218,16 +209,21 @@ plt.imshow(Z, extent=[0, 5, 0, 5], origin='lower',
 plt.colorbar()
 
 
-
 # %%
 # Histograms, Binnings, and Density
-%matplotlib inline
 import numpy as np
+np.random.seed(66)
+%matplotlib inline
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-white')
 
+# %%
 data = np.random.randn(1000)
-data.shape
+data[:5]
+
+# %%
+counts, bin_edges = np.histogram(data, bins=5)
+counts, bin_edges
 
 # %%
 plt.hist(data)
@@ -243,19 +239,9 @@ x2 = np.random.normal(-2, 1, 1000)
 x3 = np.random.normal(3, 2, 1000)
 
 kwargs = dict(histtype='stepfilled', alpha=0.3, normed=True, bins=40)
-
 plt.hist(x1, **kwargs)
 plt.hist(x2, **kwargs)
 plt.hist(x3, **kwargs)
-
-# %%
-arr = np.arange(100)
-counts, bin_edges = np.histogram(arr, bins=5)
-counts, bin_edges
-
-# %%
-counts, bin_edges = np.histogram(data, bins=5)
-counts, bin_edges
 
 # %%
 # Two-Dimensional Histograms and Binnings
@@ -278,4 +264,4 @@ plt.hexbin(x, y, gridsize=30, cmap='Blues')
 plt.colorbar(label='count in bin')
 
 # %%
-print('end')
+print('plot demo done')

@@ -173,4 +173,19 @@ z = y.reshape(-1)
 z
 
 # %%
+# 补充 分桶
+arr = np.arange(100)
+counts, bin_edges = np.histogram(arr, bins=5)
+counts, bin_edges
+
+# %%
+# 补充 np.newaxis
+arrx = np.arange(10)
+arrx[:, np.newaxis] + np.arange(4)
+
+# %%
+arrx = np.arange(4)
+arrx[:, np.newaxis] * arrx
+
+# %%
 print('numpy demo done')

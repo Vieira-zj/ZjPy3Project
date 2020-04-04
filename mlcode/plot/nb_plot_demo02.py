@@ -1,10 +1,12 @@
 # %%
-# Customizing Plot Legends
+import numpy as np
+np.random.seed(66)
 %matplotlib inline
 import matplotlib.pyplot as plt
 plt.style.use('classic')
-import numpy as np
 
+# %%
+# Customizing Plot Legends
 x = np.linspace(0, 10, 1000)
 x.shape
 
@@ -26,10 +28,6 @@ fig
 # %%
 ax.legend(fancybox=True, framealpha=1, shadow=True, borderpad=1)
 fig
-
-# %%
-arrx = np.arange(10)
-arrx[:, np.newaxis] + np.arange(4)
 
 # %%
 # Choosing Elements for the Legend
@@ -70,19 +68,13 @@ leg = Legend(ax, lines[2:], ['line C', 'line D'],
 ax.add_artist(leg)
 
 
-
 # %%
 # Customizing Colorbars
+import numpy as np
+np.random.seed(66)
 import matplotlib.pyplot as plt
 plt.style.use('classic')
 %matplotlib inline
-
-import numpy as np
-np.__version__
-
-# %%
-arrx = np.arange(4)
-arrx * arrx[:, np.newaxis]
 
 # %%
 x = np.linspace(0, 10, 1000)
@@ -147,15 +139,13 @@ for i, axi in enumerate(ax.flat):
     axi.set(xticks=[], yticks=[])
 
 
-
 # %%
 # Multiple Subplots
+import numpy as np
+np.random.seed(66)
 %matplotlib inline
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-white')
-
-import numpy as np
-np.__version__
 
 # %%
 # plt.axes: Subplots by Hand
@@ -230,17 +220,16 @@ y_hist.hist(y, 40, histtype='stepfilled',
 y_hist.invert_xaxis()
 
 
-
 # %%
 # Text and Annotation
+import numpy as np
+import pandas as pd
+np.random.seed(66)
+
 %matplotlib inline
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 plt.style.use('seaborn-whitegrid')
-
-import numpy as np
-import pandas as pd
-np.__version__
 
 # %%
 births = pd.read_csv('data/births.csv')
@@ -319,4 +308,4 @@ ax.annotate('local minimum', xy=(5 * np.pi, -1), xytext=(2, -6),
             arrowprops=dict(arrowstyle="->", connectionstyle="angle3,angleA=0,angleB=-90"))
 
 # %%
-print('end')
+print('plot demo done')
