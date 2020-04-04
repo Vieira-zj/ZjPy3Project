@@ -1,5 +1,4 @@
 # %%
-# Combining Datasets: Merge and Join
 import pandas as pd
 import numpy as np
 np.__version__, pd.__version__
@@ -25,6 +24,7 @@ class display(object):
 # end display
 
 # %%
+# Combining Datasets: Merge and Join
 df1 = pd.DataFrame({'employee': ['Bob', 'Jake', 'Lisa', 'Sue'],
                     'group': ['Accounting', 'Engineering', 'Engineering', 'HR']})
 df2 = pd.DataFrame({'employee': ['Lisa', 'Bob', 'Jake', 'Sue'],

@@ -1,7 +1,10 @@
 # %%
+import numpy as np
+import pandas as pd
+np.__version__, pd.__version__
+
 # Working with Time Series
 # Native Python dates and times: datetime and dateutil
-import seaborn
 from datetime import datetime
 datetime(year=2015, month=7, day=4)
 
@@ -15,7 +18,6 @@ date.strftime('%A')
 
 # %%
 # Typed arrays of times: NumPy's datetime64
-import numpy as np
 date = np.array('2015-07-04', dtype=np.datetime64)
 date
 
@@ -33,7 +35,6 @@ np.datetime64('2015-07-04 12:59:59.50', 'ns')
 
 # %%
 # Dates and times in pandas
-import pandas as pd
 date = pd.to_datetime('4th of July, 2015')
 date
 
@@ -42,7 +43,6 @@ date.strftime('%A')
 
 # %%
 date + pd.to_timedelta(np.arange(12), 'D')
-
 
 
 # %%
@@ -87,7 +87,6 @@ pd.period_range('2015-07', periods=8, freq='M')
 pd.timedelta_range(0, periods=10, freq='H')
 
 
-
 # %%
 # Example: Visualizing Seattle Bicycle Counts
 data = pd.read_csv('data/FremontBridge.csv',
@@ -105,9 +104,11 @@ data.dropna().describe()
 # %%
 %matplotlib inline
 import matplotlib.pyplot as plt
-import seaborn; seaborn.set()
+import seaborn
 
+seaborn.set()
 data.plot()
+# x轴为index(date), y轴为col值
 plt.ylabel('Hourly Bicycle Count')
 
 # %%
@@ -118,7 +119,7 @@ plt.ylabel('Weekly bicycle count')
 # %%
 daily = data.resample('D').sum()
 daily.rolling(30, center=True).sum().plot(style=[':', '--', '-'])
-plt.ylabel('mean hourly count')
+plt.ylabel('Mean hourly count')
 
 # %%
 # Digging into the data
@@ -129,6 +130,9 @@ by_time.plot(xticks=hourly_ticks, style=[':', '--', '-'])
 # %%
 by_weekday = data.groupby(data.index.dayofweek).mean()
 by_weekday.index = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun']
+by_weekday
+
+# %%
 by_weekday.plot(style=[':', '--', '-'])
 
 # %%
@@ -144,4 +148,4 @@ by_time.ix['Weekend'].plot(ax=ax[1], title='Weekends',
                            xticks=hourly_ticks, style=[':', '--', '-'])
 
 # %%
-print('end')
+print('pandas demo done')

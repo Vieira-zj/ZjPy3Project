@@ -1,6 +1,10 @@
 # %%
-# Vectorized String Operations
 import numpy as np
+import pandas as pd
+np.__version__, pd.__version__
+
+# %%
+# Vectorized String Operations
 x = np.array([2, 3, 5, 7, 11, 13])
 x * 2
 
@@ -9,7 +13,6 @@ data = ['peter', 'Paul', 'MARY', 'gUIDO']
 [s.capitalize() for s in data]
 
 # %%
-import pandas as pd
 data = ['peter', 'Paul', None, 'MARY', 'gUIDO']
 names = pd.Series(data)
 names
@@ -56,7 +59,6 @@ full_monte['name'].str.upper()
 
 # %%
 full_monte['info'].str.get_dummies('|')
-
 
 
 # %%
@@ -132,6 +134,9 @@ df.head()
 # %%
 # Local variables in DataFrame.eval()
 column_mean = df.mean(1)
+column_mean.head()
+
+# %%
 result1 = df['A'] + column_mean
 result2 = df.eval('A + @column_mean')
 np.allclose(result1, result2)
@@ -152,7 +157,22 @@ result1 = df[(df.A < Cmean) & (df.B < Cmean)]
 result2 = df.query('A < @Cmean and B < @Cmean')
 np.allclose(result1, result2)
 
+
+# %%
+# 补充
+df = pd.DataFrame(np.arange(6).reshape(2, 3))
+df
+
+# %%
+df.sum(axis=0)
+
+# %%
+df.sum(1)
+
+# %%
+df.mean(1)
+
 # %%
 # The benefit of eval/query is mainly in the saved memory,
 # and the sometimes cleaner syntax they offer.
-print('end')
+print('pandas demo done')

@@ -1,9 +1,9 @@
 # %%
-# Aggregation and Grouping
 import numpy as np
 import pandas as pd
-print(np.__version__)
+np.__version__, pd.__version__
 
+# %%
 class display(object):
     '''Display HTML representation of multiple objects'''
 
@@ -21,6 +21,7 @@ class display(object):
     def __repr__(self):
         return '\n\n'.join(a + '\n' + repr(eval(a))
                            for a in self.args)
+# end display
 
 # %%
 # Planets Data
@@ -32,13 +33,19 @@ planets.shape
 planets.head()
 
 # %%
+planets.dropna().describe()
+
+
+# %%
+# Aggregation and Grouping
 # Simple Aggregation in Pandas
 rng = np.random.RandomState(42)
 ser = pd.Series(rng.rand(5))
 ser
 
 # %%
-ser.mean(), ser.sum()
+print('mean:', ser.mean())
+print('sum:', ser.sum())
 
 # %%
 df = pd.DataFrame({'A': rng.rand(5), 'B': rng.rand(5)})
@@ -49,11 +56,6 @@ df.mean()
 
 # %%
 df.mean(axis='columns')
-
-# %%
-planets.dropna().describe()
-
-
 
 # %%
 # GroupBy: Split, Apply, Combine
@@ -77,7 +79,6 @@ for (method, group) in planets.groupby('method'):
 # %%
 # Dispatch methods
 planets.groupby('method')['year'].describe()
-
 
 
 # %%
@@ -106,16 +107,25 @@ display('df', "df.groupby('key').std()",
 
 # %%
 # Transformation
-df.groupby('key').transform(lambda x: x - x.mean())
+display('df', "df.groupby('key').transform(lambda x: x - x.mean())")
+
+# %%
+def trans_fn(x):
+    # print(x)
+    return x - x.mean()
+
+df.groupby('key').transform(trans_fn)
 
 # %%
 # The apply() method
 def norm_by_data2(x):
-    # x is a DataFrame of group values
+    # "x" is a DataFrame of group values
+    # print(x)
     x['data1'] /= x['data2'].sum()
     return x
 
 display('df', "df.groupby('key').apply(norm_by_data2)")
+
 
 # %%
 # Specifying the split key
@@ -144,7 +154,6 @@ decade.head()
 
 # %%
 planets.groupby(['method', decade])['number'].sum().unstack().fillna(0)
-
 
 
 # %%
@@ -185,6 +194,7 @@ titanic.pivot_table(index='sex', columns='class',
 # %%
 titanic.pivot_table('survived', index='sex', columns='class', margins=True)
 
+
 # %%
 # Example: Birthrate Data
 births = pd.read_csv('data/births.csv')
@@ -203,4 +213,4 @@ births.pivot_table('births', index='year',
 plt.ylabel('total births per year')
 
 # %%
-print('end')
+print('pandas demo done')
