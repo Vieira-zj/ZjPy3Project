@@ -4,11 +4,12 @@
 #
 # mnist数据
 # ${PIP_HOME}/tensorflow/python/keras/datasets/mnist.py 修改数据集path
+# path = os.path.join(os.getenv('PYPATH'), 'mlcode/dl/data/mnist.npz')
 #
 
 # %%
-import tensorflow.keras as keras
 import tensorflow as tf
+import tensorflow.keras as keras
 
 tf.__version__, tf.keras.__version__
 
