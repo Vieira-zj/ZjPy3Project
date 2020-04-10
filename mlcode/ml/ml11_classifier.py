@@ -264,5 +264,44 @@ plt.subplot(224)
 plot_digits(x_bb[:25], images_per_row=5)
 plt.show()
 
+
+# %%
+# 照片去除噪点
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+def plot_digit(some_digit):
+    some_digit = some_digit.reshape(28, 28)
+    plt.imshow(some_digit, cmap=mpl.cm.binary, interpolation='nearest')
+    plt.axis('off')
+    plt.show()
+
+# %%
+import numpy as np
+x_train = x_train.reshape(60000, -1)
+noise = np.random.randint(0, 100, (len(x_train), 784))
+x_train_mod = x_train + noise
+
+x_test = x_test.reshape(10000, -1)
+noise = np.random.randint(0, 100, (len(x_test), 784))
+x_test_mod = x_test + noise
+
+y_train_mod = x_train
+y_test_mod = x_test
+
+some_index = 5500
+plt.subplot(221)
+plot_digit(x_test_mod[some_index])
+plt.subplot(222)
+plot_digit(y_test_mod[some_index])
+
+# %%
+from sklearn.neighbors import KNeighborsClassifier
+knn_clf = KNeighborsClassifier()
+
+knn_clf.fit(x_train_mod, y_train_mod)
+clean_digit = knn_clf.predict([x_test_mod[some_index]])
+plot_digit(clean_digit)
+
 # %%
 print('Classifier demo end')
