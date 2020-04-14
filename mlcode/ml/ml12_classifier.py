@@ -24,7 +24,7 @@ plt.axis('off')
 plt.show()
 
 # %%
-# label
+# show label
 y_train[36000]
 
 
@@ -80,6 +80,27 @@ class ZeroClassifier(BaseEstimator):
 
 zero_clf = ZeroClassifier()
 cross_val_score(zero_clf, x_train, y_train_9, cv=3, scoring='accuracy')
+
+# %%
+# 实现cross_val_score()
+from sklearn.model_selection import StratifiedKFold
+from sklearn.base import clone
+
+def my_cross_val_score(clf, x_train, y_train, cv):
+    skfolds = StratifiedKFold(n_splits=cv, random_state=42)
+    for train_index, test_index in skfolds.split(x_train, y_train):
+        clone_clf = clone(clf)
+        x_train_folds = x_train[train_index]
+        y_train_folds = y_train[train_index]
+        x_test_fold = x_train[test_index]
+        y_test_fold = y_train[test_index]
+
+        clone_clf.fit(x_train_folds, y_train_folds)
+        y_pred = clone_clf.predict(x_test_fold)
+        n_correct = sum(y_pred == y_test_fold)
+        print('accuracy:', (n_correct / len(y_pred)))
+
+my_cross_val_score(sgd_clf, x_train, y_train_9, cv=3)
 
 
 # %%
