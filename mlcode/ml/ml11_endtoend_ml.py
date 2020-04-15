@@ -54,6 +54,7 @@ def show_hist(df, col):
     plt.ylabel('population')
     plt.show()
 
+# %%
 show_hist(housing, col='median_income')
 
 # %%
@@ -70,7 +71,9 @@ split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
 for train_index, test_index in split.split(housing, housing['income_cat']):
     strat_train_set = housing.loc[train_index]
     strat_test_set = housing.loc[test_index]
+strat_train_set.shape, strat_test_set.shape
 
+# %%
 # 删除income_cat属性
 for set in (strat_train_set, strat_test_set):
     set.drop(['income_cat'], axis=1, inplace=True)
@@ -175,13 +178,26 @@ class DataFrameSelector(BaseEstimator, TransformerMixin):
         return X[self.attribute_names].values
 
 # %%
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import LabelBinarizer, StandardScaler
+# https://stackoverflow.com/questions/40097177/pipeline-doesnt-work-with-label-encoder
+from sklearn.preprocessing import LabelBinarizer
 
-# fix
-LabelBinarizer.fit_transform = lambda self, X, y=None, **fit_params: LabelBinarizer.__fit_transform(
-    self, X)
+class MyLEncoder():
+    def fit(self, X, y=None, **fit_params):
+        return self
+    def transform(self, X, y=None, **fit_params):
+        enc = LabelBinarizer()
+        encc = enc.fit(X)
+        enc_data = enc.transform(X)
+        return enc_data
+    def fit_transform(self, X, y=None, **fit_params):
+        self.fit(X, y, **fit_params)
+        return self.transform(X)
+
+# %%
+# union pipeline
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
 
 num_pipeline = Pipeline([
     ('selector', DataFrameSelector(num_attribs)),
@@ -193,18 +209,16 @@ num_pipeline = Pipeline([
 
 cat_pipeline = Pipeline([
     ('selector', DataFrameSelector(cat_attribs)),
-    ('label_binarizer', LabelBinarizer()),
+    ('label_binarizer', MyLEncoder()),
 ])
 
-# %%
-from sklearn.pipeline import FeatureUnion
 full_pipeline = FeatureUnion(transformer_list=[
     ('num_pipeline', num_pipeline),
     ('cat_pipeline', cat_pipeline),
 ])
 
 housing_prepared = full_pipeline.fit_transform(housing_raw)
-housing_prepared.shape, housing_labels.shape
+type(housing_prepared), housing_prepared.shape
 
 
 # %%
@@ -242,26 +256,26 @@ def display_scores(scores):
 # %%
 # 决策树
 from sklearn.model_selection import cross_val_score
-tree_scores = cross_val_score(tree_reg, housing_prepared, housing_labels, 
-    scoring='neg_mean_squared_error', cv=10)
+tree_scores = cross_val_score(tree_reg, housing_prepared, housing_labels,
+                              scoring='neg_mean_squared_error', cv=10)
 tree_rmse_scores = np.sqrt(-tree_scores)
 display_scores(tree_rmse_scores)
 
 # %%
 # 线性模型
-lin_scores = cross_val_score(lin_reg, housing_prepared, housing_labels, 
-    scoring='neg_mean_squared_error', cv=10)
+lin_scores = cross_val_score(lin_reg, housing_prepared, housing_labels,
+                             scoring='neg_mean_squared_error', cv=10)
 lin_rmse_scores = np.sqrt(-lin_scores)
 display_scores(lin_rmse_scores)
 
 # %%
 # 随机森林
+# cost some time
 from sklearn.ensemble import RandomForestRegressor
-
 forest_reg = RandomForestRegressor()
 # forest_reg.fit(housing_prepared, housing_labels)
-forest_scores = cross_val_score(forest_reg, housing_prepared, housing_labels, 
-    scoring='neg_mean_squared_error', cv=10) 
+forest_scores = cross_val_score(forest_reg, housing_prepared, housing_labels,
+                                scoring='neg_mean_squared_error', cv=10)
 forest_rmse_scores = np.sqrt(-forest_scores)
 display_scores(forest_rmse_scores)
 
@@ -288,20 +302,13 @@ for mean_score, params in zip(cvres['mean_test_score'], cvres['params']):
 grid_search.best_params_
 
 # %%
-# 查看每个属性的相对重要性
-feature_importances = grid_search.best_estimator_.feature_importances_
-feature_importances
-
-# %%
-sorted(zip(feature_importances, attributes), reverse=True)
-
-# %%
 # 测试集上对模型进行评估
 final_model = grid_search.best_estimator_
 
-X_test = strat_test_set.drop('median_house_value', axis=1) 
+X_test = strat_test_set.drop('median_house_value', axis=1)
 y_test = strat_test_set['median_house_value'].copy()
 X_test_prepared = full_pipeline.transform(X_test)
+print(type(X_test_prepared), X_test_prepared.shape)
 
 final_predictions = final_model.predict(X_test_prepared)
 final_mse = mean_squared_error(y_test, final_predictions)
