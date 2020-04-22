@@ -795,12 +795,81 @@ def py_base_ex32():
         print(str, str.isdigit())
 
 
+# example 33, memory size
+def dump_object(obj):
+    for attr in dir(obj):
+        print('obj.%s=%s' % (attr, getattr(obj, attr)))
+
+
+def get_size(obj, seen=None):
+    # From https://goshippo.com/blog/measure-real-size-any-python-object/
+    # Recursively finds size of objects
+    size = sys.getsizeof(obj)
+    if seen is None:
+        seen = set()
+    obj_id = id(obj)
+    if obj_id in seen:
+        return 0
+
+    # Important mark as seen *before* entering recursion to gracefully handle
+    # self-referential objects
+    seen.add(obj_id)
+    if isinstance(obj, dict):
+        size += sum([get_size(v, seen) for v in obj.values()])
+        size += sum([get_size(k, seen) for k in obj.keys()])
+    elif hasattr(obj, '__dict__'):
+        size += get_size(obj.__dict__, seen)
+    elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+        size += sum([get_size(i, seen) for i in obj])
+    return size
+
+
+class DataItem1(object):
+    def __init__(self, name, age, address):
+        self.name = name
+        self.age = age
+        self.address = address
+
+
+class DataItem2(object):
+    __slots__ = ['name', 'age', 'address']  # 指定类属性列表
+
+    def __init__(self, name, age, address):
+        self.name = name
+        self.age = age
+        self.address = address
+
+
+def py_base_ex33():
+    d1 = DataItem1('Alex', 42, '-')
+    d2 = DataItem1('Boris', 24, 'In the middle of nowhere')
+
+    dump_object(d1)
+    print()
+
+    print('sys.getsizeof(d1):', sys.getsizeof(d1))
+    print('sys.getsizeof(d2):', sys.getsizeof(d2))
+    print()
+
+    print('get_size(d1):', get_size(d1))
+    print('get_size(d2):', get_size(d2))
+    d1.weight = 66
+    print('get_size(d1):', get_size(d1))
+    print()
+
+    d3 = DataItem2('Alex', 42, '-')
+    d4 = DataItem2('Boris', 24, 'In the middle of nowhere')
+    print('get_size(d1):', get_size(d3))
+    print('get_size(d2):', get_size(d4))
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
-    print('PYPATH='+os.getenv('PYPATH')
-          if len(os.getenv('PYPATH')) > 0 else 'PYPATH=null')
     print('\npython version:\n', sys.version)
+
+    pypath = os.getenv('PYPATH') if len(os.getenv('PYPATH')) > 0 else 'null'
+    print('PYPATH=' + pypath)
     print()
 
     py_base_ex32()
