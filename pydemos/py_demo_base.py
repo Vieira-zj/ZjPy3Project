@@ -863,6 +863,40 @@ def py_base_ex33():
     print('get_size(d2):', get_size(d4))
 
 
+# example 34, remove /r in file content
+def py_base_ex34():
+    in_file = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/data.txt')
+    out_file = os.path.join(os.getenv('HOME'), 'Downloads/tmp_files/test.out')
+    replace_r_v2(in_file, out_file)
+
+
+def replace_r(in_file, out_file):
+    if not os.path.exists(in_file):
+        raise FileNotFoundError('file not found: ' + in_file)
+
+    print('remove (\\r) in file content')
+    with open(in_file, 'rb') as in_file, open(out_file, 'wb') as out_file:
+        content = in_file.read()
+        replaced = content.replace(b'\r', b'')
+        out_file.write(replaced)
+
+
+def replace_r_v2(in_file, out_file):
+    '''
+    1. 读取时, 不指定newline, 则默认开启"Universal new line mode", 所有'\n', '\r', or '\r\n'被默认转换为'\n'
+    2. 写入时, 不指定newline, 则换行符为各系统默认的换行符（'\n', '\r', or '\r\n' ）;
+    指定为newline='\n', 则都替换为'\n'（相当于Universal new line mode）
+    3. 不论读或者写时, newline=''都表示不转换
+    '''
+    if not os.path.exists(in_file):
+        raise FileNotFoundError('file not found: ' + in_file)
+
+    print('remove (\\r) in file content')
+    with open(in_file, 'r') as in_file, open(out_file, 'w', newline='\n') as out_file:
+        content = in_file.read()
+        out_file.write(content)
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -872,7 +906,7 @@ if __name__ == '__main__':
     print('PYPATH=' + pypath)
     print()
 
-    py_base_ex32()
+    py_base_ex34()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
