@@ -4,10 +4,14 @@ Created on 2020-05-28
 @author: zhengjin
 '''
 
+import sys
+import os
+sys.path.append(os.getenv('PYPATH'))
+
 from pysort import Stack
 
 
-def reverse_string(input_str):
+def reverse_string(input_str: str) -> str:
     '''
     反转字符串
     '''
@@ -21,7 +25,7 @@ def reverse_string(input_str):
     return input_str
 
 
-def is_recycle_string(input_str):
+def is_recycle_string(input_str: str) -> bool:
     '''
     判断回文字符串
     '''
@@ -42,7 +46,7 @@ def test01():
               (input_str, str(is_recycle_string(input_str))))
 
 
-def get_longest_numbers(num_str):
+def get_longest_numbers(num_str: str) -> str:
     '''
     找出字符串中最长的连续数字
     '''
@@ -59,7 +63,7 @@ def get_longest_numbers(num_str):
         if tmp_len > num_len:
             num_len = tmp_len
             start = tmp_start
-    return num_str[start:start+num_len]
+    return num_str[start:(start+num_len)]
 
 
 def test02():
@@ -67,7 +71,7 @@ def test02():
     print('longest continuious numbers:', get_longest_numbers(num_str))
 
 
-def filter_aba_string(aba_str):
+def filter_aba_string(aba_str: str) -> str:
     '''
     过滤掉输入字符串中的驼峰字符串（aba）
     input: AaabxbcdyayBxxy
@@ -96,7 +100,7 @@ def test03():
 # Others
 # -----------------------------------
 
-def reverse_by_words(sentence):
+def reverse_by_words(sentence: str) -> str:
     '''
     reverse words divied by space
     input: this is a test
@@ -120,5 +124,5 @@ def test04():
 
 if __name__ == '__main__':
 
-    test01()
+    test04()
     print('py alg string demo done.')

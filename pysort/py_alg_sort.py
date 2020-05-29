@@ -9,7 +9,7 @@ Created on 2019-11-08
 # -----------------------------------
 
 
-def bubble_sort(iter):
+def bubble_sort(iter: list):
     '''
     冒泡排序（交换排序）O(N*N)
     '''
@@ -18,7 +18,7 @@ def bubble_sort(iter):
         is_exchange = False
         for j in range(size - 1 - i):
             if iter[j] > iter[j + 1]:
-                iter[j], iter[j + 1] = iter[j+1], iter[j]
+                iter[j], iter[j + 1] = iter[j + 1], iter[j]
                 is_exchange = True
         if not is_exchange:
             return
@@ -30,7 +30,7 @@ def test01():
     print('bubble sort results:', numbers)
 
 
-def quick_sort(iter, start, end):
+def quick_sort(iter: list, start: int, end: int):
     '''
     快速排序（交换排序）O(N*logN)
     '''
@@ -63,7 +63,7 @@ def test02():
     print('quick sort results:', numbers)
 
 
-def merge_sort(iter):
+def merge_sort(iter: list) -> list:
     '''
     归并排序 O(N*logN)
     '''
@@ -78,8 +78,8 @@ def merge_sort(iter):
 
 def merge(iter1, iter2):
     ret_iter = []
-    i = j = 0
 
+    i = j = 0
     while i < len(iter1) and j < len(iter2):
         if iter1[i] < iter2[j]:
             ret_iter.append(iter1[i])
@@ -104,7 +104,7 @@ def test03():
 # Search
 # -----------------------------------
 
-def bin_search01(val, sort_list, start, end):
+def bin_search01(val: int, sort_list: list, start: int, end: int) -> int:
     '''
     二分查找 有序数组 O(logN) 递归
     '''
@@ -120,7 +120,7 @@ def bin_search01(val, sort_list, start, end):
         return mid
 
 
-def bin_search02(val, sort_list):
+def bin_search02(val: int, sort_list: list) -> int:
     '''
     二分查找 有序数组 O(logN) 非递归
     '''
@@ -140,7 +140,7 @@ def bin_search02(val, sort_list):
 
 def test04():
     numbers = [1, 3, 4, 6, 8, 9, 10, 12, 13, 77]
-    for val in [1, 12, 77]:
+    for val in (1, 12, 77):
         print('#1. search number %d, and index %d' %
               (val, bin_search01(val, numbers, 0, len(numbers)-1)))
         print('#2. search number %d, and index %d' %
@@ -149,5 +149,5 @@ def test04():
 
 if __name__ == '__main__':
 
-    test03()
+    test04()
     print('py alg sort demo done.')
