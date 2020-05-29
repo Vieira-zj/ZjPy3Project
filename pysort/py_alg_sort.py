@@ -99,10 +99,10 @@ def test03():
     numbers = [3, 16, 14, 8, 99, 53, 0, 99, 8, 32, 66]
     print('merge sort results:', merge_sort(numbers))
 
-
 # -----------------------------------
 # Search
 # -----------------------------------
+
 
 def bin_search01(val: int, sort_list: list, start: int, end: int) -> int:
     '''

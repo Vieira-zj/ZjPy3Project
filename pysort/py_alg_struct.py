@@ -118,6 +118,9 @@ def test01():
 
 
 def get_tree_max_depth(root: BinTreeNode) -> int:
+    '''
+    树的最大深度
+    '''
     if root is None:
         return 0
 

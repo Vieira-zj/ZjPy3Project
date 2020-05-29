@@ -10,6 +10,10 @@ sys.path.append(os.getenv('PYPATH'))
 
 from pysort import Stack
 
+# -----------------------------------
+# String
+# -----------------------------------
+
 
 def reverse_string(input_str: str) -> str:
     '''
@@ -96,9 +100,65 @@ def test03():
     print('filter aba string:', filter_aba_string(aba_str))
 
 
+def str_distinct() -> list:
+    '''
+    有序字符串去重
+    '''
+    def format_line(in_str: str) -> str:
+        return in_str.split('_')[0]
+
+    f_path = os.path.join(os.getenv('PYPATH'), 'pysort/data/input.txt')
+    with open(f_path, 'r') as in_f:
+        lines = in_f.readlines()
+        ret_list = [format_line(lines[0])]
+        remove_list = []
+        for i in range(1, len(lines)):
+            line = format_line(lines[i])
+            if ret_list[len(ret_list) - 1] != line:
+                ret_list.append(line)
+            else:
+                remove_list.append(line)
+        print('remove items:', ','.join(remove_list))
+        return ret_list
+
+
+def test05():
+    print('distinct items:', ','.join(str_distinct()))
+
+
+def str_ab_distinct(in_str: str) -> list:
+    '''
+    字符串去重
+    输入: EAAnCmCDffBg 输出: EACDBnmfg
+    '''
+    upper_chs = []
+    lower_chs = []
+    ret_list = []
+    tmp_dict = {}
+    for ch in in_str:
+        if ch.isupper():
+            upper_chs.append(ch)
+            tmp_dict[ch] = 1
+        if ch.islower():
+            lower_chs.append(ch)
+            tmp_dict[ch] = 1
+
+    upper_chs.extend(lower_chs)
+    for ch in upper_chs:
+        if tmp_dict[ch] == 1:
+            ret_list.append(ch)
+            tmp_dict[ch] -= 1
+    return ret_list
+
+
+def test06():
+    ret = str_ab_distinct('EAAnCmCDffBg')
+    print(''.join(ret))
+
 # -----------------------------------
 # Others
 # -----------------------------------
+
 
 def reverse_by_words(sentence: str) -> str:
     '''
@@ -124,5 +184,5 @@ def test04():
 
 if __name__ == '__main__':
 
-    test04()
+    test06()
     print('py alg string demo done.')
