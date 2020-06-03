@@ -1,4 +1,5 @@
 # %%
+# 认证码识别
 import os
 import cv2
 import numpy as np
@@ -75,6 +76,7 @@ rows, cols, ch = img.shape
 rows, cols, ch
 
 # %%
+# 二值化和降噪
 # 转为灰度图
 im_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 # 二值化，就是黑白图。字符变成白色的，背景为黑色
@@ -95,29 +97,31 @@ contours, hierarchy = cv2.findContours(
 len(contours)
 
 # %%
-# 切割图片字符位置和宽度
 ws = []  # 图片宽度
 valid_contours = []  # 图片
 for contour in contours:
-    # 画矩形用来框住单个字符，x,y,w,h四个参数分别是该框的x,y坐标和w,h宽高
+    # 画矩形用来框住单个字符，x,y,w,h 四个参数分别是该框的x,y坐标和w,h宽高
     x, y, w, h = cv2.boundingRect(contour)
     if w < 7:
         continue
-    valid_contours.append(contour)
     ws.append(w)
+    valid_contours.append(contour)
 
+# w_min是二值化白色区域最小宽度，目的用来分割
 w_min = min(ws)
+# w_max是最大宽度
 w_max = max(ws)
 w_min, w_max, len(valid_contours)
 
 # %%
-# 获取各切割区域位置和长宽
+# 获得切割图片字符位置和宽度
 result = []
 if len(valid_contours) >= 4:
     for contour in valid_contours:
         x, y, w, h = cv2.boundingRect(contour)
         box = np.int0([[x, y], [x+w, y], [x+w, y+h], [x, y+h]])
         result.append(box)
+# 如果切割出有3个字符，中间分割
 elif len(valid_contours) == 3:
     for contour in valid_contours:
         x, y, w, h = cv2.boundingRect(contour)
@@ -130,6 +134,7 @@ elif len(valid_contours) == 3:
         else:
             box = np.int0([[x, y], [x+w, y], [x+w, y+h], [x, y+h]])
             result.append(box)
+# 如果切割出有2个字符，将包含了3个字符的轮廓在水平方向上三等分
 elif len(valid_contours) == 2:
     for contour in valid_contours:
         x, y, w, h = cv2.boundingRect(contour)
@@ -151,6 +156,7 @@ elif len(valid_contours) == 2:
         else:
             box = np.int0([[x, y], [x+w, y], [x+w, y+h], [x, y+h]])
             result.append(box)
+# 如果切割出只有1个字符，对轮廓在水平方向上做4等分
 elif len(valid_contours) == 1:
     contour = valid_contours[0]
     x, y, w, h = cv2.boundingRect(contour)
@@ -169,11 +175,18 @@ boxes
 
 
 # %%
-im_res.shape
+# 识别图片
+# im_res.shape
+plt.imshow(im_res)
+
+# %%
+# 加载模型
+model = cv2.ml.KNearest_load('/tmp/knn_icode.model')
 
 # %%
 # 调用模型进行识别
 preds = []
+# 如果区分出了四个字符，说明切割正确，就可以切割这个图片。将切割后的图片保存
 for box in boxes:
     # 获取字符长宽 h:x, w:y
     roi = im_res[box[0][1]:box[3][1], box[0][0]:box[1][0]]
@@ -181,6 +194,15 @@ for box in boxes:
     roistd = cv2.resize(roi, (30, 30))
     # 将图片转成像素矩阵
     sample = roistd.reshape((1, 900)).astype(np.float32)
+
+    # 保存字符（可做为训练集）
+    # cv2.drawContours(im, [box], 0, (0, 0, 255), 2)
+    # roi = im_res[box[0][1]:box[3][1], box[0][0]:box[1][0]]
+    # roistd = cv2.resize(roi, (30, 30))
+    # timestamp = int(time.time() * 1e6)
+    # filename = "{}.jpg".format(timestamp)
+    # filepath = os.path.join('char', filename)
+    # cv2.imwrite(filepath, roistd)
 
     # 调用训练好的模型识别
     ret, results, neighbours, distances = model.findNearest(sample, k=3)
@@ -191,8 +213,7 @@ for box in boxes:
     # 存放识别结果
     preds.append(label)
 
-preds = 'predict result: '+preds[0]+preds[1]+preds[2]+preds[3]
-preds
+print('predict result: ' + ''.join(preds))
 
 # %%
 print('ml knn identify code demo done')
