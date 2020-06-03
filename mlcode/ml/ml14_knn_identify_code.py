@@ -2,32 +2,70 @@
 import os
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
+
 np.__version__, cv2.__version__
 
 # %%
-# 读取训练数据集和标签
-file_labels = os.listdir('data/knn_icode_label')
-
-
+# 读取训练数据集
+train_dir = 'data/knn_icode_train'
+train_files = os.listdir(train_dir)
+len(train_files)
 
 # %%
-# 训练模型，用的是k相邻算法
+# 图片和标签
+labels = []
+samples = np.empty((0, 900))  # 空的np数组
+for file_name in train_files:
+    filepath = os.path.join(train_dir, file_name)
+    label = file_name.split(".")[0].split("_")[-1]
+    labels.append(label)
+
+    im = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)  # shape=30*30
+    sample = im.reshape((1, 900)).astype(np.float32)
+    samples = np.append(samples, sample, axis=0)
+len(labels), samples.shape
+
+# %%
+samples = samples.astype(np.float32)
+unique_labels = list(set(labels))
+unique_ids = list(range(len(unique_labels)))
+len(unique_ids), len(unique_labels)
+
+# %%
+# label与数字的对应关系
+label_id_map = dict(zip(unique_labels, unique_ids))
+id_label_map = dict(zip(unique_ids, unique_labels))
+id_label_map
+
+# %%
+label_ids = list(map(lambda x: label_id_map[x], labels))
+label_ids = np.array(label_ids).reshape((-1, 1)).astype(np.float32)
+samples.shape, label_ids.shape
+# samples, label_ids, id_label_map
+
+# %%
+# 训练模型，k相邻算法
+model = cv2.ml.KNearest_create()
+model.train(samples, cv2.ml.ROW_SAMPLE, label_ids)
+model.save('/tmp/knn_icode.model')
+print('knn mode train done')
 
 
 # %%
 # 测试集
-dir_path = 'data/knn_icode_test'
-test_imgs = os.listdir(dir_path)
+test_dir = 'data/knn_icode_test'
+test_imgs = os.listdir(test_dir)
 len(test_imgs)
 
 # %%
-test_img_path = os.path.join(dir_path, test_imgs[4])
+import random
+idx = random.randint(0, len(test_imgs))
+test_img_path = os.path.join(test_dir, test_imgs[idx])
 test_img_path
-
 
 # %%
 # 处理图片
+import matplotlib.pyplot as plt
 img = cv2.imread(test_img_path)
 plt.imshow(img)
 
@@ -41,7 +79,8 @@ rows, cols, ch
 im_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 # 二值化，就是黑白图。字符变成白色的，背景为黑色
 _, im_inv = cv2.threshold(im_gray, 127, 255, cv2.THRESH_BINARY_INV)
-# 应用高斯模糊对图片进行降噪。高斯模糊的本质是用高斯核和图像做卷积。就是去除一些斑斑点点的。因为二值化难免不够完美，去燥使得二值化结果更好
+# 应用高斯模糊对图片进行降噪。高斯模糊的本质是用高斯核和图像做卷积
+# 因为二值化难免不够完美，去燥使得二值化结果更好
 kernel = 1/16*np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]])
 im_blur = cv2.filter2D(im_inv, -1, kernel)
 # 再进行一次二值化
@@ -74,7 +113,6 @@ w_min, w_max, len(valid_contours)
 # %%
 # 获取各切割区域位置和长宽
 result = []
-
 if len(valid_contours) >= 4:
     for contour in valid_contours:
         x, y, w, h = cv2.boundingRect(contour)
@@ -129,16 +167,20 @@ if len(boxes) != 4:
     print('cannot get code')
 boxes
 
+
+# %%
+im_res.shape
+
 # %%
 # 调用模型进行识别
+preds = []
 for box in boxes:
-    # 获取字符长宽
+    # 获取字符长宽 h:x, w:y
     roi = im_res[box[0][1]:box[3][1], box[0][0]:box[1][0]]
     # 重新设长宽
     roistd = cv2.resize(roi, (30, 30))
     # 将图片转成像素矩阵
     sample = roistd.reshape((1, 900)).astype(np.float32)
-    print(sample.shape)
 
     # 调用训练好的模型识别
     ret, results, neighbours, distances = model.findNearest(sample, k=3)
@@ -147,4 +189,10 @@ for box in boxes:
     # 根据id得到识别出的结果
     label = id_label_map[label_id]
     # 存放识别结果
-    result.append(label)
+    preds.append(label)
+
+preds = 'predict result: '+preds[0]+preds[1]+preds[2]+preds[3]
+preds
+
+# %%
+print('ml knn identify code demo done')
