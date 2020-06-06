@@ -70,7 +70,6 @@ def py_base_ex02():
 # example 03, import external modules
 def py_base_ex03():
     sys.path.append(os.getenv('PYPATH'))
-
     from utils import Constants
     from utils import LogManager
     from utils import SysUtils
