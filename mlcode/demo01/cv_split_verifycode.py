@@ -38,6 +38,7 @@ def split_verify_code(img_path):
 
 
 if __name__ == '__main__':
+
     img_path = 'data/verifycode_01/1KT7.jpg'
     split_verify_code(img_path)
     print('split verify code demo done.')

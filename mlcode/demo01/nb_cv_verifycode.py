@@ -11,6 +11,9 @@ os.path.exists(img_path)
 # %%
 # 灰度模式读取图片
 gray = cv2.imread(img_path, 0)
+type(gray), gray.shape
+
+# %%
 plt.imshow(gray)
 
 # %%
@@ -33,6 +36,10 @@ plt.imshow(gray)
 # %%
 # 二值化处理，将图像由灰度模式转化至黑白模式
 ret, thresh1 = cv2.threshold(blur, 200, 255, cv2.THRESH_BINARY)
+print(thresh1.shape)
+thresh1[20, :]
+
+# %%
 plt.imshow(thresh1)
 
 # %%
@@ -48,4 +55,4 @@ for idx, cnt in enumerate(contours):
 print('split char saved')
 
 # %%
-print('split verify code demo done.')
+print('verify code demo done.')
