@@ -121,17 +121,39 @@ print('Predicted species is:', species_dict[np.argmax(predicted)])
 
 # %%
 # 补充
-dim = np.array([1, 2, 3, 4], dtype=np.int8)
-dim = dim.reshape(2, 2)
+# np array
+dim = np.arange(9).reshape(3, 3)
 dim
 
 # %%
-print('dim[0][1]:', dim[0][1])
-print('dim[1][0]:', dim[1][0])
+# row=0,col=1 => point: x=1,y=0
+print(dim[0][1])
+# row=1,col=0 => point: x=0,y=1
+print(dim[1][0])
+
+print(dim[0, 1])
+print(dim[1, 0])
+
+print(dim[1, :])
+print(dim[:2, :])
 
 # %%
-print('dim[0,1]:', dim[0, 1])
-print('dim[1,0]:', dim[1, 0])
+# pd dataframe
+ser1 = pd.Series(np.arange(1, 10))
+ser2 = pd.Series(np.arange(11, 20))
+df = pd.DataFrame({'col1': ser1, 'col2': ser2})
+df
 
 # %%
-print('keras iris dnn demo done.')
+print(df.iloc[0, 1])
+print(df.iloc[1, 0])
+
+print(df.loc[0, 'col1'])
+print(df.loc[1, 'col2'])
+
+print(df.iloc[:5, 0])
+print(df.loc[:5, 'col1'])
+print(df.loc[:5, :])
+
+# %%
+print('keras dnn iris demo done.')
