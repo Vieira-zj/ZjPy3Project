@@ -1,4 +1,5 @@
 # %%
+# 图像旋转
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -95,6 +96,6 @@ plt.imshow(rotated)
 
 # %%
 cv2.imwrite('/tmp/test/char_after_rotate.png', rotated)
-print('image rotate done.')
+print('opencv image rotate done.')
 
 # %%

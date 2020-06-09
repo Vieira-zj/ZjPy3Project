@@ -1,7 +1,7 @@
 '''
 Created on 2020-05-07
 @author: zhengjin
-@Desc: 获取验证码的单个字符
+@desc: 获取验证码的单个字符
 '''
 
 import cv2

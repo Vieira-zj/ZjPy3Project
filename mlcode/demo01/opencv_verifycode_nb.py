@@ -114,4 +114,4 @@ new_imgs = os.listdir(dir_path)
 new_imgs
 
 # %%
-print('verify code demo done.')
+print('opencv verifycode demo done.')
