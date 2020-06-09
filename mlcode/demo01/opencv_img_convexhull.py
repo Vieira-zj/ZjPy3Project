@@ -45,7 +45,7 @@ def create_img_convexhull(img_path):
 
     # 显示图片
     # pip3 install opencv-python==4.1.0.25 -i https://pypi.tuna.tsinghua.edu.cn/simple
-    cv2.imshow('line', img)
+    cv2.imshow('convexhull_line', img)
     cv2.waitKey()
 
 

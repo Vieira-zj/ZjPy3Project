@@ -7,7 +7,7 @@ np.__version__, cv2.__version__
 
 # %%
 # PART1: image pre-handler
-img_path = 'data/rotate.png'
+img_path = 'data/img_rotate.png'
 img = cv2.imread(img_path, 1)
 img.shape  # 3通道
 
