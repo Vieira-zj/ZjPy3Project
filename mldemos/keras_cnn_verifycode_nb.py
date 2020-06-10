@@ -10,7 +10,7 @@ np.__version__, keras.__version__
 
 # %%
 # 读取数据
-df = pd.read_csv('data/data.csv')
+df = pd.read_csv('data/verifycode.csv')
 df.shape
 
 # %%
@@ -115,5 +115,5 @@ plt.legend()
 plt.show()
 
 # %%
-# 模型效果验证查看 opencv_verifycode.py
+# 模型效果验证查看 => opencv_verifycode.py
 print('keras cnn model of verifycode demo done.')

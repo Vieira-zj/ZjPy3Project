@@ -1,7 +1,7 @@
 '''
 Created on 2020-05-09
 @author: zhengjin
-@desc: 利用CNN对验证码的数据集进行多分类
+@desc: 利用 TF CNN 对验证码的数据集进行多分类
 '''
 
 import logging
@@ -143,7 +143,7 @@ class TfCnn(object):
 
 
 def train_main():
-    csv_file_path = 'data/data.csv'
+    csv_file_path = 'data/verifycode.csv'
     df = pd.read_csv(csv_file_path)
 
     # 数据集的特征
@@ -191,4 +191,4 @@ def train_main():
 if __name__ == '__main__':
 
     train_main()
-    print('cnn verifycode demo done.')
+    print('tf cnn verifycode demo done.')

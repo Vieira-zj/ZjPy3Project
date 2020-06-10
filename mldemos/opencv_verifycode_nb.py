@@ -1,4 +1,5 @@
 # %%
+# 获取验证码的单个字符
 import matplotlib.pyplot as plt
 import os
 import cv2
