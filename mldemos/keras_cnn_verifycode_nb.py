@@ -1,5 +1,5 @@
 # %%
-# CNN模型识别网站验证码
+# 训练CNN模型 识别网站验证码
 import numpy as np
 import pandas as pd
 import tensorflow.keras as keras

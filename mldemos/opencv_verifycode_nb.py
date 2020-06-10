@@ -1,5 +1,5 @@
 # %%
-# 获取验证码的单个字符
+# opencv 获取验证码的单个字符
 import matplotlib.pyplot as plt
 import os
 import cv2
@@ -8,7 +8,7 @@ cv2.__version__
 
 # %%
 # PART1
-img_path = 'data/verifycode_01/1GDH.jpg'
+img_path = 'data/verifycode_chars/1GDH.jpg'
 os.path.exists(img_path)
 
 # %%

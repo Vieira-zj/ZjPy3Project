@@ -12,7 +12,7 @@ import numpy as np
 import tensorflow.keras as keras
 
 # 全局变量
-g_dir_verifycode = './data/verifycode_01'
+g_dir_verifycode = './data/verifycode_chars'
 g_dir_chars = '/tmp/test/chars'
 g_cnn = None
 
