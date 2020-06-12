@@ -1,7 +1,7 @@
 '''
-Created on 2020-05-08
+Created on 2020-06-08
 @author: zhengjin
-@Desc: 寻找图像的凸包（convex hull）
+@desc: 寻找图像的凸包（convex hull）
 '''
 
 import cv2

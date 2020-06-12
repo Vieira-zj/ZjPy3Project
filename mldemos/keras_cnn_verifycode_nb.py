@@ -116,4 +116,4 @@ plt.show()
 
 # %%
 # 模型效果验证查看 => opencv_verifycode.py
-print('keras cnn model of verifycode demo done.')
+print('keras cnn verifycode of chars demo done.')

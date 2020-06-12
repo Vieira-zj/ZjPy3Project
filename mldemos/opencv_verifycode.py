@@ -1,5 +1,5 @@
 '''
-Created on 2020-05-07
+Created on 2020-06-07
 @author: zhengjin
 @desc: 1. 获取验证码的单个字符；2. 通过cnn模型识别验证码
 '''

@@ -1,5 +1,5 @@
 '''
-Created on 2020-05-09
+Created on 2020-06-09
 @author: zhengjin
 @desc: 利用 TF CNN 对验证码的数据集进行多分类
 '''
