@@ -111,7 +111,6 @@ def model_train_main():
     for i in range(1, n_len+1):
         plt.subplot(2, 2, i)
         plot_train_history(history, 'c%d_accuracy' % i, 'val_c%d_accuracy' % i)
-
     # 保存图片
     plt.savefig(os.path.join(out_dir, 'train.png'))
 
