@@ -4,10 +4,13 @@ Created on 2018-10-31
 @author: zhengjin
 '''
 
+from collections import deque, defaultdict, Counter
 import getopt
 import glob
 import os
 import sys
+import time
+
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -124,17 +127,15 @@ def usage():
     print('\n'.join(lines))
 
 
-# example 06, chart line
+# example 06, plt chart line
 def py_base_ex06():
     '''
     pre-conditions: 
     $ pip install numpy
     $ pip install matplotlib
     '''
-    print('numpy version: ' + np.__version__)
-    print('matplotlib version: ' + matplotlib.__version__)
-
-    import matplotlib.pyplot as plt
+    print('numpy version:', np.__version__)
+    print('matplotlib version:', matplotlib.__version__)
 
     x_arr = [x for x in range(0, 10)]
     y_arr = [y for y in range(0, 20) if y % 2 == 0]
@@ -162,7 +163,7 @@ def py_base_ex06():
     plt.close()
 
 
-# example 07, chart spot
+# example 07, plt chart spot
 def py_base_ex07():
     # data
     # y_arr = [float(y) for y in range(0, 100) if y % 2 == 0]
@@ -240,7 +241,7 @@ def py_base_ex08_02():
 # example 09, list files by glob
 def py_base_ex09():
     '''
-    get file path by glob (regexp pattern)
+    get file path by glob (regexp pattern).
     '''
 
     # "glob.glob" return list
@@ -262,16 +263,16 @@ def py_base_ex09():
         print(file)
 
 
-# example 10, list files in sub dir
+# example 10, list files in dir
 def py_base_ex10():
     output_dir = os.path.join(os.getenv('PYPATH'), 'apitest/outputs')
 
-    # list subdirs and files in dir, depth=1, ret name
+    # 1: list subdirs and files, depth=1, return name
     print('\nresult files in outputs: ')
     for file in os.listdir(output_dir):
         print(file)
 
-    # list files by glob, depth=2, ret abs path
+    # 2: list files by glob, depth=2, return abs path
     files = glob.glob(output_dir + '/*')
     files.extend(glob.glob(output_dir + '/*/*'))
     print('\nresult files in outputs by glob regexp: ')
@@ -280,7 +281,7 @@ def py_base_ex10():
             print('/' + file[file.find('outputs'):])
     print('total files:', len(files))
 
-    # list files by walk, depth=max
+    # 3: list files by walk, depth=max
     print('\nresult files in outputs by walk:')
     total = 0
     # for dir_path, subpaths, files in os.walk(output_dir):
@@ -293,10 +294,8 @@ def py_base_ex10():
 
 # example 11, collections deque
 def py_base_ex11():
-    import collections
-
     names = ['jack', 'leo', 'sam', 'peter', 'jeo']
-    deque_names = collections.deque(names)
+    deque_names = deque(names)
     deque_names.popleft()
     deque_names.appendleft('mark')
     print(deque_names)
@@ -317,12 +316,13 @@ def py_base_ex12():
         tmp_dict02[color] = tmp_dict02.get(color, 0) + 1
     print(tmp_dict02)
 
+    count = Counter(colors)
+    print(count)
+
 
 # example 13, default dict
 def py_base_ex13():
     names = ['jack', 'leo', 'sam', 'peter', 'jeo']
-
-    from collections import defaultdict
     # set dict value default as list
     tmp_dict = defaultdict(list)
     for name in names:
@@ -348,7 +348,7 @@ def py_base_ex14():
     print('%s: %s' % (type(tmp_dict), tmp_dict))
 
 
-# example 15, iterator by diff step
+# example 15, range by diff step
 def py_base_ex15():
     alist = []
     for i in range(10):
@@ -425,16 +425,16 @@ def py_base_ex17():
     list_file.listYmlFiles()
 
 
-# example 18, *args
+# example 18, keyword *args
 def py_base_ex18():
     test_lst = ['a', 'b', 'c']
 
-    # as input
+    # as input param
     def print_abc(a, b, c):
         print(f'a={a}, b={b}, c={c}')
     print_abc(*test_lst)
 
-    # as args
+    # as declare param
     def print_vals(*args):
         print('type:', type(args))
         print(f'input arguments: {args}')
@@ -453,7 +453,7 @@ def py_base_ex19():
         raise FileNotFoundError(input_path)
 
     json_text = ''
-    with open(input_path) as f:
+    with open(input_path, 'r') as f:
         json_text = f.read()
 
     if len(json_text) > 0:
@@ -463,7 +463,7 @@ def py_base_ex19():
               json_object['rawInstances'][0]['rawFeatures']['job'])
 
 
-# example 20, 写入中文到文件
+# example 20, append content to file
 def py_base_ex20():
     file_path = os.path.join(
         os.getenv('HOME'), 'Downloads/tmp_files/test.file')
@@ -480,13 +480,12 @@ def py_base_ex20():
 
 # example 21, multi process
 def py_base_ex21():
-    import time
     from multiprocessing import Process
 
     class MyProcess(Process):
         def __init__(self, tag):
-            self._tag = tag
             super().__init__()  # super.init() should be invoked
+            self._tag = tag
 
         def run(self):
             print('%s => pid=%d, name=%s is running ...' %
@@ -513,7 +512,7 @@ def py_base_ex22():
         print('name=%s, age=%d, male=%s' % (name, age, gender))
     tip_test01()
 
-    # 判断是否为空列表，空字典，空字符串
+    # 判断是否为空列表, 空字典, 空字符串
     def tip_test02():
         l, d, s = [1, 2, 3], {}, ''
         if l:
@@ -546,9 +545,8 @@ def py_base_ex22():
     tip_test05()
 
 
-# example 23_01, print process
+# example 23, process bar
 def py_base_ex23_01():
-    import time
     i, n = 0, 100
     for i in range(n):
         time.sleep(0.1)
@@ -556,7 +554,6 @@ def py_base_ex23_01():
             print(str(i + 1) + '%', end='\r')
 
 
-# example 23_02, print progress bar
 def py_base_ex23_02():
     def process_bar(num, total):
         rate = float(num) / total
@@ -566,7 +563,6 @@ def py_base_ex23_02():
         sys.stdout.write(r + '%')
         sys.stdout.flush()
 
-    import time
     i, n = 0, 100
     for i in range(n):
         time.sleep(0.1)
@@ -575,7 +571,7 @@ def py_base_ex23_02():
 
 # example 24, value and reference
 def py_base_ex24():
-    # 1 list
+    # 1: list
     def update_list(lst):
         lst[2] = 30
         print("[update]", lst)
@@ -589,7 +585,7 @@ def py_base_ex24():
     update_list(lst)
     print("lst: %r, lst2: %r" % (lst, lst2))
 
-    # 2 map
+    # 2: map
     def update_map(m):
         m[3] = "THREE"
         print("[update]", m)
@@ -603,7 +599,7 @@ def py_base_ex24():
     update_map(m)
     print("map: %r, map2: %r" % (m, m2))
 
-    # 3 object
+    # 3: object
     class person(object):
         def __init__(self, name, age, job):
             self.name = name
@@ -664,13 +660,13 @@ def py_base_ex26():
 
 
 # example 27, field type hint
-def py_base_ex2701():
+def py_base_ex27_01():
     def addTwo(x: int) -> int:
         return x+2
     print('results:', addTwo(10))
 
 
-def py_base_ex2702():
+def py_base_ex27_02():
     import pprint
     from typing import List
 
@@ -719,7 +715,7 @@ def py_base_ex28():
     bar(1, 2)
 
 
-# example 29, iterator and generator
+# example 29, iterable and iterator
 def py_base_ex29():
     from collections.abc import Iterable, Iterator
 
@@ -788,10 +784,15 @@ def py_base_ex31():
     _print(*vals)
 
 
-# example 32, check string is int
+# example 32, assert type
 def py_base_ex32():
-    for str in ('11.11', '3.0', '10', '-1', '0'):
-        print(str, str.isdigit())
+    words = ('11.11', '3.0', '10', '-1', '0', 'a')
+    uints = [word for word in words if word.isdigit()]
+    print('uints:', uints)
+
+    nums = (11.11, 3.0, 10, -1, 0, 'a')
+    ints = [n for n in nums if type(n) in (int,)]
+    print('ints:', ints)
 
 
 # example 33, memory size
@@ -896,6 +897,25 @@ def replace_r_v2(in_file, out_file):
         out_file.write(content)
 
 
+# example 35, read big file
+def py_base_ex35():
+    def gen_file(file_path):
+        with open(file_path, 'r+') as f:
+            line = f.readline()
+            while line:
+                yield line.strip()
+                line = f.readline()
+
+    input_path = os.path.join(
+        os.getenv('HOME'), 'Downloads/tmp_files', 'data.csv')
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(input_path)
+
+    print(f'read big file ({input_path}):')
+    for line in gen_file(input_path):
+        print(line)
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -905,7 +925,7 @@ if __name__ == '__main__':
     print('PYPATH=' + pypath)
     print()
 
-    py_base_ex34()
+    py_base_ex32()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
