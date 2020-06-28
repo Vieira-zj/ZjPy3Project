@@ -1,3 +1,4 @@
+import logging
 import json
 import requests
 
@@ -6,21 +7,41 @@ base_headers = {'Content-Type': 'application/json;charset=utf-8'}
 default_timeout = 3  # seconds
 user_token = ''
 
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
+
 
 def login():
     url = base_url + 'keystone/v1/sessions'
     data_dict = {'username': '4pdadmin', 'password': 'admin'}
 
     sess = requests.session()
-    resp = sess.post(url, headers=base_headers,
-                     data=json.dumps(data_dict), timeout=default_timeout)
+    sess.headers.update(base_headers)
+    resp = sess.post(url, data=json.dumps(data_dict), timeout=default_timeout)
+    log_request_info(resp.request)
     assert(resp.status_code == 200)
-    user_token = resp.cookies.get('User-Token')
-    print('login with user token:', user_token)
+
+    cookies_dict = requests.utils.dict_from_cookiejar(resp.cookies)
+    logger.info('login with user token: %s' % cookies_dict['User-Token'])
     return sess
 
 
+def log_request_info(req):
+    logger.debug('request url: %s' % req.url)
+    logger.debug('request headers: %s' % req.headers)
+    logger.debug('request method: %s' % req.method)
+    logger.debug('request body: %s' % req.body)
+
+# -----------------------------------------------
+# Get info and operator for running flowengine
+# -----------------------------------------------
+
+
 def list_flowengine(sess, workspace_id, size=10):
+    '''
+    list all running flowengines.
+    '''
     url = base_url + 'automl-manager/v1/appList'
     data_dict = {'workspaceId': workspace_id,
                  'status': 'RUNNING', 'size': size}
@@ -80,6 +101,9 @@ def create_pipeline(fl_id):
 
 
 def list_pipeline(sess, instance_id, template_id):
+    '''
+    list all pipelines of running flowengine.
+    '''
     url = base_url + \
         f'automl-engine/{instance_id}/automl/v1/pipeline/{template_id}/list'
 
@@ -93,14 +117,16 @@ def run_pipeline(sess, instance_id, template_id, pipeline_id):
     url = base_url + \
         f'automl-engine/{instance_id}/automl/v1/pipeline/{template_id}/{pipeline_id}/start'
 
-    resp = sess.post(url, headers=base_headers,
-                     data=r'{}', timeout=default_timeout)
+    resp = sess.post(url, data=r'{}', timeout=default_timeout)
     assert(resp.status_code == 200)
     status = resp.json()['data']['status']
     return True if status == 'running' else False
 
 
 def list_pipeline_task(sess, instance_id, pipeline_id):
+    '''
+    list all history task of a pipeline.
+    '''
     url = base_url + \
         f'automl-engine/{instance_id}/automl/v1/pipeline/{pipeline_id}/historyList'
 
@@ -114,41 +140,137 @@ def stop_pipeline_task(sess, instance_id, pipeline_id, task_id):
     url = base_url + \
         f'automl-engine/{instance_id}/automl/v1/pipeline/{task_id}/stopHistory?engineId={pipeline_id}'
 
-    resp = sess.delete(url, headers=base_headers,
-                       data=r'{}', timeout=default_timeout)
+    resp = sess.delete(url, data=r'{}', timeout=default_timeout)
     assert(resp.status_code == 200)
-    return True if resp.json()['status'] else False
+    return True if resp.json()['status'] == 0 else False
 
 
 def resume_pipeline_task(sess, instance_id, pipeline_id, task_id):
     url = base_url + \
         f'automl-engine/{instance_id}/automl/v1/pipeline/{task_id}/resumeHistory?engineId={pipeline_id}'
 
-    resp = sess.post(url, headers=base_headers,
-                     data=r'{}', timeout=default_timeout)
+    resp = sess.post(url, data=r'{}', timeout=default_timeout)
     assert(resp.status_code == 200)
-    return True if resp.json()['status'] else False
+    return True if resp.json()['status'] == 0 else False
+
+# -----------------------------------------------
+# Get info and operator for flowengine template
+# -----------------------------------------------
+
+
+def list_pipeline_template(sess, template_id, size=10):
+    '''
+    list all pipelines of template.
+    '''
+    url = base_url + \
+        f'template-market/v1/pipeline/template/{template_id}/list/byPage?size={size}'
+
+    resp = sess.get(url, timeout=default_timeout)
+    assert(resp.status_code == 200)
+    assert(resp.json()['status'] == 0)
+
+    return [{'id': template['id'], 'describe': template['data']['describe']}
+            for template in resp.json()['data']['engineJobPipelineTemplateList']]
+
+
+def list_job_template(sess, template_id, size=10):
+    '''
+    list all jobs of template.
+    '''
+    url = base_url + \
+        f'template-market/v1/job/template/{template_id}/list/byPage?page=1&size={size}'
+
+    resp = sess.get(url, timeout=default_timeout)
+    assert(resp.status_code == 200)
+    assert(resp.json()['status'] == 0)
+
+    return [{'id': job['id'], 'name': job['name']}
+            for job in resp.json()['data']['engineJobTemplateList']]
+
+
+def list_pipeline_job(sess, template_id, pipeline_id, size=10):
+    '''
+    list all jobs of a pipeline.
+    '''
+    url = base_url + \
+        f'template-market/v1/pipeline/template/{template_id}/list/byPage?size={size}'
+
+    resp = sess.get(url, timeout=default_timeout)
+    assert(resp.status_code == 200)
+    assert(resp.json()['status'] == 0)
+
+    pipelines = [p for p in resp.json()['data']['engineJobPipelineTemplateList']
+                 if str(p['id']) == pipeline_id]
+    if len(pipelines) == 0:
+        return []
+
+    pipeline = pipelines[0]
+    return [{'name': node['name']} for node in pipeline['data']['nodes']]
+
+
+def create_pipeline_job(sess, template_id, pipeline_template_name):
+    url = base_url + \
+        f'template-market/v1/job/template/{template_id}/create'
+    data = build_pipeline_job_data(template_id, pipeline_template_name)
+
+    resp = sess.post(url, data=json.dumps(data), timeout=default_timeout)
+    assert(resp.status_code == 200)
+    return True if resp.json()['status'] == 0 else False
+
+
+def build_pipeline_job_data(template_id, template_name):
+    data = {'name': template_name, 'engineTemplateId': template_id,
+            'indexType': 'DAG', 'type': 'TASK', 'system': False}
+
+    outputCfg = data['outputConfig'] = {}
+    outputCfg['outputType'] = 'Table'
+
+    execCfg = data['executionConfig'] = {}
+    execCfg['runMode'] = 'SINGLE'
+    execCfg['interval'] = 0
+    execCfg['intervalUnit'] = 'MINUTE'
+    execCfg['trigger'] = 'ModelTrainFinishEvent'
+
+    return data
+
+
+def delete_pipeline_job(sess):
+    pass
+
+
+def copy_pipeline(sess, template_data):
+    pass
 
 
 if __name__ == '__main__':
 
     workspace_id = '1'
-    instance_id = '27'
-    template_id = '1'
-    pipeline_id = '1'
+    instance_id = '38'
+    running_template_id = '1'
+    running_pipeline_id = '1'
     pipeline_task_id = '19'
+
+    template_id = '10032'
+    pipeline_id = '65'
 
     sess = login()
     try:
-        # print(list_flowengine(sess, workspace_id))
+        # logger.info(list_flowengine(sess, workspace_id))
 
-        # print(list_pipeline(sess, instance_id, template_id))
+        # logger.info(list_pipeline(sess, instance_id, template_id))
         # run_pipeline(sess, instance_id, template_id, pipeline_id)
 
-        print(list_pipeline_task(sess, instance_id, pipeline_id))
+        # logger.info(list_pipeline_task(sess, instance_id, pipeline_id))
         # resume_pipeline_task(sess, instance_id, pipeline_id, pipeline_task_id)
         # stop_pipeline_task(sess, instance_id, pipeline_id, pipeline_task_id)
+
+        # logger.info(list_pipeline_template(sess, template_id))
+        # logger.info(list_job_template(sess, template_id))
+        logger.info(list_pipeline_job(sess, template_id, pipeline_id))
+
+        # ret = create_pipeline_job(sess, template_id, 'offline-job04')
+        # assert(ret)
     finally:
         sess.close()
 
-    print('flowengine pipeline demo done.')
+    logger.info('flowengine pipeline demo done.')
