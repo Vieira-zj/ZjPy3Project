@@ -33,7 +33,7 @@ def test_retry():
 @retry(stop_max_attempt_number=default_retry)
 def login():
     url = base_url + 'keystone/v1/sessions'
-    data_dict = {'username': '4pdadmin', 'password': 'admin'}
+    data_dict = {'username': 'xxxxx', 'password': 'xxxxx'}
 
     sess = requests.session()
     sess.headers.update(base_headers)
