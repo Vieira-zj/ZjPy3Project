@@ -76,9 +76,8 @@ def merge_sort(iter: list) -> list:
     return merge(iter1, iter2)
 
 
-def merge(iter1, iter2):
+def merge(iter1: list, iter2: list) -> list:
     ret_iter = []
-
     i = j = 0
     while i < len(iter1) and j < len(iter2):
         if iter1[i] < iter2[j]:
@@ -88,11 +87,7 @@ def merge(iter1, iter2):
             ret_iter.append(iter2[j])
             j += 1
 
-    if i < len(iter1):
-        ret_iter.extend(iter1[i:])
-    if j < len(iter2):
-        ret_iter.extend(iter2[j:])
-    return ret_iter
+    return (ret_iter + iter1[i:]) if i < len(iter1) else (ret_iter + iter2[j:])
 
 
 def test03():
@@ -149,5 +144,5 @@ def test04():
 
 if __name__ == '__main__':
 
-    test04()
+    test03()
     print('py alg sort demo done.')

@@ -25,7 +25,6 @@ def reverse_string(input_str: str) -> str:
         input_str[start], input_str[end] = input_str[end], input_str[start]
         start += 1
         end -= 1
-
     return input_str
 
 
@@ -54,20 +53,20 @@ def get_longest_numbers(num_str: str) -> str:
     '''
     找出字符串中最长的连续数字
     '''
-    start = tmp_start = 0
-    num_len = tmp_len = 0
+    start = cur_start = 0
+    max_len = cur_len = 0
 
     for i in range(len(num_str) - 1):
         if num_str[i].isdigit():
-            tmp_len += 1
+            cur_len += 1
         else:
-            tmp_len = 0
-            tmp_start = i + 1
+            cur_len = 0
+            cur_start = i + 1
 
-        if tmp_len > num_len:
-            num_len = tmp_len
-            start = tmp_start
-    return num_str[start:(start+num_len)]
+        if cur_len > max_len:
+            max_len = cur_len
+            start = cur_start
+    return num_str[start:(start+max_len)]
 
 
 def test02():
@@ -128,13 +127,14 @@ def test05():
 
 def str_ab_distinct(in_str: str) -> list:
     '''
-    字符串去重
+    字符串去重 大写字母在小写字母前
     输入: EAAnCmCDffBg 输出: EACDBnmfg
     '''
     upper_chs = []
     lower_chs = []
     ret_list = []
     tmp_dict = {}
+
     for ch in in_str:
         if ch.isupper():
             upper_chs.append(ch)
@@ -151,9 +151,28 @@ def str_ab_distinct(in_str: str) -> list:
     return ret_list
 
 
+def str_ab_distinct02(in_str: str) -> list:
+    upper_chs = []
+    lower_chs = []
+    tmp_dict = {}
+
+    for ch in in_str:
+        tmp_dict[ch] = tmp_dict.get(ch, 0) + 1
+        if tmp_dict[ch] == 1:
+            if ch.isupper():
+                upper_chs.append(ch)
+            else:
+                lower_chs.append(ch)
+    return upper_chs + lower_chs
+
+
 def test06():
-    ret = str_ab_distinct('EAAnCmCDffBg')
-    print(''.join(ret))
+    input_str = 'EAAnCmCDffBg'
+    ret1 = str_ab_distinct(input_str)
+    print(''.join(ret1))
+    ret2 = str_ab_distinct02(input_str)
+    print(''.join(ret2))
+
 
 # -----------------------------------
 # Others
