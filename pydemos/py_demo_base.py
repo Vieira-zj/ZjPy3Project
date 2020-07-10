@@ -916,6 +916,13 @@ def py_base_ex35():
         print(line)
 
 
+# example 36, insert item in list
+def py_base_ex36():
+    test_list = ['a', 'b', 'd']
+    test_list.insert(2, 'c')
+    print(test_list)
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -925,7 +932,7 @@ if __name__ == '__main__':
     print('PYPATH=' + pypath)
     print()
 
-    py_base_ex32()
+    py_base_ex36()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
