@@ -1,5 +1,5 @@
 '''
-Flowengine offline scenario apis.
+Wrapped flowengine offline scenario APIs.
 '''
 import logging
 import json
@@ -9,7 +9,12 @@ import uuid
 
 from retrying import retry
 
-base_url = 'http://172.27.128.236:40121/'
+# env vars
+profile = 'v1'  # v1, v2
+base_url = ''
+login_dict = {}
+
+# constants
 base_headers = {'Content-Type': 'application/json;charset=utf-8'}
 default_timeout = 3  # seconds
 default_retry = 3
@@ -19,6 +24,16 @@ user_token = ''
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
+
+
+def init_env():
+    global base_url, login_dict
+    if profile == 'v1':
+        base_url = 'http://kp.hwwt2.com/'
+        login_dict = {'username': 'xxxxx', 'password': 'xxxxx'}
+    elif profile == 'v2':
+        base_url = 'http://172.27.128.236:40121/'
+        login_dict = {'username': 'yyyyy', 'password': 'yyyyy'}
 
 
 @retry(stop_max_attempt_number=default_retry)
@@ -33,11 +48,10 @@ def test_retry():
 @retry(stop_max_attempt_number=default_retry)
 def login():
     url = base_url + 'keystone/v1/sessions'
-    data_dict = {'username': 'xxxxx', 'password': 'xxxxx'}
 
     sess = requests.session()
     sess.headers.update(base_headers)
-    resp = sess.post(url, data=json.dumps(data_dict), timeout=default_timeout)
+    resp = sess.post(url, data=json.dumps(login_dict), timeout=default_timeout)
     print_request_info(resp.request)
     assert(resp.status_code == 200)
 
@@ -79,7 +93,9 @@ def list_fl_pipelines(sess, instance_id, template_id):
     if not assert_response_status(resp):
         return []
 
-    pipelines = resp.json()['data']['engineJobPipelineTemplateList']
+    pipelines = resp.json()['data']
+    if profile == 'v2':
+        pipelines = pipelines['engineJobPipelineTemplateList']
     return [{'template_id': p['engineTemplateId'], 'id': p['id'], 'status': p['data']['status']}
             for p in pipelines]
 
@@ -393,18 +409,18 @@ def assert_response_status(resp):
 
 
 def test_fl_main(sess):
-    workspace_id = '1'
-    # instance_id = '38'
-    # running_template_id = '1'
-    # running_pipeline_id = '1'
+    workspace_id = '47'
+    instance_id = '371'
+    running_template_id = '1'
+    running_pipeline_id = '3'
     # pipeline_task_id = '19'
 
     logger.info(list_running_flowengines(sess, workspace_id))
 
-    # logger.info(list_fl_pipelines(sess, instance_id, template_id))
+    logger.info(list_fl_pipelines(sess, instance_id, running_template_id))
     # ret = run_fl_pipeline(sess, instance_id, running_template_id, running_pipeline_id)
 
-    # logger.info(list_fl_pipeline_tasks(sess, instance_id, running_pipeline_id))
+    logger.info(list_fl_pipeline_tasks(sess, instance_id, running_pipeline_id))
     # ret = resume_fl_pipeline_task(sess, instance_id, running_pipeline_id, pipeline_task_id)
     # ret = stop_fl_pipeline_task(sess, instance_id, running_pipeline_id, pipeline_task_id)
     # assert(ret)
@@ -412,13 +428,13 @@ def test_fl_main(sess):
 
 
 def test_template_main(sess):
-    template_id = '10032'
-    # pipeline_id = '65'
+    template_id = '10027'
+    pipeline_id = '33'
     # job_id = '147'
 
     logger.info(list_template_pipelines(sess, template_id))
-    # logger.info(list_template_jobs(sess, template_id))
-    # logger.info(list_template_pipeline_jobs(sess, template_id, pipeline_id))
+    logger.info(list_template_jobs(sess, template_id))
+    logger.info(list_template_pipeline_jobs(sess, template_id, pipeline_id))
 
     # ret = create_template_pipeline_job(sess, template_id, 'offline_job05')
     # ret = delete_template_pipeline_job(sess, template_id, job_id)
@@ -450,6 +466,7 @@ if __name__ == '__main__':
 
     # test_retry()
 
+    init_env()
     sess = login()
     try:
         # test_fl_main(sess)
