@@ -4,6 +4,8 @@ Created on 2020-07-03
 @author: zhengjin
 '''
 
+import random
+
 
 def alg_demo01(num: int) -> int:
     '''
@@ -82,7 +84,24 @@ class FindCoder(object):
         input_list.append(item_dict)
 
 
+def alg_demo03(input: list) -> list:
+    '''
+    shuffle算法：每次从未处理的数据中随机取出一个数字，然后把该数字放在数组的尾部，即数组尾部存放的是已经处理过的数字。
+    注：原始数据被直接打乱。
+    '''
+    for i in range((len(input) - 1), 0, -1):
+        idx = random.randint(0, i)
+        input[i], input[idx] = input[idx], input[i]
+
+
+def alg_test03():
+    input = [i for i in range(0, 10)]
+    print('src list:', input)
+    alg_demo03(input)
+    print('shuffled list:', input)
+
+
 if __name__ == '__main__':
 
-    alg_test02()
+    alg_test03()
     print('py alg demo done.')
