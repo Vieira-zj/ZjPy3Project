@@ -101,7 +101,36 @@ def alg_test03():
     print('shuffled list:', input)
 
 
+def alg_demo04(input_list: list) -> list:
+    '''
+    整数列表如下[3,2,7,8,1,4,10,11,12,14], 请设计程序使连续的整数序列取前后两个数，并输出所有的列表。
+    上面列表应该输出[1,4],[7,8],[10,12],[14]
+    '''
+    ret_list = []
+    sort_list = sorted(input_list)
+
+    start = 0
+    for i in range(len(sort_list) - 1):
+        if (sort_list[i + 1] - sort_list[i]) != 1:
+            if sort_list[start] == sort_list[i]:
+                ret_list.append([sort_list[start]])
+            else:
+                ret_list.append([sort_list[start], sort_list[i]])
+            start = i + 1
+
+    if start == (len(sort_list) - 1):
+        ret_list.append([sort_list[start]])
+    else:
+        ret_list.append([sort_list[start], sort_list[len(sort_list) - 1]])
+    return ret_list
+
+
+def alg_test04():
+    input = [3, 2, 7, 8, 1, 4, 10, 11, 12, 14]
+    print(alg_demo04(input))
+
+
 if __name__ == '__main__':
 
-    alg_test03()
+    alg_test04()
     print('py alg demo done.')
