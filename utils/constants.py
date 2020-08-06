@@ -59,6 +59,5 @@ if __name__ == '__main__':
 
     if os.path.exists(Constants.TEST_FILE_PATH):
         print('test input file:', Constants.TEST_FILE_PATH)
-    print('current project path:', Constants.get_project_path())
 
     print('constants test DONE.')
