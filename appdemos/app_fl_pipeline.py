@@ -10,7 +10,7 @@ import uuid
 from retrying import retry
 
 # env vars
-profile = 'v1'  # v1, v2
+profile = 'test'  # test, prod
 base_url = ''
 login_dict = {}
 
@@ -26,14 +26,19 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 
 
+# -----------------------------------------------
+# Init
+# -----------------------------------------------
+
+
 def init_env():
     global base_url, login_dict
-    if profile == 'v1':
+    if profile == 'test':
+        base_url = 'http://172.27.128.236:40121/'
+        login_dict = {'username': 'aaaaa', 'password': 'bbbbb'}
+    elif profile == 'prod':
         base_url = 'http://kp.hwwt2.com/'
         login_dict = {'username': 'xxxxx', 'password': 'xxxxx'}
-    elif profile == 'v2':
-        base_url = 'http://172.27.128.236:40121/'
-        login_dict = {'username': 'yyyyy', 'password': 'yyyyy'}
 
 
 @retry(stop_max_attempt_number=default_retry)
@@ -52,7 +57,7 @@ def login():
     sess = requests.session()
     sess.headers.update(base_headers)
     resp = sess.post(url, data=json.dumps(login_dict), timeout=default_timeout)
-    print_request_info(resp.request)
+    log_request_info(resp.request)
     assert(resp.status_code == 200)
 
     cookies_dict = requests.utils.dict_from_cookiejar(resp.cookies)
@@ -63,6 +68,7 @@ def login():
 # -----------------------------------------------
 # Get info and operator for running flowengines
 # -----------------------------------------------
+
 
 @retry(stop_max_attempt_number=default_retry)
 def list_running_flowengines(sess, workspace_id, size=default_page_size):
@@ -148,6 +154,49 @@ def resume_fl_pipeline_task(sess, instance_id, pipeline_id, task_id):
     assert(resp.status_code == 200)
 
     return True if assert_response_status(resp) else False
+
+
+def update_and_run_pipeline_demo(sess):
+    '''
+    Update param of a pipeline node, and run pipeline.
+    '''
+    fl_id = 60
+    data_dict = {'page': 1, 'size': 20}
+    url = base_url + f'automl-engine/{fl_id}/automl/v1/pipeline/1/list'
+    resp = sess.get(url, params=data_dict, timeout=default_timeout)
+    assert(resp.status_code == 200)
+
+    # get pipeline
+    pipeline_id = 1
+    pipeline = {}
+    pipelines = resp.json()['data']['engineJobPipelineTemplateList']
+    for p in pipelines:
+        if p['id'] == pipeline_id:
+            pipeline = p
+    assert(pipeline is not None)
+
+    # get node (job)
+    node_name = 'offline_job01'
+    node = {}
+    nodes = pipeline['data']['nodes']
+    for n in nodes:
+        if n['name'] == node_name:
+            node = n
+    assert(node is not None)
+
+    # get node param
+    key_name = 'param1'
+    param = {}
+    params = node['params']['values']
+    for p in params:
+        if p['key'] == key_name:
+            param = p
+    assert(param is not None)
+    logger.info('to update: ' + str(param))
+
+    # update node param of pipeline
+    # url = base_url + f'automl-engine/{fl_id}/automl/v1/pipeline/template/1/update'
+
 
 # -----------------------------------------------
 # Get info and operator for flowengine template
@@ -389,7 +438,7 @@ class JobParams(object):
 # -----------------------------------------------
 
 
-def print_request_info(req):
+def log_request_info(req):
     logger.debug('request url: %s' % req.url)
     logger.debug('request headers: %s' % req.headers)
     logger.debug('request method: %s' % req.method)
@@ -402,6 +451,7 @@ def assert_response_status(resp):
         logger.error('***** assert response status FAILED.')
         logger.error('***** response:\n' + resp.text)
     return cond
+
 
 # -----------------------------------------------
 # Main
@@ -470,7 +520,8 @@ if __name__ == '__main__':
     sess = login()
     try:
         # test_fl_main(sess)
-        test_template_main(sess)
+        # test_template_main(sess)
         # test_template_copy_edit_main(sess)
+        update_and_run_pipeline_demo(sess)
     finally:
         sess.close()
