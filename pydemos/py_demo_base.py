@@ -5,6 +5,7 @@ Created on 2018-10-31
 '''
 
 from collections import deque, defaultdict, Counter
+from pydantic import BaseModel, ValidationError, validator
 import getopt
 import glob
 import os
@@ -923,6 +924,41 @@ def py_base_ex36():
     print(test_list)
 
 
+# example 37, pydantic validate for model
+class UserModel(BaseModel):
+    name: str
+    username: str
+    password1: str
+    password2: str
+
+    @validator('name')
+    def name_must_contain_space(cls, v):
+        if ' ' not in v:
+            raise ValueError('must contain a space')
+        return v
+
+    @validator('username')
+    def username_alphanumeric(cls, v):
+        assert v.isalpha(), 'must be alphanumeric'
+        return v
+
+    @validator('password2')
+    def passwords_match(cls, v, values, **kwargs):
+        if 'password1' in values and v != values['password1']:
+            raise ValueError('passwords do not match')
+        return v
+
+
+def py_base_ex37():
+    try:
+        print(UserModel(name='samuel colvin', username='scolvin',
+                        password1='zxcvbn', password2='zxcvbn'))
+        print(UserModel(name='samuel', username='scolvin',
+                        password1='zxcvbn', password2='zxcvbn2'))
+    except ValidationError as e:
+        print(e)
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -932,7 +968,10 @@ if __name__ == '__main__':
     print('PYPATH=' + pypath)
     print()
 
-    py_base_ex36()
+    print('samuel colvin'.title())
+    print()
+
+    py_base_ex37()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
