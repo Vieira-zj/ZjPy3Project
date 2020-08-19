@@ -6,6 +6,11 @@ Created on 2019-03-17
 Python class and meta class examples.
 '''
 
+def py_base_ext():
+    import py_demo_base
+    py_demo_base.py_base_ex02()
+
+
 # example 01, 使用函数当做元类
 def py_class_ex01():
 
@@ -311,5 +316,6 @@ def py_class_ex09():
 
 if __name__ == '__main__':
 
-    py_class_ex09()
+    py_base_ext()
+    # py_class_ex09()
     print('python meta class demo DONE.')
