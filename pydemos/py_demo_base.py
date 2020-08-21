@@ -6,6 +6,9 @@ Created on 2018-10-31
 
 from collections import deque, defaultdict, Counter
 from pydantic import BaseModel, ValidationError, validator
+from typing import List
+
+from datetime import datetime
 import getopt
 import glob
 import os
@@ -924,7 +927,29 @@ def py_base_ex36():
     print(test_list)
 
 
-# example 37, pydantic validate for model
+# example 37-1, pydantic validate for model
+class User(BaseModel):
+    id: int
+    name: str = "chr"
+    ts: datetime = None
+    numbers: List[int] = []
+
+
+def py_base_ex3701():
+    data = {
+        "id": 123,
+        "name": "test",
+        "ts": datetime.now(),
+        "numbers": [1, 2, "a"]
+    }
+    try:
+        user = User(**data)
+        print(user)
+    except ValidationError as e:
+        print(e.json())
+
+
+# example 37-2, pydantic validate for model
 class UserModel(BaseModel):
     name: str
     username: str
@@ -949,14 +974,14 @@ class UserModel(BaseModel):
         return v
 
 
-def py_base_ex37():
+def py_base_ex3702():
     try:
         print(UserModel(name='samuel colvin', username='scolvin',
                         password1='zxcvbn', password2='zxcvbn'))
         print(UserModel(name='samuel', username='scolvin',
                         password1='zxcvbn', password2='zxcvbn2'))
     except ValidationError as e:
-        print(e)
+        print("error:", e)
 
 
 if __name__ == '__main__':
@@ -971,7 +996,7 @@ if __name__ == '__main__':
     print('samuel colvin'.title())
     print()
 
-    py_base_ex37()
+    py_base_ex3701()
     # py_base_ex23_01()
 
     print('python base demo DONE.')

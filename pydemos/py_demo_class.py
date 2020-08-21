@@ -269,7 +269,7 @@ def py_class_ex08():
     f.print_number()
 
 
-# example 09 abstract method
+# example 09, abstract method
 def py_class_ex09():
     from abc import ABCMeta, abstractmethod
 
