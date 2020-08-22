@@ -984,6 +984,54 @@ def py_base_ex3702():
         print("error:", e)
 
 
+# example 38, read chrome cookie (sqlite.db)
+def py_base_ex38():
+    '''
+    path: /Users/jinzheng/Library/Application Support/Google/Chrome/Profile 1/Cookies
+
+    sqlite cmd:
+    .header on 启用表头
+    .mode column 使用列模式
+    .quit
+
+    sql:
+    select host_key,name,encrypted_value from cookies where name in ("SID","HSID");
+    '''
+    import sqlite3
+
+    conn = sqlite3.connect('/tmp/Cookies.db')
+    cursor = conn.cursor()
+
+    sql = "select host_key,name,value,expires_utc,encrypted_value from cookies where name = 'SID';"
+    results = cursor.execute(sql).fetchall()
+    print(results)
+
+    cursor.close()
+    conn.close()
+
+
+# example 39
+def py_base_ex39():
+    '''
+    refer to:
+    https://github.com/n8henrie/pycookiecheat
+
+    dependency lib:
+    pip install pycookiecheat
+
+    cmd:
+    cp ${HOME}/Library/Application Support/Google/Chrome/Profile 1/Cookies /tmp/Cookies.db
+    chmod 644 /tmp/Cookies.db
+    '''
+    import requests
+    from pycookiecheat import chrome_cookies
+
+    url = 'https://docs.google.com/presentation/d/1GAByZxeqd7VzG_QoPjvNTgsnSc7xb3Tj_m7sIb6x1ZY/edit#slide=id.g87a7ccd906_0_56'
+    cookies = chrome_cookies(url=url, cookie_file="/tmp/Cookies.db")
+    print(f"cookie from {url}:")
+    print(cookies)
+
+
 if __name__ == '__main__':
 
     print('python base demo START.')
@@ -996,7 +1044,7 @@ if __name__ == '__main__':
     print('samuel colvin'.title())
     print()
 
-    py_base_ex3701()
+    py_base_ex39()
     # py_base_ex23_01()
 
     print('python base demo DONE.')

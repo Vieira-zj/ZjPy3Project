@@ -20,6 +20,7 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.support import expected_conditions as cond
 from selenium.webdriver.support.ui import WebDriverWait
 
+
 # --------------------------------------------------------------
 # Unit Test
 # --------------------------------------------------------------
@@ -62,6 +63,47 @@ class TestPy01(unittest.TestCase):
 # --------------------------------------------------------------
 
 
+class TestPyLogin(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def test_gitlab_with_google_login(self):
+        caps = {
+            'browserName': 'chrome',
+            'version': '',
+            'platform': 'MAC',
+            'javascriptEnabled': True,
+        }
+        browser = webdriver.Chrome(desired_capabilities=caps)
+        browser.implicitly_wait(8)
+
+        url = 'https://git.garena.com/shopee/loan-service/airpay_backend/base/account_service'
+        browser.get(url)
+        # select google login
+        login_btn = browser.find_element_by_partial_link_text("Google")
+        login_btn.click()
+
+        # input email and next
+        id_input = browser.find_element_by_css_selector("input#identifierId")
+        id_input.send_keys("jin.zheng@shopee.com")
+        id_next_btn = browser.find_element_by_css_selector(
+            "#identifierNext button")
+        id_next_btn.click()
+
+        # input password and next
+        password_input = browser.find_element_by_css_selector(
+            "#password input")
+        password_input.send_keys("xxxxx")
+        pwd_next_btn = browser.find_element_by_css_selector(
+            "#passwordNext button")
+        pwd_next_btn.click()
+
+        # input google dyn code
+        time.sleep(5)
+        browser.quit()
+
+
 class TestPy02(unittest.TestCase):
     '''
     selenium web ui test.
@@ -77,7 +119,7 @@ class TestPy02(unittest.TestCase):
         selenium ui test with headless mode in local (chrome).
 
         pre-condition:
-        pip3 install chromedriver-binary
+        pip3 install chromedriver-binary==84.0.4147.30.0
         '''
         caps = {
             'browserName': 'chrome',
@@ -244,6 +286,7 @@ if __name__ == "__main__":
     # tests.append(TestPy01('test_reg_expr'))
 
     # selenium test
+    # tests.append(TestPyLogin('test_gitlab_with_google_login'))
     # tests.append(TestPy02('test_selenium_chrome'))
     # tests.append(TestPy02('test_selenium_grid_headless_chrome'))
     # tests.append(TestPy02('test_selenium_grid_headless_firefox'))
