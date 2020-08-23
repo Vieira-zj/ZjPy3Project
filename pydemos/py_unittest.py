@@ -78,8 +78,14 @@ class TestPyLogin(unittest.TestCase):
         browser = webdriver.Chrome(desired_capabilities=caps)
         browser.implicitly_wait(8)
 
+        executor_url = browser.command_executor._url
+        session_id = browser.session_id
+
         url = 'https://git.garena.com/shopee/loan-service/airpay_backend/base/account_service'
         browser.get(url)
+        print("\nexecutor_url:", executor_url)
+        print("session_id:", session_id)
+
         # select google login
         login_btn = browser.find_element_by_partial_link_text("Google")
         login_btn.click()
@@ -91,17 +97,25 @@ class TestPyLogin(unittest.TestCase):
             "#identifierNext button")
         id_next_btn.click()
 
+        # reuse pre webdriver session
+        # refer to: https://web.archive.org/web/20171129014322/http://tarunlalwani.com/post/reusing-existing-browser-session-selenium/
+        browser2 = webdriver.Remote(
+            command_executor=executor_url, desired_capabilities={})
+        browser2.session_id = session_id
+        print("current url:", browser2.current_url)
+
         # input password and next
-        password_input = browser.find_element_by_css_selector(
+        password_input = browser2.find_element_by_css_selector(
             "#password input")
         password_input.send_keys("xxxxx")
         pwd_next_btn = browser.find_element_by_css_selector(
             "#passwordNext button")
-        pwd_next_btn.click()
+        print(pwd_next_btn.is_displayed())
+        # pwd_next_btn.click()
 
-        # input google dyn code
-        time.sleep(5)
-        browser.quit()
+        # TODO: input google dyn code
+        time.sleep(3)
+        browser2.quit()
 
 
 class TestPy02(unittest.TestCase):
@@ -282,11 +296,11 @@ if __name__ == "__main__":
 
     tests = []
     # tests.append(TestPy01('test_subprocess'))
-    tests.append(TestPy01('test_time_counter'))
+    # tests.append(TestPy01('test_time_counter'))
     # tests.append(TestPy01('test_reg_expr'))
 
     # selenium test
-    # tests.append(TestPyLogin('test_gitlab_with_google_login'))
+    tests.append(TestPyLogin('test_gitlab_with_google_login'))
     # tests.append(TestPy02('test_selenium_chrome'))
     # tests.append(TestPy02('test_selenium_grid_headless_chrome'))
     # tests.append(TestPy02('test_selenium_grid_headless_firefox'))
