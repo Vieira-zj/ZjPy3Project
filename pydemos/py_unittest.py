@@ -58,12 +58,13 @@ class TestPy01(unittest.TestCase):
         self.assertFalse(re.search(
             'unknown|online', test_str), 'search failed')
 
+
 # --------------------------------------------------------------
-# Web UI Test
+# Webdriver Test
 # --------------------------------------------------------------
 
 
-class TestPyLogin(unittest.TestCase):
+class TestWebdriver01(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -118,7 +119,56 @@ class TestPyLogin(unittest.TestCase):
         browser2.quit()
 
 
-class TestPy02(unittest.TestCase):
+class TestWebdriver02(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def test_wd_attach_to_existing_chrome(self):
+        '''
+        pre-conditions: start chrome with remote debug port
+
+        $ cd /Applications/Google\\ Chrome.app/Contents/MacOS
+        $ ./Google\\ Chrome --remote-debugging-port=17890
+        '''
+
+        caps = {
+            'browserName': 'chrome',
+            'version': '',
+            'platform': 'MAC',
+            'javascriptEnabled': True,
+        }
+
+        br_options = ChromeOptions()
+        br_options.add_experimental_option(
+            "debuggerAddress", "localhost:17890")
+
+        browser = webdriver.Chrome(
+            desired_capabilities=caps, options=br_options)
+        browser.implicitly_wait(8)
+        print("attach to browser with debugger addr:",
+              br_options.experimental_options)
+
+        url = 'https://confluence.shopee.io/pages/viewpage.action?pageId=183808563'
+        browser.get(url)
+        print("page title:", browser.title)
+        print("cookies:", browser.get_cookies())
+
+        try:
+            login_btn = browser.find_element_by_partial_link_text("Google")
+            print("google login display:", login_btn.is_displayed())
+            login_btn.click()
+        except Exception as e:
+            print(e)
+            print("login direct.")
+
+
+# --------------------------------------------------------------
+# Selenium Web UI Test
+# --------------------------------------------------------------
+
+
+class TestWebUI01(unittest.TestCase):
     '''
     selenium web ui test.
     '''
@@ -242,6 +292,7 @@ class TestPy02(unittest.TestCase):
         finally:
             browser.quit()
 
+
 # --------------------------------------------------------------
 # UI Test Steps
 # --------------------------------------------------------------
@@ -295,16 +346,20 @@ if __name__ == "__main__":
     # unittest.main(verbosity=2)
 
     tests = []
+    # unit test
     # tests.append(TestPy01('test_subprocess'))
     # tests.append(TestPy01('test_time_counter'))
     # tests.append(TestPy01('test_reg_expr'))
 
-    # selenium test
-    tests.append(TestPyLogin('test_gitlab_with_google_login'))
-    # tests.append(TestPy02('test_selenium_chrome'))
-    # tests.append(TestPy02('test_selenium_grid_headless_chrome'))
-    # tests.append(TestPy02('test_selenium_grid_headless_firefox'))
-    # tests.append(TestPy02('test_selenium_grid_vnc_debug'))
+    # webdriver test
+    # tests.append(TestWebdriver01('test_gitlab_with_google_login'))
+    tests.append(TestWebdriver02('test_wd_attach_to_existing_chrome'))
+
+    # web ui test
+    # tests.append(TestWebUI01('test_selenium_chrome'))
+    # tests.append(TestWebUI01('test_selenium_grid_headless_chrome'))
+    # tests.append(TestWebUI01('test_selenium_grid_headless_firefox'))
+    # tests.append(TestWebUI01('test_selenium_grid_vnc_debug'))
 
     suite = unittest.TestSuite()
     suite.addTests(tests)
