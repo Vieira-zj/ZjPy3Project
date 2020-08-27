@@ -453,6 +453,62 @@ def assert_response_status(resp):
     return cond
 
 
+class MyRequest(object):
+    '''
+    Http request with common logs and assert.
+    '''
+
+    def get(self, *args, **kwargs):
+        resp = requests.get(*args, **kwargs)
+        self._log_request_info(resp)
+        self._log_response_info(resp)
+        self._assert_success(resp)
+
+    def post(self, *args, **kwargs):
+        resp = requests.post(*args, **kwargs)
+        self._log_request_info(resp.request)
+        self._log_response_info(resp)
+        self._assert_success(resp)
+
+    def _log_request_info(self, request):
+        title_line = "| " + "*" * 30 + "REQUEST" + "*" * 30
+        logger.info(title_line)
+
+        logger.info("|  Method: " + request.method)
+        logger.info("|  Url: " + request.url)
+        logger.info("|  Headers:")
+        for k, v in request.headers.items():
+            logger.info("|    %s: %s" % (k, v))
+
+        data = request.body
+        if data and len(data) > 0:
+            logger.info("|  Request Data:")
+            logger.info("|    " + data)
+        self._print_divide_line(len(title_line))
+
+    def _log_response_info(self, response):
+        title_line = "| " + "*" * 30 + "RESPONSE" + "*" * 30
+        logger.info(title_line)
+        logger.info("|  Status Code: " + str(response.status_code))
+        logger.info("|  Headers:")
+        for k, v in response.headers.items():
+            logger.info("|    %s: %s" % (k, v))
+
+        data = response.content
+        if data and len(data) > 0:
+            logger.info("|  Response Data:")
+            logger.info("|    " + str(data))
+        self._print_divide_line(len(title_line))
+
+    def _assert_success(self, response):
+        assert "status code not equal to 200", response.status_code == 200
+        # validate json
+        # json_object = json.loads(response.content)
+
+    def _print_divide_line(self, length=60):
+        logger.info("|" + "*" * length)
+
+
 # -----------------------------------------------
 # Main
 # -----------------------------------------------
