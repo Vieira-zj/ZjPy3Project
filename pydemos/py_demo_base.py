@@ -1020,7 +1020,7 @@ def py_base_ex39():
     pip install pycookiecheat
 
     cmd:
-    cp ${HOME}/Library/Application Support/Google/Chrome/Profile 1/Cookies /tmp/Cookies.db
+    cp ${HOME}/Library/Application\ Support/Google/Chrome/Profile\ 1/Cookies /tmp/Cookies.db
     chmod 644 /tmp/Cookies.db
     '''
     import requests

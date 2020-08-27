@@ -1,5 +1,7 @@
 # Django Rest Framework
 
+> Refer to: https://www.django-rest-framework.org/tutorial/
+
 ## Quickstart
 
 ### Project setup

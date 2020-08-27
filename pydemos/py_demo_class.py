@@ -314,8 +314,100 @@ def py_class_ex09():
     p.do()
 
 
+# example 10-01, invoke instance method by "getattr"
+class MyObject(object):
+    def echo(self, name):
+        print("hello", name)
+
+    def toString(self):
+        return "my test object"
+
+
+def py_class_ex1001():
+    obj = MyObject()
+    obj.echo("test1")
+
+    getattr(MyObject, "echo")(MyObject, "test2")
+    getattr(MyObject, "echo")(MyObject(), "test3")
+    print(getattr(MyObject, "toString")(MyObject()))
+
+
+# example 10-02 wrap class method
+class MyMethod(object):
+    def __init__(self, method_name, func):
+        self.method_name = method_name
+        self.func = func
+
+    def __call__(self, *args, **kwargs):
+        print("func:", self.method_name)
+        print("wrap func:", self.func.__name__)
+        return self.func(self.method_name, *args, **kwargs)
+
+    def __getattr__(self, item):
+        print(f"{self.method_name}.{item}")
+
+
+class MyWrapObject(object):
+    ''' 包装函数 '''
+
+    def __init__(self, cls_object, cls_instance):
+        self.cls_object = cls_object
+        self.cls_instance = cls_instance
+
+    def __getattr__(self, item):
+        print("\nattr item:", item)
+        return MyMethod(item, self._wrapFunc)
+
+    def _wrapFunc(self, method_name, *args, **kwargs):
+        print("aop before handler")
+        print("invoke %s(%s)" % (method_name, args))
+        ret = getattr(self.cls_object, method_name)(
+            self.cls_instance, *args, **kwargs)
+        print("aop after handler")
+        return ret
+
+
+def py_class_ex1002():
+    wrap_obj = MyWrapObject(MyObject, MyObject())
+    wrap_obj.echo("tester")
+    print(wrap_obj.toString())
+
+
+# example 10-03 wrap class method
+class MyMethod2(object):
+    def __init__(self, func, wrapFunc):
+        self.func = func
+        self.warpFunc = wrapFunc
+
+    def __call__(self, *args, **kwargs):
+        ret = self.warpFunc(self.func, *args, **kwargs)
+        return ret
+
+
+class MyWrapObject2(object):
+    def __init__(self, cls_object, cls_instance):
+        self.cls_object = cls_object
+        self.cls_instance = cls_instance
+
+    def __getattr__(self, item):
+        f = getattr(self.cls_object, item)
+        return MyMethod2(f, self._warpFunc)
+
+    def _warpFunc(self, func, *args, **kwargs):
+        print("aop before")
+        ret = func(self.cls_instance, *args, **kwargs)
+        print("aop after")
+        return ret
+
+
+def py_class_ex1003():
+    wrap_obj = MyWrapObject2(MyObject, MyObject())
+    wrap_obj.echo("tester")
+    print(wrap_obj.toString())
+
+
 if __name__ == '__main__':
 
-    py_base_ext()
-    # py_class_ex09()
+    # py_base_ext()
+    py_class_ex1003()
     print('python meta class demo DONE.')
