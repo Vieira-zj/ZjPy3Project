@@ -18,4 +18,4 @@ class Snippet(models.Model):
                              default='friendly', max_length=100)
 
     class Meta:
-        ordering = ['created']
+        ordering = ('created', )

@@ -88,7 +88,7 @@ cd restframeworkdemo/tutorial
 python manage.py runserver
 ```
 
-Test:
+### Test
 
 - Create records
 
@@ -99,10 +99,8 @@ curl -v -XPOST http://127.0.0.1:8000/snippets/ -d @data.json
 Data:
 
 ```json
-[
-  {"id": 1, "title": "", "code": "foo = \"bar\"", "linenos": false, "language": "python", "style": "friendly"},
-  {"id": 2, "title": "", "code": "print(\"hello, world\")", "linenos": false, "language": "python", "style": "friendly"}
-]
+{"id": 1, "title": "", "code": "foo = \"bar\"", "linenos": false, "language": "python", "style": "friendly"}
+{"id": 2, "title": "", "code": "print(\"hello, world\")", "linenos": false, "language": "python", "style": "friendly"}
 ```
 
 - Retrieve records
@@ -134,5 +132,47 @@ curl -v http://127.0.0.1:8000/snippets.json | jq .
 curl -v http://127.0.0.1:8000/snippets.api
 ```
 
-## Tutorial 3: Class-based Views
+## Tutorial 4: Authentication & Permissions
+
+- Code snippets are always associated with a creator.
+- Only authenticated users may create snippets.
+- Only the creator of a snippet may update or delete it.
+- Unauthenticated requests should have full read-only access.
+
+
+Update our database tables.
+
+```sh
+rm -f db.sqlite3
+rm -r snippets/migrations
+python manage.py makemigrations snippets
+python manage.py migrate
+```
+
+Create a few different users, to use for testing the API.
+
+```sh
+python manage.py createsuperuser
+```
+
+### Test
+
+- Create records
+
+```sh
+curl -v -XPOST http://127.0.0.1:8000/snippets/ -d @data.json
+curl -v -XPOST -u admin:1234 http://127.0.0.1:8000/snippets/ -d @data.json
+```
+
+Data:
+
+```json
+{"id": 1, "owner": "admin", "title": "foo", "code": "print(789)", "linenos": false, "language": "python", "style": "friendly"}
+```
+
+- Retrieve records
+
+```sh
+curl -v http://127.0.0.1:8000/users/ | jq .
+```
 
