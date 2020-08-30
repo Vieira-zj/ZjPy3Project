@@ -1,16 +1,17 @@
+.DS_Store
+*/.DS_Store
+
+__pycache__/
+*/__pycache__/
+
 *.pyc
 
-.DS_Store
-
-pydemos/__pycache__/
 pydemos/.pytest_cache/
 
-monkeytest/__pycache__/
 monkeyreports/
 
 pytests/outputs/
 
-apitest/.DS_Store
 apitest/outputs/*.html
 apitest/outputs/assets
 apitest/outputs/logs

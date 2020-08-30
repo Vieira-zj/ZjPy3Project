@@ -9,7 +9,7 @@ from snippets.serializers import SnippetSerializer
 def snippet_list(request):
     """
     List all code snippets, or create a new snippet.
-    Path: /snippets
+    Path: /snippets/
     """
     if request.method == 'GET':
         snippets = Snippet.objects.all()
