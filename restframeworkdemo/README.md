@@ -1,6 +1,6 @@
 # Django Rest Framework
 
-> Refer to: https://www.django-rest-framework.org/tutorial/
+> Refer to: https://www.django-rest-framework.org/tutorial/quickstart/
 
 ## Quickstart
 
@@ -84,17 +84,16 @@ python manage.py migrate
 Start up Django's development server.
 
 ```sh
+cd restframeworkdemo/tutorial
 python manage.py runserver
 ```
 
 Test:
 
+- Create records
+
 ```sh
-# create records
 curl -v -XPOST http://127.0.0.1:8000/snippets/ -d @data.json
-# retrieve records
-curl -v http://127.0.0.1:8000/snippets/
-curl -v http://127.0.0.1:8000/snippets/2/
 ```
 
 Data:
@@ -105,4 +104,35 @@ Data:
   {"id": 2, "title": "", "code": "print(\"hello, world\")", "linenos": false, "language": "python", "style": "friendly"}
 ]
 ```
+
+- Retrieve records
+
+```sh
+curl -v http://127.0.0.1:8000/snippets/ | jq .
+curl -v http://127.0.0.1:8000/snippets/2/ | jq .
+```
+
+## Tutorial 2: Requests and Responses
+
+Test:
+
+```sh
+curl -v http://127.0.0.1:8000/snippets/ | jq .
+```
+
+Control the format of the response that we get back, either by using the Accept header:
+
+```sh
+curl -v -H "Accept:application/json" http://127.0.0.1:8000/snippets/ | jq .
+curl -v -H "Accept:text/html" http://127.0.0.1:8000/snippets/
+```
+
+Or by appending a format suffix:
+
+```sh
+curl -v http://127.0.0.1:8000/snippets.json | jq .
+curl -v http://127.0.0.1:8000/snippets.api
+```
+
+## Tutorial 3: Class-based Views
 
