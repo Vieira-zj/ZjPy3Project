@@ -10,14 +10,18 @@ from snippets.serializers import SnippetSerializer
 def snippet_list(request, format=None):
     """
     List all code snippets, or create a new snippet.
+    Request: rest_framework.request.Request
+
+    form-data => request.data:QueryDict
+    application/json => request.data:dict
+    x-www-form-urlencoded => request.data:QueryDict
     """
     if request.method == 'GET':
         snippets = Snippet.objects.all()
         serializer = SnippetSerializer(snippets, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = SnippetSerializer(data=data)
+        serializer = SnippetSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -38,8 +42,7 @@ def snippet_detail(request, pk, format=None):
         serializer = SnippetSerializer(snippet)
         return Response(serializer.data)
     elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = SnippetSerializer(snippet, data=data)
+        serializer = SnippetSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

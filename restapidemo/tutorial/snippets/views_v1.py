@@ -9,6 +9,7 @@ from snippets.serializers import SnippetSerializer
 def snippet_list(request):
     """
     List all code snippets, or create a new snippet.
+    Request: django.core.handlers.wsgi.WSGIRequest
     Path: /snippets/
     """
     if request.method == 'GET':

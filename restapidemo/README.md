@@ -1,6 +1,7 @@
 # Django Rest Framework
 
-> Refer to: https://www.django-rest-framework.org/tutorial/quickstart/
+- Refer to: <https://www.django-rest-framework.org/tutorial/quickstart/>
+- Github: <https://github.com/encode/rest-framework-tutorial>
 
 ## Quickstart
 
@@ -36,7 +37,12 @@ Query the `db.sqlite3`:
 
 ```text
 .show
-.table
+.headers on
+.mode column
+.timer on
+
+.tables
+.schema auth_user
 .quit
 
 select * from auth_user;
@@ -58,7 +64,7 @@ curl -H 'Accept: application/json; indent=4' -u admin:password123 http://127.0.0
 
 ## Tutorial 1: Serialization
 
-Setting up a new environment
+Setting up a new environment.
 
 ```sh
 pip install django
@@ -66,7 +72,7 @@ pip install djangorestframework
 pip install pygments
 ```
 
-Getting started
+Getting started.
 
 ```sh
 django-admin startproject tutorial
@@ -93,10 +99,10 @@ python manage.py runserver
 - Create records
 
 ```sh
-curl -v -XPOST http://127.0.0.1:8000/snippets/ -d @data.json
+curl -v -XPOST -H "Content-Type:application/json" http://127.0.0.1:8000/snippets/ -d @data.json
 ```
 
-Data:
+Json data:
 
 ```json
 {"id": 1, "title": "", "code": "foo = \"bar\"", "linenos": false, "language": "python", "style": "friendly"}
@@ -110,6 +116,12 @@ curl -v http://127.0.0.1:8000/snippets/ | jq .
 curl -v http://127.0.0.1:8000/snippets/2/ | jq .
 ```
 
+- Delete record
+
+```sh
+curl -v -XDELETE http://127.0.0.1:8000/snippets/9/ | jq .
+```
+
 ## Tutorial 2: Requests and Responses
 
 Test:
@@ -121,8 +133,8 @@ curl -v http://127.0.0.1:8000/snippets/ | jq .
 Control the format of the response that we get back, either by using the Accept header:
 
 ```sh
-curl -v -H "Accept:application/json" http://127.0.0.1:8000/snippets/ | jq .
-curl -v -H "Accept:text/html" http://127.0.0.1:8000/snippets/
+curl -v -H "Content-Type:application/json" -H "Accept:application/json" http://127.0.0.1:8000/snippets/ | jq .
+curl -v -H "Content-Type:application/json" -H "Accept:text/html" http://127.0.0.1:8000/snippets/
 ```
 
 Or by appending a format suffix:
@@ -139,7 +151,6 @@ curl -v http://127.0.0.1:8000/snippets.api
 - Only the creator of a snippet may update or delete it.
 - Unauthenticated requests should have full read-only access.
 
-
 Update our database tables.
 
 ```sh
@@ -152,7 +163,7 @@ python manage.py migrate
 Create a few different users, to use for testing the API.
 
 ```sh
-python manage.py createsuperuser
+python manage.py createsuperuser --email admin@example.com --username admin
 ```
 
 ### Test
@@ -160,19 +171,18 @@ python manage.py createsuperuser
 - Create records
 
 ```sh
-curl -v -XPOST http://127.0.0.1:8000/snippets/ -d @data.json
-curl -v -XPOST -u admin:1234 http://127.0.0.1:8000/snippets/ -d @data.json
+curl -v -XPOST -H "Content-Type:application/json" -u admin:1234 http://127.0.0.1:8000/snippets/ -d @data.json
 ```
 
-Data:
+Json data:
 
 ```json
-{"id": 1, "owner": "admin", "title": "foo", "code": "print(789)", "linenos": false, "language": "python", "style": "friendly"}
+{"id": 1, "owner": "root", "title": "foo", "code": "print(789)", "linenos": false, "language": "python", "style": "friendly"}
 ```
 
 - Retrieve records
 
 ```sh
-curl -v http://127.0.0.1:8000/users/ | jq .
+curl -v http://127.0.0.1:8000/snippets/ | jq .
 ```
 
