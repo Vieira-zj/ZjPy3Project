@@ -198,3 +198,68 @@ curl -v http://127.0.0.1:8000/snippets/ | jq .
 curl -XDELETE -v -u root:1234 http://127.0.0.1:8000/snippets/1/ | jq .
 ```
 
+## Tutorial 5: Relationships & Hyperlinked APIs
+
+1. The root of our API refers to 'user-list' and 'snippet-list'.
+
+```sh
+curl -v http://127.0.0.1:8000
+```
+
+Result json:
+
+```json
+{
+    "users": "http://127.0.0.1:8000/users/",
+    "snippets": "http://127.0.0.1:8000/snippets/"
+}
+```
+
+2. Our snippet serializer includes a field that refers to 'snippet-highlight'.
+3. Our user serializer includes a field that refers to 'snippet-detail'.
+4. Our snippet and user serializers include 'url' fields that by default will refer to '{model_name}-detail', which in this case will be 'snippet-detail' and 'user-detail'.
+
+Request snippets:
+
+```sh
+curl -v http://127.0.0.1:8000/snippets/ | jq .
+# open in browser: http://127.0.0.1:8000/snippets/1/highlight/
+```
+
+Result json:
+
+```json
+{
+    "url": "http://127.0.0.1:8000/snippets/1/",
+    "id": 1,
+    "highlight": "http://127.0.0.1:8000/snippets/1/highlight/",
+    "owner": "admin",
+    "title": "foo",
+    "code": "print(789)",
+    "linenos": false,
+    "language": "python",
+    "style": "friendly"
+}
+```
+
+Request users:
+
+```sh
+curl -v http://127.0.0.1:8000/users/ | jq .
+# open in browser http://127.0.0.1:8000/snippets/1/
+```
+
+Result json:
+
+```json
+{
+    "url": "http://127.0.0.1:8000/users/1/",
+    "id": 1,
+    "username": "admin",
+    "snippets": [
+        "http://127.0.0.1:8000/snippets/1/",
+        "http://127.0.0.1:8000/snippets/2/"
+    ]
+}
+```
+
