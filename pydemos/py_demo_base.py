@@ -999,7 +999,12 @@ def py_base_ex38():
     '''
     import sqlite3
 
-    conn = sqlite3.connect('/tmp/Cookies.db')
+    c_path = '/tmp/Cookies.db'
+    if not os.path.exists(c_path):
+        print('file not exist:', c_path)
+        return
+
+    conn = sqlite3.connect(c_path)
     cursor = conn.cursor()
 
     sql = "select host_key,name,value,expires_utc,encrypted_value from cookies where name = 'SID';"
@@ -1026,13 +1031,23 @@ def py_base_ex39():
     import requests
     from pycookiecheat import chrome_cookies
 
+    c_path = '/tmp/Cookies.db'
+    if not os.path.exists(c_path):
+        print('file not exist:', c_path)
+        return
+
     url = 'https://docs.google.com/presentation/d/1GAByZxeqd7VzG_QoPjvNTgsnSc7xb3Tj_m7sIb6x1ZY/edit#slide=id.g87a7ccd906_0_56'
-    cookies = chrome_cookies(url=url, cookie_file="/tmp/Cookies.db")
+    cookies = chrome_cookies(url=url, cookie_file=c_path)
     print(f"cookie from {url}:")
     print(cookies)
 
 
 if __name__ == '__main__':
+
+    def get_parent(path, level):
+        for _ in range(level):
+            path = os.path.dirname(path)
+        return path
 
     print('python base demo START.')
     print('\npython version:\n', sys.version)
@@ -1043,6 +1058,9 @@ if __name__ == '__main__':
 
     print('samuel colvin'.title())
     print()
+
+    project_path = get_parent(os.path.abspath(__file__), 2)
+    print("project root path:", project_path)
 
     py_base_ex39()
     # py_base_ex23_01()
