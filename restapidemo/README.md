@@ -119,7 +119,7 @@ curl -v http://127.0.0.1:8000/snippets/2/ | jq .
 - Delete record
 
 ```sh
-curl -v -XDELETE http://127.0.0.1:8000/snippets/9/ | jq .
+curl -v -XDELETE http://127.0.0.1:8000/snippets/1/ | jq .
 ```
 
 ## Tutorial 2: Requests and Responses
@@ -168,6 +168,12 @@ python manage.py createsuperuser --email admin@example.com --username admin
 
 ### Test
 
+- auth
+
+```text
+http://127.0.0.1:8000/api-auth/login/
+```
+
 - Create records
 
 ```sh
@@ -184,5 +190,11 @@ Json data:
 
 ```sh
 curl -v http://127.0.0.1:8000/snippets/ | jq .
+```
+
+- Delete record
+
+```sh
+curl -XDELETE -v -u root:1234 http://127.0.0.1:8000/snippets/1/ | jq .
 ```
 
