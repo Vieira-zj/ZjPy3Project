@@ -1015,7 +1015,7 @@ def py_base_ex38():
     conn.close()
 
 
-# example 39
+# example 39, read chrome cookie (sqlite.db)
 def py_base_ex39():
     '''
     refer to:
@@ -1042,6 +1042,22 @@ def py_base_ex39():
     print(cookies)
 
 
+# example 40, 拼接 dict
+def py_base_ex40():
+    t_dict = {
+        "header": {
+            "code": 0
+        },
+        "data": {
+            "key1": "value1"
+        }
+    }
+
+    data_dict = dict(**t_dict["data"], key2="value2")
+    result_dict = dict(header=t_dict["header"], data=data_dict)
+    print(result_dict)
+
+
 if __name__ == '__main__':
 
     def get_parent(path, level):
@@ -1062,7 +1078,7 @@ if __name__ == '__main__':
     project_path = get_parent(os.path.abspath(__file__), 2)
     print("project root path:", project_path)
 
-    py_base_ex39()
+    py_base_ex40()
     # py_base_ex23_01()
 
     print('python base demo DONE.')
