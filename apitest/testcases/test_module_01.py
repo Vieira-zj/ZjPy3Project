@@ -11,12 +11,19 @@ import os
 import allure
 import pytest
 
-sys.path.append(os.getenv('PYPATH'))
+project_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    sys.path.index(project_dir)
+except ValueError:
+    sys.path.append(project_dir)
+
 from utils import Constants
 from utils import LogManager
 from utils import HttpUtils
-from apitest.common import LoadCases
-from apitest.testcases.test_base import TestBase
+Constants.add_project_paths()
+
+from common import LoadCases
+from testcases import TestBase
 
 
 @allure.feature('MockTest')

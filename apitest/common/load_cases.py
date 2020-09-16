@@ -7,7 +7,12 @@ Created on 2019-03-06
 import sys
 import os
 
-sys.path.append(os.getenv('PYPATH'))
+project_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    sys.path.index(project_dir)
+except ValueError:
+    sys.path.append(project_dir)
+
 from utils import Constants
 from utils import LogManager 
 from utils import XlsxUtils

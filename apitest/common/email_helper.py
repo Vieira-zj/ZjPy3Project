@@ -13,11 +13,18 @@ import zipfile
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-sys.path.append(os.getenv('PYPATH'))
+project_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    sys.path.index(project_dir)
+except ValueError:
+    sys.path.append(project_dir)
+
 from utils import Constants
 from utils import LogManager
 from utils import SysUtils
-from apitest.common import LoadConfigs
+Constants.add_project_paths()
+
+from common import LoadConfigs
 
 
 class EmailHelper(object):
@@ -132,14 +139,20 @@ class EmailHelper(object):
 
 if __name__ == '__main__':
 
-    # init logger and configs
-    LogManager.build_logger(Constants.LOG_FILE_PATH)
-    cfg_file_path = os.path.join(os.getenv('PYPATH'), 'apitest', 'configs.ini')
-    LoadConfigs.load_configs(cfg_file_path)
+    isTest = True
 
-    mail_content = 'API test done.\nPlease read details of results in attachment.'
-    mail = EmailHelper.get_intance()
-    mail.set_content_text(mail_content).send_email()
+    if isTest:
+        print('Done')
+    else:
+        # init logger and configs
+        LogManager.build_logger(Constants.LOG_FILE_PATH)
+        cfg_file_path = os.path.join(
+            os.getenv('PYPATH'), 'apitest', 'configs.ini')
+        LoadConfigs.load_configs(cfg_file_path)
 
-    LogManager.clear_log_handles()
-    print('email helper test DONE.')
+        mail_content = 'API test done.\nPlease read details of results in attachment.'
+        mail = EmailHelper.get_intance()
+        mail.set_content_text(mail_content).send_email()
+
+        LogManager.clear_log_handles()
+        print('email helper test DONE.')

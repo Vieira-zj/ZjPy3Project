@@ -11,12 +11,19 @@ import sys
 import allure
 import pytest
 
-sys.path.append(os.getenv('PYPATH'))
+project_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    sys.path.index(project_dir)
+except ValueError:
+    sys.path.append(project_dir)
+
 from utils import Constants
 from utils import LogManager
 from utils import SysUtils
-from apitest.common import LoadConfigs
-from apitest.common import LoadCases
+Constants.add_project_paths()
+
+from common import LoadConfigs
+from common import LoadCases
 
 
 project_path = os.path.join(os.getenv('PYPATH'), 'apitest')
@@ -67,11 +74,16 @@ def setup_test_session(request):
 
 if __name__ == '__main__':
 
-    load_configs()
-    init_logger()
-    load_testcases()
+    isTest = True
+    if isTest:
+        print(sys.path)
+        print('Done')
+    else:
+        # load_configs()
+        init_logger()
+        load_testcases()
 
-    tcs = LoadCases.get_instance().get_loaded_tcs()
-    LogManager.get_logger().info(tcs)
-    LogManager.get_logger().info('conftest DONE.')
-    LogManager.clear_log_handles()
+        tcs = LoadCases.get_instance().get_loaded_tcs()
+        LogManager.get_logger().info(tcs)
+        LogManager.get_logger().info('conftest DONE.')
+        LogManager.clear_log_handles()

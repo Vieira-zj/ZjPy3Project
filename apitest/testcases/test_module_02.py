@@ -10,12 +10,19 @@ import os
 import allure
 import pytest
 
-sys.path.append(os.getenv('PYPATH'))
+project_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    sys.path.index(project_dir)
+except ValueError:
+    sys.path.append(project_dir)
+
 from utils import Constants
 from utils import LogManager
 from utils import HttpUtils
-from apitest.common import LoadCases
-from apitest.testcases.test_base import TestBase
+Constants.add_project_paths()
+
+from common import LoadCases
+from testcases import TestBase
 
 
 @allure.feature('MockTest')
@@ -69,11 +76,15 @@ class TestModule02(TestBase):
 
 if __name__ == '__main__':
 
-    LogManager.build_logger(Constants.LOG_FILE_PATH, stream_log_level=logging.DEBUG)
-    file_path = os.path.join(os.path.dirname(os.getcwd()), 'TestCases.xlsx')
-    LoadCases.get_instance().pre_load_sheet(file_path, 'Module02').load_all_cases_by_sheet()
+    isTest = True
+    if isTest:
+        print('Done')
+    else:
+        LogManager.build_logger(Constants.LOG_FILE_PATH, stream_log_level=logging.DEBUG)
+        file_path = os.path.join(os.path.dirname(os.getcwd()), 'TestCases.xlsx')
+        LoadCases.get_instance().pre_load_sheet(file_path, 'Module02').load_all_cases_by_sheet()
 
-    pytest.main(['-v', '-s', 'test_module_02.py'])
+        pytest.main(['-v', '-s', 'test_module_02.py'])
 
-    LogManager.clear_log_handles()
-    print('test module 02 DONE.')
+        LogManager.clear_log_handles()
+        print('test module 02 DONE.')

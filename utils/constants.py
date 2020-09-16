@@ -5,7 +5,7 @@ Created on 2018-10-26
 @author: zhengjin
 '''
 
-import os
+import os, sys
 
 
 class Constants(object):
@@ -53,6 +53,24 @@ class Constants(object):
     IS_PROFILE_TEST = True
     ITEST_COLLECT_INTERVAL = 3
     IS_CREATE_ARCHIVE = False
+
+    # fix dependency paths
+    PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    APITEST_PATH = os.path.join(PROJECT_PATH, 'apitest')
+    MONKEYTEST_PATH = os.path.join(PROJECT_PATH, 'monkeytest')
+
+    @classmethod
+    def _add_sys_path(cls, path):
+        try:
+            sys.path.index(path)
+        except ValueError:
+            sys.path.append(path)
+
+    @classmethod
+    def add_project_paths(cls):
+        cls._add_sys_path(cls.PROJECT_PATH)
+        cls._add_sys_path(cls.APITEST_PATH)
+        cls._add_sys_path(cls.MONKEYTEST_PATH)
 
 
 if __name__ == '__main__':
