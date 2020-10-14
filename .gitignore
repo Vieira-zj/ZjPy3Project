@@ -19,3 +19,6 @@ apitest/outputs/reports
 apitest/outputs/results
 
 mlcode/tf/epic_num_reader.model
+
+appdemos/app_google_sheets/credentials.json
+appdemos/app_google_sheets/token.pickle
