@@ -6,6 +6,7 @@ Created on 2019-03-17
 Python class and meta class examples.
 '''
 
+
 def py_base_ext():
     import py_demo_base
     py_demo_base.py_base_ex02()
@@ -20,7 +21,8 @@ def py_class_ex01():
         '''
         future_class_name, future_class_parents, future_class_attr = args
         print('upper_attr is invoked, cls attrs:', future_class_attr.items())
-        attrs = ((name, value) for name, value in future_class_attr.items() if not name.startswith('__'))
+        attrs = ((name, value) for name,
+                 value in future_class_attr.items() if not name.startswith('__'))
         uppercase_attr = dict((name.upper(), value) for name, value in attrs)
 
         return type(future_class_name, future_class_parents, uppercase_attr)
@@ -36,7 +38,7 @@ def py_class_ex01():
 
     f = Foo()
     print('Foo class:', f.__class__)
-    print('Foo super class:', f.__class__.__class__) # type
+    print('Foo super class:', f.__class__.__class__)  # type
 
 
 # example 02, 使用class来当做元类
@@ -46,8 +48,10 @@ def py_class_ex02():
         def __new__(cls, *args, **kwargs):
             name, bases, dct = args
             print('upper_attr is invoked, cls attrs:', dct.items())
-            attrs = ((name, value) for name, value in dct.items() if not name.startswith('__'))
-            uppercase_attr = dict((name.upper(), value) for name, value in attrs)
+            attrs = ((name, value)
+                     for name, value in dct.items() if not name.startswith('__'))
+            uppercase_attr = dict((name.upper(), value)
+                                  for name, value in attrs)
 
             return super(UpperAttrMetaclass, cls).__new__(cls, name, bases, uppercase_attr)
 
@@ -62,7 +66,7 @@ def py_class_ex02():
 
     f = Foo()
     print('Foo class:', f.__class__)
-    print('Foo super class:', f.__class__.__class__) # UpperAttrMetaclass
+    print('Foo super class:', f.__class__.__class__)  # UpperAttrMetaclass
 
 
 # example 03, class: __new__, __init__, __call__
@@ -96,7 +100,7 @@ def py_class_ex03():
 
 # example 04, metaclass and class: __new__, __init__, __call__
 def py_class_ex04():
-    # workflow: 
+    # workflow:
     # 1) Metaclass.__new__ => Metaclass.__init__ => Metaclass, Foo
     # 2) Metaclass.__call__ => Foo.__new__ => Foo.__init__ => Metaclass.__call__ return => Foo, Foo object
 
@@ -132,7 +136,8 @@ def py_class_ex04():
     f1_cls = f1.__class__  # f1_cls = type(f1)
     print(f1_cls, [item for item in dir(f1_cls) if not item.startswith('__')])
     f1_super_cls = f1.__class__.__class__
-    print(f1_super_cls, [item for item in dir(f1_super_cls) if not item.startswith('__')])
+    print(f1_super_cls, [item for item in dir(
+        f1_super_cls) if not item.startswith('__')])
     print()
 
     print('Foo attr name:', hasattr(Foo, 'name'))
@@ -145,13 +150,15 @@ def py_class_ex05():
 
     class Singleton(object):
         def __new__(cls, *args, **kwargs):
-            print('Singleton __new__ is invoked: args=%s, kwargs=%s' % (args, kwargs))
+            print('Singleton __new__ is invoked: args=%s, kwargs=%s' %
+                  (args, kwargs))
             if not hasattr(cls, '_instance'):
                 cls._instance = super(Singleton, cls).__new__(cls)
             return cls._instance
 
         def __init__(self, *args, **kwargs):
-            print('Singleton __init__ is invoked: args=%s, kwargs=%s' % (args, kwargs))
+            print('Singleton __init__ is invoked: args=%s, kwargs=%s' %
+                  (args, kwargs))
             print('self attr _instance:', hasattr(self, '_instance'))
             self.name = args[0]
 
@@ -170,13 +177,16 @@ def py_class_ex06():
 
     class Singleton(type):
         def __init__(self, *args, **kwargs):
-            print('meta Singleton __init__ is invoked: args=%s, kwargs=%s' % (args, kwargs))
+            print('meta Singleton __init__ is invoked: args=%s, kwargs=%s' %
+                  (args, kwargs))
             self._instance = None
 
         def __call__(self, *args, **kwargs):
-            print('meta Singleton __call__ is invoked: args=%s, kwargs=%s' % (args, kwargs))
+            print('meta Singleton __call__ is invoked: args=%s, kwargs=%s' %
+                  (args, kwargs))
             if self._instance is None:
-                self._instance = super(Singleton, self).__call__(*args, **kwargs)
+                self._instance = super(
+                    Singleton, self).__call__(*args, **kwargs)
             return self._instance
 
     class Foo(metaclass=Singleton):
@@ -247,6 +257,7 @@ def py_class_ex07():
 
 # example 08, access global var in class
 number = 10
+
 
 def py_class_ex08():
 
@@ -406,8 +417,52 @@ def py_class_ex1003():
     print(wrap_obj.toString())
 
 
+# example 11
+class EventHook(object):
+    def __init__(self):
+        self._handlers = []
+
+    def add_listener(self, handler):
+        self._handlers.append(handler)
+
+    def remove_listener(self, handler):
+        self._handlers.remove(handler)
+
+    def fire(self, *args, **kwargs):
+        for handler in self._handlers:
+            handler(*args, **kwargs)
+
+
+class Events(object):
+    id = '1'
+    on_start = EventHook
+    on_stop = EventHook
+
+    def __init__(self):
+        self.id = '01'  # override
+        for name, value in vars(type(self)).items():
+            if value == EventHook:
+                setattr(self, name, value())
+
+
+def py_class_ex11():
+    def start_handler():
+        print('start handler')
+
+    def stop_handler():
+        print('stop handler')
+
+    events = Events()
+    print('event id:', events.id)
+    events.on_start.add_listener(start_handler)
+    events.on_stop.add_listener(stop_handler)
+
+    events.on_start.fire()
+    events.on_stop.fire()
+
+
 if __name__ == '__main__':
 
     # py_base_ext()
-    py_class_ex1003()
+    py_class_ex11()
     print('python meta class demo DONE.')
