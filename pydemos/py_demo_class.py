@@ -461,8 +461,33 @@ def py_class_ex11():
     events.on_stop.fire()
 
 
+# example 12, @property
+class Student(object):
+
+    @property
+    def birth(self):
+        return self._birth
+
+    @birth.setter
+    def birth(self, value):
+        if 1982 < value < 2020:
+            self._birth = value
+        else:
+            raise Exception('invalid birth value:', value)
+
+    @property
+    def age(self):
+        return 2020 - self._birth
+
+
+def py_class_ex12():
+    s = Student()
+    s.birth = 2014
+    print('age:', s.age)
+
+
 if __name__ == '__main__':
 
     # py_base_ext()
-    py_class_ex11()
+    py_class_ex12()
     print('python meta class demo DONE.')
