@@ -526,7 +526,7 @@ class MetaRoom(type):
         super(MetaRoom, cls).__init__(name, bases, dic)
 
         for cls_name in MetaRoom.meta_members:
-            cur_mod = sys.modules[__name__]
+            cur_mod = sys.modules[__name__]  # 加载 module
             cls_def = getattr(cur_mod, cls_name)
             for func_name, func in inspect.getmembers(cls_def, inspect.isfunction):
                 if func_name not in MetaRoom.exclude_funcs:
