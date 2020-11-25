@@ -1028,6 +1028,28 @@ def py_base_ex41():
     print('\nmap built in methods:', methods)
 
 
+# example 42, typing
+def py_base_ex42():
+    from typing import Callable, List, Union
+
+    def foo():
+        print('foo')
+
+    def bar():
+        print('bar')
+
+    my_list: List[Union[str, Callable]] = []
+    my_list.append(foo)
+    my_list.append('test')
+    my_list.append(bar)
+
+    for item in my_list:
+        if callable(item):
+            print('function:', item.__name__)
+        else:
+            print('string:', item)
+
+
 if __name__ == '__main__':
 
     def get_parent(path, level):
@@ -1046,9 +1068,9 @@ if __name__ == '__main__':
     print()
 
     project_path = get_parent(os.path.abspath(__file__), 2)
-    print("project root path:", project_path)
+    print('project root path:', project_path)
 
     # py_base_ex23_01()
-    py_base_ex41()
+    py_base_ex42()
 
     print('python base demo DONE.')
