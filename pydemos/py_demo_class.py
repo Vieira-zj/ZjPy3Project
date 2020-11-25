@@ -486,8 +486,90 @@ def py_class_ex12():
     print('age:', s.age)
 
 
+# example 13, 使用 metaclass MetaRoom 动态为类 Room 添加静态成员变量和函数
+class Wall(object):
+
+    STATIC_WALL_ATTR = "static wall"
+
+    def init_wall(self):
+        self.wall = "attr wall"
+
+    def wall_info(self):
+        print("this is wall of room")
+
+    @staticmethod
+    def static_wall_func():
+        print("static wall info")
+
+
+class Door(object):
+
+    def init_door(self):
+        self.door = "attr door"
+
+    def door_info(self):
+        print("this is door of room")
+        print(self.door, self.wall, self.STATIC_WALL_ATTR, self.room)
+
+
+class MetaRoom(type):
+
+    meta_members = ('Wall', 'Door')
+    exclude_funcs = ('__new__', '__init__')
+    attr_types = (int, str, list, tuple, dict)
+
+    def __init__(cls, name, bases, dic):
+        import inspect, sys
+
+        print('metaclass __init__, dict:')
+        print(dic)
+        super(MetaRoom, cls).__init__(name, bases, dic)
+
+        for cls_name in MetaRoom.meta_members:
+            cur_mod = sys.modules[__name__]
+            cls_def = getattr(cur_mod, cls_name)
+            for func_name, func in inspect.getmembers(cls_def, inspect.isfunction):
+                if func_name not in MetaRoom.exclude_funcs:
+                    assert not hasattr(cls, func_name), func_name
+                    print('add func:', func_name)
+                    setattr(cls, func_name, func)
+
+            for attr_name, value in inspect.getmembers(cls_def):
+                if isinstance(value, MetaRoom.attr_types) and attr_name not in ('__module__', '__doc__'):
+                    assert not hasattr(cls, attr_name), attr_name
+                    print('add attr:', attr_name, value)
+                    setattr(cls, attr_name, value)
+
+
+class Room(object, metaclass=MetaRoom):
+
+    def __init__(self):
+        self.room = 'attr room'
+        self.add_cls_member()
+
+    def add_cls_member(self):
+        """ 分别调用各个组合类中的init_cls_name的成员函数 """
+        for cls_name in MetaRoom.meta_members:
+            init_func_name = "init_%s" % cls_name.lower()
+            init_func_imp = getattr(self, init_func_name, None)
+            if init_func_imp:
+                print('invoke init func imp:', init_func_name)
+                init_func_imp()
+
+
+def py_class_ex13():
+    print('\nroom attrs:')
+    print(vars(Room))
+    # for attr_name in dir(Room):
+    #     print(attr_name, type(getattr(Room, attr_name)))
+
+    print('\ncreate room instance:')
+    r = Room()
+    r.door_info()
+
+
 if __name__ == '__main__':
 
     # py_base_ext()
-    py_class_ex12()
+    py_class_ex13()
     print('python meta class demo DONE.')
