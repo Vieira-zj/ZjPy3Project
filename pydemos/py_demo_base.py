@@ -9,6 +9,7 @@ from collections import deque, defaultdict, Counter
 from datetime import datetime
 import getopt
 import glob
+import inspect
 import os
 import sys
 import time
@@ -966,7 +967,7 @@ def py_base_ex39():
     pip install pycookiecheat
 
     cmd:
-    cp ${HOME}/Library/Application\ Support/Google/Chrome/Profile\ 1/Cookies /tmp/Cookies.db
+    cp ${HOME}/Library/Application\\ Support/Google/Chrome/Profile\\ 1/Cookies /tmp/Cookies.db
     chmod 644 /tmp/Cookies.db
     '''
     import requests
@@ -999,6 +1000,34 @@ def py_base_ex40():
     print(result_dict)
 
 
+# example 41, attr and inspect
+def py_base_ex41():
+
+    class MyObject(object):
+        static_field = 'static_field'
+
+        def __init__(self):
+            self.field = 'instance_field'
+
+        def echo(self):
+            print(self.static_field, self.field)
+
+    print('\nobject inspect:')
+    obj = MyObject()
+    own_attrs = [attr for attr in dir(obj) if not attr.startswith('__')]
+    for attr in own_attrs:
+        val = getattr(obj, attr)
+        if inspect.ismethod(val):
+            print(f"method:{attr}")
+        else:
+            print(f"field:{attr}={val}")
+
+    m = {'key1': 'value1', 'key2': 'value2'}
+    methods = [attr for attr in dir(m) if not attr.startswith(
+        '__') and inspect.isbuiltin(getattr(m, attr))]
+    print('\nmap built in methods:', methods)
+
+
 if __name__ == '__main__':
 
     def get_parent(path, level):
@@ -1019,7 +1048,7 @@ if __name__ == '__main__':
     project_path = get_parent(os.path.abspath(__file__), 2)
     print("project root path:", project_path)
 
-    py_base_ex40()
     # py_base_ex23_01()
+    py_base_ex41()
 
     print('python base demo DONE.')
