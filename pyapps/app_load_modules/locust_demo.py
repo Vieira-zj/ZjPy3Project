@@ -3,7 +3,13 @@ from mytask import UserMeta, task
 
 
 class QuickstartUser(metaclass=UserMeta):
-    """ locust file demo. """
+    """
+    locust file demo. 
+
+    cmd:
+    locust -f locust_demo.py --list
+    locust -f locust_demo.py --show-task-ratio
+    """
 
     wait_time = 1
 

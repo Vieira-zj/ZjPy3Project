@@ -27,7 +27,7 @@ def load_locustfile(path):
 
     # run a task
     clazz, foo_task = get_foo_task(user_classes)
-    assert callable(foo_task)
+    assert foo_task is not None and callable(foo_task)
     _self = clazz()
     foo_task(_self)
 
