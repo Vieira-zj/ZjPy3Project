@@ -14,6 +14,11 @@ class QuickstartUser(metaclass=UserMeta):
         self.client.post("/login", json={"username": "foo", "password": "bar"})
 
     @task
+    def foo(self):
+        print(type(self))
+        print('foo')
+
+    @task
     def hello_world(self):
         self.client.get("/hello")
         self.client.get("/world")

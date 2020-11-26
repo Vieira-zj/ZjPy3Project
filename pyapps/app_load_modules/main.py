@@ -25,6 +25,12 @@ def load_locustfile(path):
     user_classes = list(user_classes.values())
     print(get_task_ratio_dict(user_classes))
 
+    # run a task
+    clazz, foo_task = get_foo_task(user_classes)
+    assert callable(foo_task)
+    _self = clazz()
+    foo_task(_self)
+
 
 def get_task_ratio_dict(tasks, parent_ratio=1.0):
     """
@@ -46,6 +52,14 @@ def get_task_ratio_dict(tasks, parent_ratio=1.0):
         task_dict[task.__name__] = d
 
     return task_dict
+
+
+def get_foo_task(user_classes):
+    for clazz in user_classes:
+        if inspect.isclass(clazz):
+            for task in clazz.tasks:
+                if task.__name__ == 'foo':
+                    return clazz, task
 
 
 if __name__ == '__main__':
