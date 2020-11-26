@@ -298,8 +298,8 @@ def py_routinue_demo14(loop):
         tasks = []
         tasks.append(asyncio.create_task(Producer(goods).produce_good()))
         tasks.append(asyncio.create_task(Consumer(goods).consume_good()))
-        
-        complete, pending = await asyncio.wait(tasks, timeout=15)
+
+        _, pending = await asyncio.wait(tasks, timeout=15)
         if pending:
             print('cancel non complete task!')
             for t in pending:
