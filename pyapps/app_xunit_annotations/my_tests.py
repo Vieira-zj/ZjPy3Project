@@ -1,21 +1,41 @@
 # coding: utf-8
+
 from typing import List, Callable
 from my_annotations import test_meta, test_desc, TestMeta
 
+"""
+MetaClass:
 
-class MyMetaClass(type):
+1. __new__ 是在生成类之前通过修改其属性列表 dic 的方式来控制类的创建，此时类还没有被创建
+2. __init__ 是在 __new__ 函数返回被创建的类之后，通过直接增删类的属性的方式来修改类，此时类已经被创建
+3. __new__ 函数的第一个参数 typ 代表的是元类 MyMetaClass（注意不是元类的对象）
+4. __init__ 函数的第一个参数 cls 表示的是类 MyTestSuite, 也就是元类 MyMetaClass 的一个实例（对象）
+"""
 
-    def __new__(mcs, classname, bases, class_dict):
+
+class MyMetaClass01(type):
+    """ metaclass __new__ """
+
+    def __new__(typ, classname, bases, class_dict):
         tests: List[Callable] = []
         for item in class_dict.values():
             if callable(item) and hasattr(item, 'test_meta'):
                 tests.append(item)
-        class_dict['tests'] = tests
 
-        return type.__new__(mcs, classname, bases, class_dict)
+        if len(tests) > 0:
+            print(classname, 'inject tests')
+            class_dict['tests'] = tests
+
+        return type.__new__(typ, classname, bases, class_dict)
 
 
-class MyTestSuite(metaclass=MyMetaClass):
+class MyTestBase01(metaclass=MyMetaClass01):
+
+    def __init__(self):
+        pass
+
+
+class MyTestSuite01(MyTestBase01):
 
     @test_desc('test case 01, foo')
     @test_meta(TestMeta(title='case01', priority=1))
@@ -26,6 +46,49 @@ class MyTestSuite(metaclass=MyMetaClass):
     @test_meta(TestMeta(title='case02', priority=2))
     def testCase02(self):
         print('This is test case 02, say bar')
+
+
+class MyMetaClass02(type):
+    """ metaclass __init__ """
+
+    def __init__(mcs, classname, bases, class_dict):
+        tests: List[Callable] = []
+        for item in class_dict.values():
+            if callable(item) and hasattr(item, 'test_meta'):
+                tests.append(item)
+
+        if len(tests) > 0:
+            print(classname, 'inject tests')
+            assert not hasattr(mcs, 'tests')
+            setattr(mcs, 'tests', tests)
+
+
+class MyTestBase02(metaclass=MyMetaClass02):
+
+    def __init__(self):
+        pass
+
+
+class MyTestSuite02(MyTestBase02):
+
+    @test_desc('test case 11, foo')
+    @test_meta(TestMeta(title='case11', priority=1))
+    def testCase01(self):
+        print('This is test case 11, say foo')
+
+    @test_desc('test case 12, bar')
+    @test_meta(TestMeta(title='case12', priority=2))
+    def testCase02(self):
+        print('This is test case 12, say bar')
+
+    def testCase03(self):
+        print('This is test case 13, hello')
+
+
+class MyTestSuite03(MyTestBase02):
+
+    def __init__(self):
+        pass
 
 
 if __name__ == '__main__':

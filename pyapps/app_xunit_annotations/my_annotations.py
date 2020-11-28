@@ -16,6 +16,10 @@ class TestMeta(object):
         return self._run_type
 
     @property
+    def priorityNumber(self) -> int:
+        return self._priority
+
+    @property
     def priority(self) -> str:
         if self._priority == 1:
             return 'high'
@@ -29,15 +33,17 @@ class TestMeta(object):
 
 
 def test_meta(meta_object):
+    ''' @test_meta '''
 
     def _deco(func):
-        func.test_meta = meta_object.to_string()
+        func.test_meta = meta_object
         return func
 
     return _deco
 
 
 def test_desc(desc: str):
+    ''' @test_desc '''
 
     def _deco(func):
         func.test_desc = desc
