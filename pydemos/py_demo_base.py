@@ -692,7 +692,7 @@ def py_base_ex27_02():
     pprint.pprint(res)  # print复杂对象
 
 
-# example 28, 类装饰器
+# example 28, deco 类装饰器
 def py_base_ex28():
     import functools
 
@@ -1050,6 +1050,33 @@ def py_base_ex42():
             print('string:', item)
 
 
+# example 43, deco
+def py_base_ex43():
+    def wrap(author='vieira'):
+        def _deco(func):
+            # add a attribute
+
+            def _inner_deco():
+                # add hooks
+                print('\npre-hook')
+                ret = func()
+                print('after-hook')
+                return ret
+
+            setattr(_inner_deco, 'author', author)
+            return _inner_deco
+
+        return _deco
+
+    @wrap(author='zj')
+    def say_hello():
+        print('say_hello invoked')
+        return 'hello'
+
+    assert hasattr(say_hello, 'author')
+    print(say_hello(), say_hello.author)
+
+
 if __name__ == '__main__':
 
     def get_parent(path, level):
@@ -1071,6 +1098,6 @@ if __name__ == '__main__':
     print('project root path:', project_path)
 
     # py_base_ex23_01()
-    py_base_ex42()
+    py_base_ex43()
 
     print('python base demo DONE.')
