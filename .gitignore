@@ -1,24 +1,14 @@
 .DS_Store
-*/.DS_Store
 
-__pycache__/
-*/__pycache__/
-
+__pycache__
+.pytest_cache
 *.pyc
 
-pydemos/.pytest_cache/
-
 monkeyreports/
-
 pytests/outputs/
-
-apitest/outputs/*.html
-apitest/outputs/assets
-apitest/outputs/logs
-apitest/outputs/reports
-apitest/outputs/results
+apitest/outputs/
 
 mlcode/tf/epic_num_reader.model
 
-appdemos/app_google_sheets/credentials.json
-appdemos/app_google_sheets/token.pickle
+pyapps/app_google_sheets/credentials.json
+pyapps/app_google_sheets/token.pickle
