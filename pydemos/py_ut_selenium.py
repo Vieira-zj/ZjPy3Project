@@ -14,6 +14,7 @@ import unittest
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
@@ -293,6 +294,45 @@ class TestWebUI01(unittest.TestCase):
             browser.quit()
 
 
+class TestWebUI02(unittest.TestCase):
+    """
+    去哪儿网首页 输入出发城市和日期
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def test_qunar_home_page_input(self):
+        caps = {
+            'browserName': 'chrome',
+            'version': '',
+            'platform': 'MAC',
+            'javascriptEnabled': True,
+        }
+        browser = webdriver.Chrome(desired_capabilities=caps)
+        browser.implicitly_wait(8)
+
+        url = 'https://www.qunar.com/'
+        browser.get(url)
+
+        # 输入出发城市
+        inputFromCity = browser.find_element_by_name('fromCity')
+        inputFromCity.click()
+        time.sleep(1)
+        browser.find_element_by_css_selector('a[data-code=WUH]').click()
+
+        # 输入出发日期
+        inputFromDate = browser.find_element_by_name('fromDate')
+        inputFromDate.click()
+        time.sleep(1)
+        inputFromDate.send_keys(Keys.COMMAND, 'a')
+        inputFromDate.send_keys(Keys.DELETE)
+        time.sleep(1)
+        inputFromDate.send_keys('2020-12-11')
+        inputFromDate.click()
+        time.sleep(3)
+
+
 # --------------------------------------------------------------
 # UI Test Steps
 # --------------------------------------------------------------
@@ -353,13 +393,15 @@ if __name__ == "__main__":
 
     # webdriver test
     # tests.append(TestWebdriver01('test_gitlab_with_google_login'))
-    tests.append(TestWebdriver02('test_wd_attach_to_existing_chrome'))
+    # tests.append(TestWebdriver02('test_wd_attach_to_existing_chrome'))
 
     # web ui test
     # tests.append(TestWebUI01('test_selenium_chrome'))
     # tests.append(TestWebUI01('test_selenium_grid_headless_chrome'))
     # tests.append(TestWebUI01('test_selenium_grid_headless_firefox'))
     # tests.append(TestWebUI01('test_selenium_grid_vnc_debug'))
+
+    tests.append(TestWebUI02('test_qunar_home_page_input'))
 
     suite = unittest.TestSuite()
     suite.addTests(tests)
