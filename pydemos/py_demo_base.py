@@ -1077,6 +1077,22 @@ def py_base_ex43():
     print(say_hello(), say_hello.author)
 
 
+# example 44, reflect, func inspect
+def py_base_ex44():
+    def div(a, b=1):
+        return a / b
+
+    func_sig = inspect.signature(div)
+    func_parameters = list(func_sig.parameters.values())
+    print('\nfunc:', div.__name__)
+    for p in func_parameters:
+        default = p.default
+        if default == inspect._empty:
+            default = 'empty'
+        kind = str(p.kind)
+        print(f"param={p.name}, default={default}, type={kind}")
+
+
 if __name__ == '__main__':
 
     def get_parent(path, level):
@@ -1098,6 +1114,6 @@ if __name__ == '__main__':
     print('project root path:', project_path)
 
     # py_base_ex23_01()
-    py_base_ex43()
+    py_base_ex44()
 
     print('python base demo DONE.')
