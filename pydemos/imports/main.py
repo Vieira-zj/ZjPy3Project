@@ -4,7 +4,9 @@ from ..py_demo_base import py_base_ex02
 
 def run():
     """
-    it's ok when invoked from test_main.py.
+    use relative import ".module" and "..module"
+
+    it's ok when invoked from [project-root]/main.py.
     raise error "attempted relative import beyond top-level package" when invoked from pydemos/py_demo_base.py.
     """
     print(func.add(1, 2))

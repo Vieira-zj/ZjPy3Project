@@ -24,6 +24,11 @@ def test_mod_imports_02():
     main.run()
 
 
+def test_mod_imports_03():
+    from pydemos.py_demo_base import run_mod_imports
+    run_mod_imports()
+
+
 def run_monkey_test(args_kv):
     test = MonkeyTest(Constants.PKG_NAME_ZGB, args_kv.get(
         Constants.RUN_MINS_TEXT, Constants.RUN_MINS))
@@ -64,7 +69,7 @@ def cmd_args_parse():
 
 if __name__ == '__main__':
 
-    test_mod_imports_02()
+    test_mod_imports_03()
 
     # args_dict = cmd_args_parse()
     # run_monkey_test(args_dict)

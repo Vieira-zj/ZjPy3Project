@@ -21,6 +21,17 @@ import matplotlib.pyplot as plt
 print('python base demo INIT.')
 
 
+def run_mod_imports():
+    """
+    use relative import ".module"
+
+    raise error ModuleNotFoundError when invoked from current py file.
+    it's ok when invoked from [project-root]/main.py
+    """
+    from .imports import main
+    main.run()
+
+
 # examle 01, base
 def py_base_ex01():
     # test for None
@@ -1112,6 +1123,8 @@ if __name__ == '__main__':
 
     project_path = get_parent(os.path.abspath(__file__), 2)
     print('project root path:', project_path)
+
+    # run_mod_imports()
 
     # py_base_ex23_01()
     py_base_ex44()
