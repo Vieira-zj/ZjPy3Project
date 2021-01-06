@@ -519,7 +519,8 @@ class MetaRoom(type):
     attr_types = (int, str, list, tuple, dict)
 
     def __init__(cls, name, bases, dic):
-        import inspect, sys
+        import inspect
+        import sys
 
         print('metaclass __init__, dict:')
         print(dic)
@@ -568,8 +569,34 @@ def py_class_ex13():
     r.door_info()
 
 
+# example 14, getattr() and __getattr__
+class Apple(object):
+
+    def __init__(self):
+        self._id = 1
+        self._color = 'green'
+
+    @property
+    def id(self):
+        return str(self._id)
+
+    @property
+    def color(self):
+        return self._color
+
+    def __getattr__(self, name):
+        """ 当调用的属性不存在时，该方法会被调用 """
+        return 'default'
+
+
+def py_class_ex14():
+    apple = Apple()
+    print(f'\napple id={apple.id}, color={apple.color}')
+    print(getattr(apple, 'name'))
+
+
 if __name__ == '__main__':
 
     # py_base_ext()
-    py_class_ex13()
+    py_class_ex14()
     print('python meta class demo DONE.')

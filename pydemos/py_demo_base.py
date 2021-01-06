@@ -9,6 +9,7 @@ from collections import deque, defaultdict, Counter
 from datetime import datetime
 import getopt
 import glob
+import importlib
 import inspect
 import os
 import sys
@@ -1104,6 +1105,38 @@ def py_base_ex44():
         print(f"param={p.name}, default={default}, type={kind}")
 
 
+# example 45, parse py file by importlib
+def py_base_ex45():
+    def printTestClass(imported):
+        clazz = [item.__name__ for item in vars(imported).values() if inspect.isclass(
+            item) and item.__name__.lower().startswith('test')]
+        print('test classes:', clazz)
+
+    def printTestMethod(clazz):
+        methods = [item.__name__ for item in vars(clazz).values() if callable(
+            item) and item.__name__.lower().startswith('test')]
+        print('test methods:', methods)
+
+    # 1
+    file_name = 'py_ut_selenium.py'
+    file_path = os.path.abspath(file_name)
+    file_dir = os.path.dirname(file_path)
+    mod_name = os.path.splitext(file_name)[0]
+    print(f'\nfilepath={file_path}, filedir={file_dir}, modname={mod_name}')
+
+    source = importlib.machinery.SourceFileLoader(mod_name, file_path)
+    imported = source.load_module(mod_name)
+    print(type(imported))
+    printTestClass(imported)
+    print()
+
+    # 2
+    mod = importlib.import_module(mod_name)
+    print(type(mod))
+    printTestClass(mod)
+    printTestMethod(mod.TestPy01)
+
+
 if __name__ == '__main__':
 
     def get_parent(path, level):
@@ -1127,6 +1160,6 @@ if __name__ == '__main__':
     # run_mod_imports()
 
     # py_base_ex23_01()
-    py_base_ex44()
+    py_base_ex45()
 
     print('python base demo DONE.')
