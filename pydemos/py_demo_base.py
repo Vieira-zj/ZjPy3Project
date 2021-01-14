@@ -9,7 +9,6 @@ from collections import deque, defaultdict, Counter
 from datetime import datetime
 import getopt
 import glob
-import importlib
 import inspect
 import os
 import sys
@@ -1118,6 +1117,7 @@ def py_base_ex45():
         print('test methods:', methods)
 
     # 1
+    import importlib
     file_name = 'py_ut_selenium.py'
     file_path = os.path.abspath(file_name)
     file_dir = os.path.dirname(file_path)
@@ -1125,6 +1125,7 @@ def py_base_ex45():
     print(f'\nfilepath={file_path}, filedir={file_dir}, modname={mod_name}')
 
     source = importlib.machinery.SourceFileLoader(mod_name, file_path)
+    print(type(source))
     imported = source.load_module(mod_name)
     print(type(imported))
     printTestClass(imported)
@@ -1135,6 +1136,40 @@ def py_base_ex45():
     print(type(mod))
     printTestClass(mod)
     printTestMethod(mod.TestPy01)
+    print()
+
+    # 3
+    import imp
+    mod = imp.load_source('test_import_mod', file_path)
+    print(type(mod))
+    printTestClass(mod)
+    printTestMethod(mod.TestPy01)
+
+
+def py_base_ex46():
+    def printDict(in_dict):
+        print('dict:', ','.join([f'{k}={v}' for k, v in in_dict.items()]))
+
+    # dict init
+    d1 = {'k1': 'v1', 'k2': 'v2'}
+    printDict(d1)
+    d2 = dict(k3='v3', k4='v42')
+    printDict(d2)
+    print()
+
+    # get 1st value
+    lst = []
+    lst.append(('v1', 'v2', 'v3'))
+    lst.append(('k1', 'k2', 'k3'))
+    for val, *_ in lst:
+        print(val)
+    print()
+
+    # load json file
+    import json
+    with open('/tmp/test/test.json', mode='r') as f:
+        input = json.load(f)
+        printDict(input)
 
 
 if __name__ == '__main__':
@@ -1160,6 +1195,6 @@ if __name__ == '__main__':
     # run_mod_imports()
 
     # py_base_ex23_01()
-    py_base_ex45()
+    py_base_ex46()
 
     print('python base demo DONE.')
