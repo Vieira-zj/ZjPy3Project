@@ -130,7 +130,29 @@ def alg_test04():
     print(alg_demo04(input))
 
 
+def alg_demo05(input: list) -> int:
+    '''
+    数组里重复次数最多的值。
+    '''
+    d = {}
+    ret_num = 0
+    max_val = 0
+    for num in input:
+        val = d.get(num, 0) + 1
+        d[num] = val
+        if val > max_val:
+            max_val = val
+            ret_num = num
+    return ret_num
+
+
+def alg_test05():
+    input = [1, 12, 3, 4, 5, 1, 3, 12, 9, 10, 12]
+    result = alg_demo05(input)
+    print(result)
+
+
 if __name__ == '__main__':
 
-    alg_test04()
+    alg_test05()
     print('py alg demo done.')
