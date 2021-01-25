@@ -23,7 +23,10 @@ class CatProxy(object):
     def execute(self, fn_name, *arg, **kwargs):
         if not hasattr(self._cat, fn_name):
             raise AttributeError(f"attribute [{fn_name}] not exist!")
-        getattr(self._cat, fn_name)(*arg, **kwargs)
+        fn = getattr(self._cat, fn_name)
+        if not callable(fn):
+            raise Exception(f"function [{fn_name}] is not callable!")
+        fn(*arg, **kwargs)
 
     def __getattr__(self, name):
         """ 调用不存在的方法时，进入 __getattr__ """
@@ -42,6 +45,6 @@ if __name__ == '__main__':
     print(proxy.sayHi.__name__)
     proxy.run(10)
 
-    proxy.test()  # not exist
+    proxy.test()  # func not exist
 
     print('proxy demo done.')
