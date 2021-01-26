@@ -10,19 +10,22 @@ def get_current_date_and_time():
     return time.strftime('%y-%m-%d_%H%M%S')
 
 
-def list_ods_files(dir_path):
+def list_ods_files(dir_path, match_suffix='.java'):
+    '''
+    match_suffix 只匹配指定后缀的文件
+    '''
     matched = []
     not_matched = []
     for f in os.listdir(dir_path):
         suffix = os.path.splitext(f)[1]
-        if suffix == '.ods':  # 只匹配后缀为 ods 的文件
+        if suffix == match_suffix:
             matched.append(f)
         else:
             not_matched.append(f)
     return matched, not_matched
 
 
-def get_rename_entries(file_names, src_version, new_version):
+def get_rename_entries_by_split(file_names, src_version, new_version):
     files_to_rename = []
     files_not_match_ver = []
     for f in file_names:
@@ -41,6 +44,20 @@ def get_rename_entries(file_names, src_version, new_version):
             else:
                 tmps.append(item)
         rename_entries.append((f, '_'.join(tmps)))
+    return rename_entries, files_not_match_ver
+
+
+def get_rename_entries_by_replace(file_names, src_version, new_version):
+    files_not_match_ver = []
+    rename_entries = []  # (旧文件名，新文件名)
+
+    for f_name in file_names:
+        if src_version in f_name:
+            new_file_name = f_name.replace(src_version, new_version)
+            rename_entries.append((f_name, new_file_name))
+        else:
+            files_not_match_ver.append(f_name)
+
     return rename_entries, files_not_match_ver
 
 
@@ -99,7 +116,7 @@ def main(dir_path, src_version, new_version, is_copy=False):
         return
     print('reversion files count:', len(matched))
 
-    rename_entries, files_not_match_ver = get_rename_entries(
+    rename_entries, files_not_match_ver = get_rename_entries_by_replace(
         matched, src_version, new_version)
     if len(rename_entries) == 0:
         print('no matched files found.')
@@ -116,7 +133,7 @@ def main(dir_path, src_version, new_version, is_copy=False):
 if __name__ == '__main__':
 
     dir_path = '/Users/jinzheng/Downloads/data_files'
-    src_version = '20.13.1.2'
-    new_version = '20.13.1.3'
+    src_version = '21_2_1_3'
+    new_version = '21_2_1_6'
     main(dir_path, src_version, new_version)
     print('files reversion finished.')
