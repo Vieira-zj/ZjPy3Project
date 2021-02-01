@@ -595,8 +595,50 @@ def py_class_ex14():
     print(getattr(apple, 'name'))
 
 
+# example 15, object attributes inherit
+class Root(object):
+
+    def __init__(self, name):
+        self.name = name
+
+
+class Sub1(Root):
+
+    desc = 'sub class without init'
+
+
+class Sub2(Root):
+
+    def __init__(self, desc):
+        self.desc = desc
+
+
+class Sub3(Root):
+
+    def __init__(self, name, desc):
+        super().__init__(name)
+        self.desc = desc
+
+
+def py_class_ex15():
+    root = Root('root')
+    print(vars(root))
+
+    # 没有定义 __init__ 函数, 自动继承 root.name 属性
+    sub1 = Sub1('sub1')
+    print(vars(sub1))
+
+    # 定义 __init__ 函数, 没有调用 super().__init__(), 没有继承 root.name 属性
+    sub2 = Sub2('sub2')
+    print(vars(sub2))
+
+    # 定义 __init__ 函数, 显式调用 super.__init__(), 继承 root.name 属性
+    sub3 = Sub3('sub3', 'define init with super init')
+    print(vars(sub3))
+
+
 if __name__ == '__main__':
 
     # py_base_ext()
-    py_class_ex14()
+    py_class_ex15()
     print('python meta class demo DONE.')
